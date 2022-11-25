@@ -6,9 +6,6 @@ namespace elastic
 {
 	namespace detail
 	{
-		template <std::size_t Index>
-		using size_t_ = std::integral_constant<std::size_t, Index >;
-
 		template<typename _Ty>
 		constexpr auto make_tuple(_Ty& val, size_t_<0>) noexcept
 		{
