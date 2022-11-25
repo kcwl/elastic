@@ -22,5 +22,8 @@ namespace elastic
 		{
 			std::tuple_size<_Ty>();
 		};
+
+		template<typename _Ty>
+		concept class_cpt = std::is_class_v<_Ty>;
 	}
 }
