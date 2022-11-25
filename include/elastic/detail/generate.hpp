@@ -1,4 +1,5 @@
 #pragma once
+#include <tuple>
 #include <elastic/detail/size_t_.hpp>
 #include <elastic/detail/concepts.hpp>
 
