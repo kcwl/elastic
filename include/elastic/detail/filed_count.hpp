@@ -39,12 +39,12 @@ namespace elastic
 			return detail::template detect_fields_greey<_Ty, End, next>(is_one_element_range<End, next>{});
 		}
 
-		template<typename T, std::size_t Begin, std::size_t End>
+		template<typename _Ty, std::size_t Begin, std::size_t End>
 		constexpr std::size_t detect_fields_greey(multi_range)
 		{
 			constexpr std::size_t middle = Begin + (End - Begin) / 2;
 
-			return detail::template detect_fields_greey<T, Begin, middle>(is_one_element_range<Begin, middle>{});
+			return detail::template detect_fields_greey<_Ty, Begin, middle>(is_one_element_range<Begin, middle>{});
 		}
 
 		template<typename _Ty, std::size_t N>
