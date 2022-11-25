@@ -788,5 +788,5 @@ BOOST_AUTO_TEST_CASE(reflect)
 	static_assert(elastic::get<0>(ts) == 1, "get value error!");
 	static_assert(elastic::get<1>(ts) == 2, "get value error!");
 	static_assert(elastic::get<2>(ts) == 3, "get value error!");
-	static_assert(elastic::func_name<test3>() == "test3", "get name error!");
+	static_assert(elastic::struct_name<test3>() == "test3", "get name error!");
 }
