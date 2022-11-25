@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Test
 #include <boost/test/included/unit_test.hpp>
 #include <elastic/tuple_size.hpp>
+#include <elastic/reflect.hpp>
 #include <elastic/detail/generate.hpp>
 #include <array>
 #include <tuple>
@@ -778,4 +779,14 @@ BOOST_AUTO_TEST_CASE(generate)
 
 	constexpr test32 t32{ 1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1,1 ,1,1, 1 };
 	static_assert(elastic::detail::make_tuple(t32, elastic::detail::size_t_<32>{}) == std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
+}
+
+BOOST_AUTO_TEST_CASE(reflect)
+{
+	test3 t3{ 1,2,3 };
+
+	static_assert(elastic::get<0>(ts) == 1, "get value error!");
+	static_assert(elastic::get<1>(ts) == 2, "get value error!");
+	static_assert(elastic::get<2>(ts) == 3, "get value error!");
+	static_assert(elastic::func_name<test3>() == "test3", "get name error!");
 }
