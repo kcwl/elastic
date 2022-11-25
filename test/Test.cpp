@@ -783,10 +783,10 @@ BOOST_AUTO_TEST_CASE(generate)
 
 BOOST_AUTO_TEST_CASE(reflect)
 {
-	test3 t3{ 1,2,3 };
+	constexpr test3 t3{ 1,2,3 };
 
-	static_assert(elastic::get<0>(ts) == 1, "get value error!");
-	static_assert(elastic::get<1>(ts) == 2, "get value error!");
-	static_assert(elastic::get<2>(ts) == 3, "get value error!");
+	static_assert(elastic::get<0>(t3) == 1, "get value error!");
+	static_assert(elastic::get<1>(t3) == 2, "get value error!");
+	static_assert(elastic::get<2>(t3) == 3, "get value error!");
 	static_assert(elastic::struct_name<test3>() == "test3", "get name error!");
 }
