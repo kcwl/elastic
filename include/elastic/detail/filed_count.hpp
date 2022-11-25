@@ -47,16 +47,18 @@ namespace elastic
 			return detail::template detect_fields_greey<T, Begin, middle>(is_one_element_range<Begin, middle>{});
 		}
 
-		template<detail::tuple _Ty,std::size_t N>
-		constexpr std::size_t detect_fields_count_dispatch(size_t_<N>)
-		{
-			return std::tuple_size_v<_Ty>();
-		}
-
 		template<typename _Ty, std::size_t N>
 		constexpr std::size_t detect_fields_count_dispatch(size_t_<N>)
 		{
 			return detail::template detect_fields_greey<_Ty, 0, N>(multi_range{});
+		}
+
+		template<detail::tuple _Ty>
+		constexpr std::size_t fields_count()
+		{
+			using type = std::remove_cv_t<_Ty>;
+
+			return std::tuple_size_v<type>;
 		}
 
 		template<typename _Ty>
