@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 #include <elastic/detail/type_traits.hpp>
 
 namespace elastic
