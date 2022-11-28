@@ -23,13 +23,16 @@ namespace elastic
             using const_pointer = const pointer;
 
             basic_streambuf()
-                : buffer_()
+                : wpos_(0)
+                , rpos_(0)
+                , buffer_()
             {
             }
 
             basic_streambuf(size_type capa)
-                : buffer_(capa)
+                : basic_streambuf()
             {
+               resize(capa);
             }
 
             basic_streambuf(std::span<_Ty> data)
