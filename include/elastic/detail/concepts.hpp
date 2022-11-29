@@ -1,6 +1,6 @@
 #pragma once
-#include <utility>
 #include <elastic/detail/type_traits.hpp>
+#include <utility>
 
 namespace elastic
 {
@@ -23,5 +23,23 @@ namespace elastic
 
         template <typename _Ty>
         concept class_cpt = std::is_class_v<_Ty>;
+
+        template <typename _Ty>
+        concept single_signed_numric = std::is_same_v<_Ty, int8_t> || std::is_same_v<_Ty, int16_t> ||
+                                       std::is_same_v<_Ty, int32_t> || std::is_same_v<_Ty, int64_t>;
+
+        template <typename _Ty>
+        concept single_unsigned_numric = std::is_same_v<_Ty, uint8_t> || std::is_same_v<_Ty, uint16_t> ||
+                                         std::is_same_v<_Ty, uint32_t> || std::is_same_v<_Ty, uint64_t>;
+
+        template <typename _Ty>
+        concept multi_numric = std::is_same_v<_Ty, double> || std::is_same_v<_Ty, float>;
+
+        template <typename _Ty>
+        concept varint = single_signed_numric<_Ty> || single_unsigned_numric<_Ty> || multi_numric<_Ty>;
+
+        template <typename _Ty>
+        concept strings = detail::is_vector<_Ty>::value;
+
     } // namespace detail
 } // namespace elastic

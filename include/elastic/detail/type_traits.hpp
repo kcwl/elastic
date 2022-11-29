@@ -1,5 +1,6 @@
 #pragma once
 #include <elastic/detail/config.hpp>
+#include <vector>
 
 namespace elastic
 {
@@ -28,5 +29,16 @@ namespace elastic
         struct is_aggregate_initialize : is_aggregate_initalize_impl<_Ty, std::make_index_sequence<N>>
         {
         };
+
+        template <typename _Ty>
+        struct is_vector : std::false_type
+        {
+        };
+
+        template <typename _Ty>
+        struct is_vector<std::vector<_Ty>> : std::true_type
+        {
+        };
+
     } // namespace detail
 } // namespace elastic

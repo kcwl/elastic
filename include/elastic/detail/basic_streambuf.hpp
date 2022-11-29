@@ -20,7 +20,7 @@ namespace elastic
             using reference = _Ty&;
             using const_reference = const _Ty&;
             using pointer = _Ty*;
-            using const_pointer = const pointer;
+            using const_pointer = const _Ty*;
 
             basic_streambuf()
                 : wpos_(0)
@@ -32,18 +32,31 @@ namespace elastic
             basic_streambuf(size_type capa)
                 : basic_streambuf()
             {
-               resize(capa);
+                resize(capa);
+            }
+
+            template <typename _Iter>
+            basic_streambuf(_Iter begin, _Iter end)
+            {
+                clear();
+
+                std::copy(begin, end, std::back_inserter(buffer_));
             }
 
             basic_streambuf(std::span<_Ty> data)
-                : basic_streambuf()
+                : basic_streambuf(data.begin(),data.end())
             {
-                std::copy(data.begin(), data.end(), std::back_inserter(buffer_));
+               
             }
 
             basic_streambuf(const basic_streambuf& buf)
-                : basic_streambuf(std::span<_Ty>(buf.data(), buf.size()))
             {
+                if (this != &buf)
+                {
+                    wpos_ = buf.wpos_;
+                    rpos_ = buf.rpos_;
+                    buffer_ = buf.buffer_;
+                }
             }
 
             virtual ~basic_streambuf() = default;
@@ -70,7 +83,7 @@ namespace elastic
                 return buffer_.data();
             }
 
-            const pointer data() const noexcept
+            const_pointer data() const noexcept
             {
                 return buffer_.data();
             }
@@ -80,7 +93,7 @@ namespace elastic
                 return buffer_.data() + rpos_;
             }
 
-            const pointer rdata() const noexcept
+            const_pointer rdata() const noexcept
             {
                 return buffer_.data() + rpos_;
             }
@@ -90,27 +103,59 @@ namespace elastic
                 return buffer_.data() + wpos_;
             }
 
-            const pointer wdata() const noexcept
+            const_pointer wdata() const noexcept
             {
                 return buffer_.data() + wpos_;
             }
 
-            constexpr iterator begin() noexcept
+            iterator begin() noexcept
             {
                 return buffer_.begin();
             }
 
-            constexpr const_iterator begin() const noexcept
+            const_iterator begin() const noexcept
             {
                 return buffer_.begin();
             }
 
-            constexpr iterator end() noexcept
+            iterator rbegin() noexcept
+            {
+                auto iter = begin();
+                std::advance(iter, rpos_);
+
+                return iter;
+            }
+
+            const_iterator rbegin() const noexcept
+            {
+                auto iter = begin();
+                std::advance(iter, rpos_);
+
+                return iter;
+            }
+
+            iterator wbegin() noexcept
+            {
+                auto iter = begin();
+                std::advance(iter, wpos_);
+
+                return iter;
+            }
+
+            const_iterator wbegin() const noexcept
+            {
+                auto iter = begin();
+                std::advance(iter, wpos_);
+
+                return iter;
+            }
+
+            iterator end() noexcept
             {
                 return buffer_.end();
             }
 
-            constexpr const_iterator end() const noexcept
+            const_iterator end() const noexcept
             {
                 return buffer_.end();
             }
@@ -125,6 +170,11 @@ namespace elastic
                 wpos_ = 0;
                 rpos_ = 0;
                 buffer_.clear();
+            }
+
+            void swap(basic_streambuf& buf)
+            {
+                buffer_.swap(buf);
             }
 
             auto erase(const_iterator& where)
@@ -176,6 +226,21 @@ namespace elastic
                 consume(bytes);
 
                 return value;
+            }
+
+            template <typename _U, typename _Alloc>
+            requires(std::convertible_to<_U, _Ty>)
+            void append(const basic_streambuf<_U, _Alloc>& buf)
+            {
+                std::copy(buf.begin(), buf.end(), std::back_inserter(buffer_));
+            }
+
+            template<typename _U>
+            void append(_U value, size_type bytes)
+            {
+                resize(size() + bytes);
+
+                std::memcpy(data(), &value, bytes);
             }
 
         private:
