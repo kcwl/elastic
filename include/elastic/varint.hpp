@@ -18,9 +18,9 @@ namespace elastic
         }
 
         template <typename _Ty>
-        varint(_Ty value)
+        varint(_Ty&& value)
         {
-            to_data(value);
+            to_data(std::move(value));
         }
 
     public:
@@ -59,6 +59,12 @@ namespace elastic
         {
         }
 
+        template<detail::multi_numric _Ty>
+        _Ty parse_data()
+        {
+            return read<_Ty>();
+        }
+
         template <detail::single_signed_numric _Ty>
         void to_data(_Ty&& value)
         {
@@ -69,6 +75,18 @@ namespace elastic
             }
 
             append(static_cast<uint8_t>(value));
+        }
+
+        template <detail::single_unsigned_numric _Ty>
+        void to_data(_Ty&& value)
+        {
+            (void)value;
+        }
+        
+        template<detail::multi_numric _Ty>
+        void to_data(_Ty&& value)
+        {
+            append(std::forward<_Ty>(value));
         }
     };
 } // namespace elastic

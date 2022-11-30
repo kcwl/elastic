@@ -33,13 +33,16 @@ namespace elastic
                                          std::is_same_v<_Ty, uint32_t> || std::is_same_v<_Ty, uint64_t>;
 
         template <typename _Ty>
-        concept multi_numric = std::is_same_v<_Ty, double> || std::is_same_v<_Ty, float>;
+        concept multi_numric = std::is_same_v<std::remove_cvref_t<_Ty>, double> || std::is_same_v<std::remove_cvref_t<_Ty>, float>;
 
         template <typename _Ty>
         concept varint = single_signed_numric<_Ty> || single_unsigned_numric<_Ty> || multi_numric<_Ty>;
 
         template <typename _Ty>
         concept strings = detail::is_vector<_Ty>::value;
+
+        template<typename _Ty>
+        concept pod = std::is_trivial_v<_Ty> && std::is_standard_layout_v<_Ty>;
 
     } // namespace detail
 } // namespace elastic

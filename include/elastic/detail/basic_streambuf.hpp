@@ -1,5 +1,5 @@
 #pragma once
-#include <elastic/detail/type_traits.hpp>
+#include <elastic/detail/concepts.hpp>
 #include <iterator>
 #include <span>
 #include <streambuf>
@@ -215,7 +215,8 @@ namespace elastic
                 return value;
             }
 
-            void read(_Ty* dest, int32_t bytes)
+            template<typename _U>
+            void read(_U* dest, int32_t bytes)
             {
                 if (bytes + rpos_ > buffer_.size())
                     throw std::runtime_error("out of range");
@@ -226,19 +227,22 @@ namespace elastic
             }
 
             template <typename _U, typename _Alloc>
-            requires(std::convertible_to<_U, _Ty>)
             void append(const basic_streambuf<_U, _Alloc>& buf)
             {
                 std::copy(buf.begin(), buf.end(), std::back_inserter(buffer_));
             }
 
-            void append(_Ty value)
+            template<detail::pod _U>
+            void append(_U&& value)
             {
-                resize(size() + 1);
+                auto res = std::forward<_U>(value);
+                constexpr auto bytes = sizeof(_U);
 
-                std::memcpy(wdata(), &value, 1);
+                resize(size() + bytes);
 
-                commit(1);
+                std::memcpy(wdata(), &res, bytes);
+
+                commit(bytes);
             }
 
         private:

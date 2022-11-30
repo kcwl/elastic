@@ -124,7 +124,7 @@ namespace elastic
         void push(_Ty&& value)
         {
             for_each(std::move(value),
-                     [&](auto&& v)
+                     [this](auto&& v)
                      {
                          if constexpr (detail::varint<std::remove_cvref_t<decltype(v)>>)
                          {
