@@ -215,17 +215,14 @@ namespace elastic
                 return value;
             }
 
-            void read(_Ty* dest, size_type bytes)
+            void read(_Ty* dest, int32_t bytes)
             {
                 if (bytes + rpos_ > buffer_.size())
                     throw std::runtime_error("out of range");
 
-                _Ty value{};
                 std::memcpy(dest, buffer_.data() + rpos_, bytes);
 
                 consume(bytes);
-
-                return value;
             }
 
             template <typename _U, typename _Alloc>
@@ -235,12 +232,13 @@ namespace elastic
                 std::copy(buf.begin(), buf.end(), std::back_inserter(buffer_));
             }
 
-            template<typename _U>
-            void append(_U value, size_type bytes)
+            void append(_Ty value)
             {
-                resize(size() + bytes);
+                resize(size() + 1);
 
-                std::memcpy(data(), &value, bytes);
+                std::memcpy(wdata(), &value, 1);
+
+                commit(1);
             }
 
         private:

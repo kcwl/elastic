@@ -24,40 +24,51 @@ namespace elastic
         }
 
     public:
-        template <typename _Ty>
+        template <detail::single_signed_numric _Ty>
         _Ty parse_data()
         {
-            return _Ty{};
+            _Ty value = static_cast<_Ty>(read<uint8_t>());
+
+            if constexpr (sizeof(_Ty) == 1)
+            {
+                return value;
+            }
+            else
+            {
+                value -= 0x80;
+
+                int bit = 7;
+
+                uint8_t c{};
+                while (((c = read<uint8_t>()) & 0x80)!=0)
+                {
+                    value += c << bit;
+                    value -= 0x80 << bit;
+
+                    bit += 7;
+                }
+
+                value += static_cast<uint32_t>(c << bit);
+            }
+
+            return value;
         }
 
-        template <typename _Ty>
+        template<detail::single_unsigned_numric _Ty>
+        _Ty parse_data()
+        {
+        }
+
+        template <detail::single_signed_numric _Ty>
         void to_data(_Ty&& value)
         {
-            if constexpr (detail::single_numric<std::remove_cvref_t<_Ty>>)
+            while (value > 0x80)
             {
-                if (value < 0x80)
-                {
-                    length_ = 1;
-                    
-                }
-                else if (value< 0x8000)
-                {
-                    length_ = 2;
-                }
-                else if (value<0x800000)
-                {
-                    length_ = 3;
-                }
-                else if (value < 0x80000000)
-                {
-                    length_ = 4;
-                }
-
-                append(std::forward<_Ty>(value), length_);
+                append(static_cast<uint8_t>(value | 0x80));
+                value >>= 7;
             }
-        }
 
-    private:
-        int32_t length_;
+            append(static_cast<uint8_t>(value));
+        }
     };
 } // namespace elastic

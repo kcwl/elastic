@@ -144,19 +144,13 @@ namespace elastic
 
             using element_t = decltype(element);
 
-            auto iter =
-                std::find_if(buffer_.rbegin(), buffer_.end(), [&](auto byte) { return ((byte >> 0) & 0xff) == 0; });
-
-            if (iter == buffer_.end())
-                throw std::runtime_error("make element error!");
-
             if constexpr (detail::varint<element_t>)
             {
-                return varint{buffer_.rbegin(), iter}.parse_data<element_t>();
+                return varint{buffer_.rbegin(), buffer_.end()}.parse_data<element_t>();
             }
             else if constexpr (detail::strings<element_t>)
             {
-                return strings{buffer_.rbegin(), iter}.parse_data<element_t>();
+                return strings{buffer_.rbegin(), buffer_.end()}.parse_data<element_t>();
             }
             else
             {
