@@ -7,248 +7,254 @@
 
 namespace elastic
 {
-    namespace detail
-    {
-        template <typename _Ty, typename _Alloc = std::allocator<_Ty>>
-        class basic_streambuf
-        {
-        public:
-            using iterator = std::vector<_Ty, _Alloc>::iterator;
-            using const_iterator = typename std::vector<_Ty, _Alloc>::const_iterator;
-            using value_type = _Ty;
-            using size_type = std::size_t;
-            using reference = _Ty&;
-            using const_reference = const _Ty&;
-            using pointer = _Ty*;
-            using const_pointer = const _Ty*;
+	namespace detail
+	{
+		template <typename _Ty, typename _Alloc = std::allocator<_Ty>>
+		class basic_streambuf
+		{
+		public:
+			using iterator = std::vector<_Ty, _Alloc>::iterator;
+			using const_iterator = typename std::vector<_Ty, _Alloc>::const_iterator;
+			using value_type = _Ty;
+			using size_type = std::size_t;
+			using reference = _Ty&;
+			using const_reference = const _Ty&;
+			using pointer = _Ty*;
+			using const_pointer = const _Ty*;
 
-            basic_streambuf()
-                : wpos_(0)
-                , rpos_(0)
-                , buffer_()
-            {
-            }
+			basic_streambuf()
+				: wpos_(0)
+				, rpos_(0)
+				, buffer_()
+			{
+			}
 
-            basic_streambuf(size_type capa)
-                : basic_streambuf()
-            {
-                resize(capa);
-            }
+			basic_streambuf(size_type capa)
+				: basic_streambuf()
+			{
+				resize(capa);
+			}
 
-            template <typename _Iter>
-            basic_streambuf(_Iter begin, _Iter end)
-            {
-                clear();
+			template <typename _Iter>
+			basic_streambuf(_Iter begin, _Iter end)
+			{
+				clear();
 
-                std::copy(begin, end, std::back_inserter(buffer_));
-            }
+				std::copy(begin, end, std::back_inserter(buffer_));
 
-            basic_streambuf(std::span<_Ty> data)
-                : basic_streambuf(data.begin(),data.end())
-            {
-               
-            }
+				commit(std::distance(begin, end));
+			}
 
-            basic_streambuf(const basic_streambuf& buf)
-            {
-                if (this != &buf)
-                {
-                    wpos_ = buf.wpos_;
-                    rpos_ = buf.rpos_;
-                    buffer_ = buf.buffer_;
-                }
-            }
+			basic_streambuf(std::span<_Ty> data)
+				: basic_streambuf(data.begin(), data.end())
+			{
+			}
 
-            virtual ~basic_streambuf() = default;
+			basic_streambuf(const basic_streambuf& buf)
+			{
+				if (this != &buf)
+				{
+					wpos_ = buf.wpos_;
+					rpos_ = buf.rpos_;
+					buffer_ = buf.buffer_;
+				}
+			}
 
-        public:
-            value_type& operator[](size_type pos)
-            {
-                return buffer_.at(pos);
-            }
+			virtual ~basic_streambuf() = default;
 
-        public:
-            size_type size() noexcept
-            {
-                return buffer_.size();
-            }
+		public:
+			value_type& operator[](size_type pos)
+			{
+				return buffer_.at(pos);
+			}
 
-            const size_type size() const noexcept
-            {
-                return buffer_.size();
-            }
+		public:
+			size_type size() noexcept
+			{
+				return buffer_.size();
+			}
 
-            pointer data() noexcept
-            {
-                return buffer_.data();
-            }
+			const size_type size() const noexcept
+			{
+				return buffer_.size();
+			}
 
-            const_pointer data() const noexcept
-            {
-                return buffer_.data();
-            }
+			pointer data() noexcept
+			{
+				return buffer_.data();
+			}
 
-            pointer rdata() noexcept
-            {
-                return buffer_.data() + rpos_;
-            }
+			const_pointer data() const noexcept
+			{
+				return buffer_.data();
+			}
 
-            const_pointer rdata() const noexcept
-            {
-                return buffer_.data() + rpos_;
-            }
+			pointer rdata() noexcept
+			{
+				return buffer_.data() + rpos_;
+			}
 
-            pointer wdata() noexcept
-            {
-                return buffer_.data() + wpos_;
-            }
+			const_pointer rdata() const noexcept
+			{
+				return buffer_.data() + rpos_;
+			}
 
-            const_pointer wdata() const noexcept
-            {
-                return buffer_.data() + wpos_;
-            }
+			pointer wdata() noexcept
+			{
+				return buffer_.data() + wpos_;
+			}
 
-            iterator begin() noexcept
-            {
-                return buffer_.begin();
-            }
+			const_pointer wdata() const noexcept
+			{
+				return buffer_.data() + wpos_;
+			}
 
-            const_iterator begin() const noexcept
-            {
-                return buffer_.begin();
-            }
+			iterator begin() noexcept
+			{
+				return buffer_.begin();
+			}
 
-            iterator rbegin() noexcept
-            {
-                auto iter = begin();
-                std::advance(iter, rpos_);
+			const_iterator begin() const noexcept
+			{
+				return buffer_.begin();
+			}
 
-                return iter;
-            }
+			iterator rbegin() noexcept
+			{
+				auto iter = begin();
+				std::advance(iter, rpos_);
 
-            const_iterator rbegin() const noexcept
-            {
-                auto iter = begin();
-                std::advance(iter, rpos_);
+				return iter;
+			}
 
-                return iter;
-            }
+			const_iterator rbegin() const noexcept
+			{
+				auto iter = begin();
+				std::advance(iter, rpos_);
 
-            iterator wbegin() noexcept
-            {
-                auto iter = begin();
-                std::advance(iter, wpos_);
+				return iter;
+			}
 
-                return iter;
-            }
+			iterator wbegin() noexcept
+			{
+				auto iter = begin();
+				std::advance(iter, wpos_);
 
-            const_iterator wbegin() const noexcept
-            {
-                auto iter = begin();
-                std::advance(iter, wpos_);
+				return iter;
+			}
 
-                return iter;
-            }
+			const_iterator wbegin() const noexcept
+			{
+				auto iter = begin();
+				std::advance(iter, wpos_);
 
-            iterator end() noexcept
-            {
-                return buffer_.end();
-            }
+				return iter;
+			}
 
-            const_iterator end() const noexcept
-            {
-                return buffer_.end();
-            }
+			iterator end() noexcept
+			{
+				return buffer_.end();
+			}
 
-            void resize(size_type bytes)
-            {
-                buffer_.resize(bytes);
-            }
+			const_iterator end() const noexcept
+			{
+				return buffer_.end();
+			}
 
-            void clear() noexcept
-            {
-                wpos_ = 0;
-                rpos_ = 0;
-                buffer_.clear();
-            }
+			void resize(size_type bytes)
+			{
+				buffer_.resize(bytes);
+			}
 
-            void swap(basic_streambuf& buf)
-            {
-                buffer_.swap(buf);
-            }
+			void clear() noexcept
+			{
+				wpos_ = 0;
+				rpos_ = 0;
+				buffer_.clear();
+			}
 
-            auto erase(const_iterator& where)
-            {
-                consume(-1);
+			void swap(basic_streambuf& buf)
+			{
+				buffer_.swap(buf);
+			}
 
-                return buffer_.erase(where);
-            }
+			auto erase(const_iterator& where)
+			{
+				consume(-1);
 
-            auto erase(const_iterator& begin, const_iterator& end)
-            {
-                auto distance = std::distance(begin, end);
+				return buffer_.erase(where);
+			}
 
-                consume(-distance);
+			auto erase(const_iterator& begin, const_iterator& end)
+			{
+				auto distance = std::distance(begin, end);
 
-                return buffer_.erase(begin, end);
-            }
+				consume(-distance);
 
-            void commit(int32_t bytes)
-            {
-                wpos_ += bytes;
-            }
+				return buffer_.erase(begin, end);
+			}
 
-            void consume(int32_t bytes)
-            {
-                rpos_ += bytes;
-            }
+			void commit(size_type bytes)
+			{
+				wpos_ += bytes;
+			}
 
-            template <typename _U>
-            _U read()
-            {
-                constexpr auto sz = sizeof(_U);
+			void consume(size_type bytes)
+			{
+				rpos_ += bytes;
+			}
 
-                _U value{};
+			template <typename _U>
+			_U read()
+			{
+				constexpr auto bytes = sizeof(_U);
 
-                read(&value, sz);
+				_U value{};
 
-                return value;
-            }
+				read(&value, bytes);
 
-            template<typename _U>
-            void read(_U* dest, int32_t bytes)
-            {
-                if (bytes + rpos_ > buffer_.size())
-                    throw std::runtime_error("out of range");
+				return value;
+			}
 
-                std::memcpy(dest, buffer_.data() + rpos_, bytes);
+			template <typename _U>
+			void read(_U* dest, size_type bytes)
+			{
+				if (bytes + rpos_ > buffer_.size())
+				{
+					*dest = 0;
+					return;
+				}
 
-                consume(bytes);
-            }
+				std::memcpy(dest, buffer_.data() + rpos_, bytes);
 
-            template <typename _U, typename _Alloc>
-            void append(const basic_streambuf<_U, _Alloc>& buf)
-            {
-                std::copy(buf.begin(), buf.end(), std::back_inserter(buffer_));
-            }
+				consume(bytes);
+			}
 
-            template<detail::pod _U>
-            void append(_U&& value)
-            {
-                auto res = std::forward<_U>(value);
-                constexpr auto bytes = sizeof(_U);
+			template <typename _U, typename _Alloc>
+			void append(const basic_streambuf<_U, _Alloc>& buf)
+			{
+				std::copy(buf.begin(), buf.end(), std::back_inserter(buffer_));
 
-                resize(size() + bytes);
+				commit(std::distance(buf.begin(), buf.end()));
+			}
 
-                std::memcpy(wdata(), &res, bytes);
+			template <detail::pod _U>
+			void append(_U&& value)
+			{
+				auto res = std::forward<_U>(value);
+				constexpr auto bytes = sizeof(_U);
 
-                commit(bytes);
-            }
+				resize(size() + bytes);
 
-        private:
-            int32_t wpos_;
-            int32_t rpos_;
-            std::vector<_Ty, _Alloc> buffer_;
-        };
-    } // namespace detail
+				std::memcpy(wdata(), &res, bytes);
+
+				commit(bytes);
+			}
+
+		private:
+			size_type wpos_;
+			size_type rpos_;
+			std::vector<_Ty, _Alloc> buffer_;
+		};
+	} // namespace detail
 } // namespace elastic
