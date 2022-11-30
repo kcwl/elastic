@@ -32,6 +32,9 @@ namespace elastic
         concept single_unsigned_numric = std::is_same_v<_Ty, uint8_t> || std::is_same_v<_Ty, uint16_t> ||
                                          std::is_same_v<_Ty, uint32_t> || std::is_same_v<_Ty, uint64_t>;
 
+        template<typename _Ty>
+        concept single_numric = single_signed_numric<_Ty> || single_unsigned_numric<_Ty>;
+
         template <typename _Ty>
         concept multi_numric = std::is_same_v<std::remove_cvref_t<_Ty>, double> || std::is_same_v<std::remove_cvref_t<_Ty>, float>;
 

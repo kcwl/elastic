@@ -24,7 +24,7 @@ namespace elastic
         }
 
     public:
-        template <detail::single_signed_numric _Ty>
+        template <detail::single_numric _Ty>
         _Ty parse_data()
         {
             _Ty value = static_cast<_Ty>(read<uint8_t>());
@@ -54,18 +54,13 @@ namespace elastic
             return value;
         }
 
-        template<detail::single_unsigned_numric _Ty>
-        _Ty parse_data()
-        {
-        }
-
         template<detail::multi_numric _Ty>
         _Ty parse_data()
         {
             return read<_Ty>();
         }
 
-        template <detail::single_signed_numric _Ty>
+        template <detail::single_numric _Ty>
         void to_data(_Ty&& value)
         {
             while (value > 0x80)
@@ -75,12 +70,6 @@ namespace elastic
             }
 
             append(static_cast<uint8_t>(value));
-        }
-
-        template <detail::single_unsigned_numric _Ty>
-        void to_data(_Ty&& value)
-        {
-            (void)value;
         }
         
         template<detail::multi_numric _Ty>
