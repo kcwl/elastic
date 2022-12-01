@@ -4,10 +4,11 @@
 
 namespace elastic
 {
+	template<typename _StreamBuf>
 	struct varint
 	{
-		template <detail::single_numric _Ty, typename _U>
-		static _Ty parse_binary(_U& buf)
+		template <detail::single_numric _Ty>
+		static _Ty parse_binary(_StreamBuf& buf)
 		{
 			uint64_t value = buf.read<uint8_t>();
 
@@ -42,13 +43,13 @@ namespace elastic
 		}
 
 		template <detail::multi_numric _Ty>
-		static _Ty parse_binary()
+		static _Ty parse_binary(_StreamBuf& buf)
 		{
-			return read<_Ty>();
+			return buf.read<_Ty>();
 		}
 
-		template <detail::single_numric _Ty, typename _U, typename _Alloc>
-		static void to_binary(_Ty&& value, detail::basic_streambuf<_U, _Alloc>& buf)
+		template <detail::single_numric _Ty>
+		static void to_binary(_Ty&& value, _StreamBuf& buf)
 		{
 			uint64_t result{};
 			value < 0 ? result = (0 - value)* 2 + 1 : result = value * 2;
@@ -62,8 +63,8 @@ namespace elastic
 			buf.append(static_cast<uint8_t>(result));
 		}
 
-		template <detail::multi_numric _Ty, typename _U, typename _Alloc>
-		static void to_binary(_Ty&& value, detail::basic_streambuf<_U, _Alloc>& buf)
+		template <detail::multi_numric _Ty>
+		static void to_binary(_Ty&& value, _StreamBuf& buf)
 		{
 			buf.append(std::forward<_Ty>(value));
 		}

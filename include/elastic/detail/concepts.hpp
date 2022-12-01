@@ -1,6 +1,7 @@
 #pragma once
 #include <elastic/detail/type_traits.hpp>
 #include <utility>
+#include <string>
 
 namespace elastic
 {
@@ -44,11 +45,12 @@ namespace elastic
 		template <typename _Ty>
 		concept varint = single_signed_numric<_Ty> || single_unsigned_numric<_Ty> || multi_numric<_Ty>;
 
-		template <typename _Ty>
-		concept strings = detail::is_vector<_Ty>::value;
+		//template <typename _Ty>
+		//concept strings = detail::is_vector<_Ty>::value;
 
 		template <typename _Ty>
-		concept pod = std::is_trivial_v<_Ty> && std::is_standard_layout_v<_Ty>;
+		concept pod =
+			std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
 
 		template <typename _Ty>
 		concept positive_integar = requires(_Ty value) {
@@ -58,6 +60,9 @@ namespace elastic
 
 		template <typename _Ty>
 		concept negative_integar = requires { !positive_integar<_Ty>&& single_signed_numric<_Ty>; };
+
+		template<typename _Ty>
+		concept string = std::is_same_v<std::remove_cvref_t<_Ty>, std::string>;
 
 	} // namespace detail
 } // namespace elastic
