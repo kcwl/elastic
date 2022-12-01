@@ -1,7 +1,7 @@
 #pragma once
 #include <elastic/detail/type_traits.hpp>
-#include <utility>
 #include <string>
+#include <utility>
 
 namespace elastic
 {
@@ -28,8 +28,9 @@ namespace elastic
 		concept class_cpt = std::is_class_v<_Ty>;
 
 		template <typename _Ty>
-		concept single_signed_numric = std::is_same_v<_Ty, int8_t> || std::is_same_v<_Ty, int16_t> ||
-									   std::is_same_v<_Ty, int32_t> || std::is_same_v<_Ty, int64_t>;
+		concept single_signed_numric =
+			std::is_same_v<_Ty, char> || std::is_same_v<_Ty, int8_t> || std::is_same_v<_Ty, int16_t> ||
+			std::is_same_v<_Ty, int32_t> || std::is_same_v<_Ty, int64_t>;
 
 		template <typename _Ty>
 		concept single_unsigned_numric = std::is_same_v<_Ty, uint8_t> || std::is_same_v<_Ty, uint16_t> ||
@@ -45,9 +46,6 @@ namespace elastic
 		template <typename _Ty>
 		concept varint = single_signed_numric<_Ty> || single_unsigned_numric<_Ty> || multi_numric<_Ty>;
 
-		//template <typename _Ty>
-		//concept strings = detail::is_vector<_Ty>::value;
-
 		template <typename _Ty>
 		concept pod =
 			std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
@@ -61,8 +59,8 @@ namespace elastic
 		template <typename _Ty>
 		concept negative_integar = requires { !positive_integar<_Ty>&& single_signed_numric<_Ty>; };
 
-		template<typename _Ty>
-		concept string = std::is_same_v<std::remove_cvref_t<_Ty>, std::string>;
+		template <typename _Ty>
+		concept string_t = std::is_same_v<std::remove_cvref_t<_Ty>, std::string> || is_vector<_Ty>::value;
 
 	} // namespace detail
 } // namespace elastic

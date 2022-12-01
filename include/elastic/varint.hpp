@@ -4,7 +4,7 @@
 
 namespace elastic
 {
-	template<typename _StreamBuf>
+	template <typename _StreamBuf>
 	struct varint
 	{
 		template <detail::single_numric _Ty>
@@ -12,29 +12,22 @@ namespace elastic
 		{
 			uint64_t value = buf.read<uint8_t>();
 
-			if constexpr (sizeof(_Ty) == 1)
+			if (value > 0x80)
 			{
-				return value;
-			}
-			else
-			{
-				if (value > 0x80)
+				value -= 0x80;
+
+				int bit = 7;
+
+				uint8_t c{};
+				while (((c = buf.read<uint8_t>()) & 0x80) != 0)
 				{
-					value -= 0x80;
+					value += c << bit;
+					value -= 0x80 << bit;
 
-					int bit = 7;
-
-					uint8_t c{};
-					while (((c = buf.read<uint8_t>()) & 0x80) != 0)
-					{
-						value += c << bit;
-						value -= 0x80 << bit;
-
-						bit += 7;
-					}
-
-					value += static_cast<uint32_t>(c << bit);
+					bit += 7;
 				}
+
+				value += static_cast<uint32_t>(c << bit);
 			}
 
 			value % 2 == 0 ? value /= 2 : value = (0ul - (value - 1)) / 2;

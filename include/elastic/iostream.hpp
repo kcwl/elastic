@@ -63,7 +63,7 @@ namespace elastic
 			return *this;
 		}
 
-		template<detail::string _Ty>
+		template<detail::string_t _Ty>
 		iostream& operator>>(_Ty& value)
 		{
 			value = pop_string<_Ty>();
@@ -126,7 +126,7 @@ namespace elastic
 		}
 
 	private:
-		template <detail::pod _Ty>
+		template <typename _Ty>
 		void push(_Ty&& value)
 		{
 			for_each(std::move(value),
@@ -134,19 +134,19 @@ namespace elastic
 					 {
 						 if constexpr (detail::varint<std::remove_cvref_t<decltype(v)>>)
 						 {
-							 varint::to_binary(std::move(v), buffer_);
+							 varint<message_buffer>::template to_binary(std::move(v), buffer_);
 						 }
 						 else
 						 {
-							 strings<decltype(v), message_buffer>::to_binary(std::move(v), buffer_);
+							 strings<decltype(v), message_buffer>::template to_binary(std::move(v), buffer_);
 						 }
 					 });
 		}
 
-		template <detail::string _Ty>
+		template <detail::string_t _Ty>
 		void push(_Ty&& value)
 		{
-			strings<_Ty, message_buffer>::to_binary(std::move(value), buffer_);
+			strings<_Ty, message_buffer>::template to_binary(std::move(value), buffer_);
 		}
 
 		template <std::size_t I, typename _Ty>
@@ -158,11 +158,11 @@ namespace elastic
 
 			if constexpr (detail::varint<element_t>)
 			{
-				return varint::parse_binary<element_t, message_buffer>(buffer_);
+				return varint<message_buffer>::template parse_binary<element_t, message_buffer>(buffer_);
 			}
-			else if constexpr (detail::string<element_t>)
+			else if constexpr (detail::string_t<element_t>)
 			{
-				return strings<element_t, message_buffer>::parse_binary(buffer_);
+				return strings<element_t, message_buffer>::template parse_binary(buffer_);
 			}
 			else
 			{
@@ -176,10 +176,10 @@ namespace elastic
 			return _Ty{make_element<I, _Ty>()...};
 		}
 
-		template <detail::string _Ty>
+		template <detail::string_t _Ty>
 		_Ty pop_string()
 		{
-			return strings<_Ty, message_buffer>::parse_binary(buffer_);
+			return strings<_Ty, message_buffer>::template parse_binary(buffer_);
 		}
 
 		template <typename _Ty, std::size_t N = elastic::tuple_size_v<_Ty>,
