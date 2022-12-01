@@ -128,7 +128,7 @@ namespace elastic
                      {
                          if constexpr (detail::varint<std::remove_cvref_t<decltype(v)>>)
                          {
-                             buffer_.append(varint(v));
+							 varint::to_binary(std::move(v), buffer_);
                          }
                          else
                          {
@@ -146,7 +146,7 @@ namespace elastic
 
             if constexpr (detail::varint<element_t>)
             {
-                return varint{buffer_.rbegin(), buffer_.end()}.parse_data<element_t>();
+				return varint::parse_binary<element_t,message_buffer>(buffer_);
             }
             else if constexpr (detail::strings<element_t>)
             {

@@ -1,33 +1,15 @@
 #pragma once
+#include <array>
 #include <elastic/detail/basic_streambuf.hpp>
 
 namespace elastic
 {
-	class varint : public detail::basic_streambuf<uint8_t>
+	struct varint
 	{
-	public:
-		varint()
-			: basic_streambuf(128)
+		template <detail::single_numric _Ty, typename _U>
+		static _Ty parse_binary(_U& buf)
 		{
-		}
-
-		template <typename _Iter>
-		varint(_Iter begin, _Iter end)
-			: basic_streambuf(begin, end)
-		{
-		}
-
-		template <typename _Ty>
-		varint(_Ty&& value)
-		{
-			to_data(std::move(value));
-		}
-
-	public:
-		template <detail::single_numric _Ty>
-		_Ty parse_data()
-		{
-			uint64_t value = read<uint8_t>();
+			uint64_t value = buf.read<uint8_t>();
 
 			if constexpr (sizeof(_Ty) == 1)
 			{
@@ -42,7 +24,7 @@ namespace elastic
 					int bit = 7;
 
 					uint8_t c{};
-					while (((c = read<uint8_t>()) & 0x80) != 0)
+					while (((c = buf.read<uint8_t>()) & 0x80) != 0)
 					{
 						value += c << bit;
 						value -= 0x80 << bit;
@@ -54,36 +36,36 @@ namespace elastic
 				}
 			}
 
-			value % 2 == 0 ? value /= 2 : value = (0ul-(value - 1)) / 2;
+			value % 2 == 0 ? value /= 2 : value = (0ul - (value - 1)) / 2;
 
 			return static_cast<_Ty>(value);
 		}
 
 		template <detail::multi_numric _Ty>
-		_Ty parse_data()
+		static _Ty parse_binary()
 		{
 			return read<_Ty>();
 		}
 
-		template <detail::single_numric _Ty>
-		void to_data(_Ty&& value)
+		template <detail::single_numric _Ty, typename _U, typename _Alloc>
+		static void to_binary(_Ty&& value, detail::basic_streambuf<_U, _Alloc>& buf)
 		{
 			uint64_t result{};
 			value < 0 ? result = (0 - value)* 2 + 1 : result = value * 2;
 
 			while (result > 0x80)
 			{
-				append(static_cast<uint8_t>(result | 0x80));
+				buf.append(static_cast<uint8_t>(result | 0x80));
 				result >>= 7;
 			}
 
-			append(static_cast<uint8_t>(result));
+			buf.append(static_cast<uint8_t>(result));
 		}
 
-		template <detail::multi_numric _Ty>
-		void to_data(_Ty&& value)
+		template <detail::multi_numric _Ty, typename _U, typename _Alloc>
+		static void to_binary(_Ty&& value, detail::basic_streambuf<_U, _Alloc>& buf)
 		{
-			append(std::forward<_Ty>(value));
+			buf.append(std::forward<_Ty>(value));
 		}
 	};
 } // namespace elastic
