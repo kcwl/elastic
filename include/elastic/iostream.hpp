@@ -1,24 +1,7 @@
 #pragma once
 #include <elastic/detail/basic_streambuf.hpp>
 #include <elastic/reflect.hpp>
-#include <elastic/strings.hpp>
-#include <elastic/tuple_size.hpp>
-
-namespace
-{
-	template <typename _Ty, typename Func, std::size_t... I>
-	constexpr void for_each(_Ty&& val, Func func, std::index_sequence<I...>)
-	{
-		return (func(elastic::get<I>(std::forward<_Ty>(val))), ...);
-	}
-
-	template <typename _Ty, typename Func, std::size_t N = elastic::tuple_size_v<_Ty>,
-			  typename Indices = std::make_index_sequence<N>>
-	constexpr void for_each(_Ty&& val, Func func)
-	{
-		return for_each(std::forward<_Ty>(val), func, Indices{});
-	}
-} // namespace
+#include <elastic/message.hpp>
 
 namespace elastic
 {
@@ -129,18 +112,7 @@ namespace elastic
 		template <typename _Ty>
 		void push(_Ty&& value)
 		{
-			for_each(std::move(value),
-					 [this](auto&& v)
-					 {
-						 if constexpr (detail::varint<std::remove_cvref_t<decltype(v)>>)
-						 {
-							 varint<message_buffer>::template to_binary(std::move(v), buffer_);
-						 }
-						 else
-						 {
-							 strings<decltype(v), message_buffer>::template to_binary(std::move(v), buffer_);
-						 }
-					 });
+			message<_Ty, message_buffer>::template to_binary(std::forward<_Ty>(value), buffer_);
 		}
 
 		template <detail::string_t _Ty>
@@ -158,7 +130,7 @@ namespace elastic
 
 			if constexpr (detail::varint<element_t>)
 			{
-				return varint<message_buffer>::template parse_binary<element_t, message_buffer>(buffer_);
+				return varint<message_buffer>::template parse_binary<element_t>(buffer_);
 			}
 			else if constexpr (detail::string_t<element_t>)
 			{
