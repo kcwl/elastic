@@ -21,16 +21,16 @@ namespace elastic
 				uint8_t c{};
 				while (((c = buf.read<uint8_t>()) & 0x80) != 0)
 				{
-					value += c << bit;
-					value -= 0x80 << bit;
+					value += static_cast<uint64_t>(c) << bit;
+					value -= static_cast<uint64_t>(0x80) << bit;
 
 					bit += 7;
 				}
 
-				value += static_cast<uint32_t>(c << bit);
+				value += static_cast<uint64_t>(c) << bit;
 			}
 
-			value % 2 == 0 ? value /= 2 : value = (0ul - (value - 1)) / 2;
+			value % 2 == 0 ? value /= 2 : value = (0ull - (value - 1)) / 2;
 
 			return static_cast<_Ty>(value);
 		}
