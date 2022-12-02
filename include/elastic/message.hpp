@@ -37,7 +37,11 @@ namespace elastic
 						 }
 						 else if constexpr (detail::string_t<std::_Remove_cvref_t<type>>)
 						 {
-							 v = strings<type, _StreamBuf>::template parse_binary<type>(buf);
+							 v = strings<type, _StreamBuf>::template parse_binary(buf);
+						 }
+						 else
+						 {
+							 v = message<type, _StreamBuf>::template parse_binary(buf);
 						 }
 					 });
 
@@ -46,14 +50,14 @@ namespace elastic
 
 		static void to_binary(_Ty&& value, _StreamBuf& buf)
 		{
-			//auto bytes = value.size();
+			// auto bytes = value.size();
 
-			//varint<_StreamBuf>::to_binary(std::move(bytes), buf);
+			// varint<_StreamBuf>::to_binary(std::move(bytes), buf);
 
-			//for (auto s : std::forward<_Ty>(value))
+			// for (auto s : std::forward<_Ty>(value))
 			//{
 			//	varint<_StreamBuf>::to_binary(std::move(s), buf);
-			//}
+			// }
 			for_each(std::move(value),
 					 [&](auto&& v)
 					 {
@@ -65,6 +69,10 @@ namespace elastic
 						 else if constexpr (detail::string_t<std::_Remove_cvref_t<type>>)
 						 {
 							 strings<type, _StreamBuf>::template to_binary(std::move(v), buf);
+						 }
+						 else
+						 {
+							 message<type, _StreamBuf>::to_binary(std::move(v), buf);
 						 }
 					 });
 		}
