@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <elastic/detail/basic_streambuf.hpp>
+#include <elastic/int128.hpp>
 
 namespace elastic
 {
@@ -10,24 +11,24 @@ namespace elastic
 		template <detail::single_numric _Ty>
 		static _Ty parse_binary(_StreamBuf& buf)
 		{
-			uint64_t value = buf.read<uint8_t>();
+			uint128_t value = buf.read<uint8_t>();
 
 			if (value > 0x80)
 			{
 				value -= 0x80;
 
-				int bit = 7;
+				uint8_t bit = 7;
 
 				uint8_t c{};
 				while (((c = buf.read<uint8_t>()) & 0x80) != 0)
 				{
-					value += static_cast<uint64_t>(c) << bit;
-					value -= static_cast<uint64_t>(0x80) << bit;
+					value += static_cast<uint128_t>(c) << bit;
+					value -= static_cast<uint128_t>(0x80) << bit;
 
 					bit += 7;
 				}
 
-				value += static_cast<uint64_t>(c) << bit;
+				value += static_cast<uint128_t>(c) << bit;
 			}
 
 			value % 2 == 0 ? value /= 2 : value = (0ull - (value - 1)) / 2;
@@ -44,8 +45,8 @@ namespace elastic
 		template <detail::single_numric _Ty>
 		static void to_binary(_Ty&& value, _StreamBuf& buf)
 		{
-			uint64_t result{};
-			value < 0 ? result = (0 - static_cast<uint64_t>(value))* 2 + 1 : result = static_cast<uint64_t>(value) * 2;
+			uint128_t result{};
+			value < 0 ? result = (0 - static_cast<uint128_t>(value))* 2 + 1 : result = static_cast<uint128_t>(value) * 2;
 
 			while (result > 0x80)
 			{
