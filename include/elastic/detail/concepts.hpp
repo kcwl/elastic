@@ -62,5 +62,8 @@ namespace elastic
 		template <typename _Ty>
 		concept string_t = std::is_same_v<std::remove_cvref_t<_Ty>, std::string> || is_vector<_Ty>::value;
 
+		template<typename _Ty>
+		concept integer_like = std::convertible_to<_Ty, uint64_t>;
+
 	} // namespace detail
 } // namespace elastic
