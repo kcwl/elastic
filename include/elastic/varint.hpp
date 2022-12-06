@@ -46,7 +46,8 @@ namespace elastic
 		static void to_binary(_Ty&& value, _StreamBuf& buf)
 		{
 			uint128_t result{};
-			value < 0 ? result = (0 - uint128_t{ 0 - value })* 2 + 1 : result = uint128_t{ value } * 2;
+
+			value < 0 ? result = uint128_t{ (0ul-value)* 2 } + 1 : result = uint128_t{ value } * 2;
 
 			while (result > 0x80)
 			{

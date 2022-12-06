@@ -18,13 +18,13 @@ namespace
 
 			if ((lhs >> (i - 1)) & 0x1)
 			{
-				result.second++;
+				++result.second;
 			}
 
 			if (result.second >= rhs)
 			{
 				result.second -= rhs;
-				result.first++;
+				++result.first;
 			}
 		}
 
@@ -73,7 +73,7 @@ namespace elastic
 				return *this;
 			}
 
-			basic_int128(basic_int128&& other)
+			basic_int128(basic_int128&& other) noexcept
 			{
 				high_ = std::move(other.high_);
 				low_ = std::move(other.low_);
@@ -86,14 +86,29 @@ namespace elastic
 				low_ = static_cast<_Low>(other);
 			}
 
+			basic_int128 operator~()
+			{
+				return std::move(basic_int128{ ~high_, ~low_ });
+			}
+
+			basic_int128 operator-()
+			{
+				return (~*this) + 1;
+			}
+
+			basic_int128& operator+()
+			{
+				return *this;
+			}
+
 			basic_int128 operator+(const basic_int128& other)
 			{
 				basic_int128 tmp{ high_ + other.high_, low_ + other.low_ };
 
-				if (tmp.low_ < other.low_)
+				if (tmp.low_ < low_)
 					++tmp.high_;
 
-				return std::move(tmp);
+				return tmp;
 			}
 
 			basic_int128& operator+=(const basic_int128& other)
@@ -122,9 +137,9 @@ namespace elastic
 				basic_int128 tmp{ high_ - other.high_, low_ - other.low_ };
 
 				if (tmp.low_ > low_)
-					--tmp.low_;
+					--tmp.high_;
 
-				return std::move(tmp);
+				return tmp;
 			}
 
 			basic_int128 operator-=(const basic_int128& other)
@@ -251,6 +266,9 @@ namespace elastic
 			template <detail::integer_like _Ty>
 			basic_int128 operator<<(const _Ty& offset)
 			{
+				if (offset == 0)
+					return *this;
+
 				if (offset < offset_)
 				{
 					basic_int128 tmp{ (high_ << offset) + (low_ >> (offset_ - offset)), low_ << offset };
@@ -272,6 +290,9 @@ namespace elastic
 			template <detail::integer_like _Ty>
 			basic_int128 operator>>(_Ty offset)
 			{
+				if (offset == 0)
+					return *this;
+
 				if (offset < offset_)
 				{
 					return std::move(basic_int128{ high_ >> offset, (high_ << (offset_ - offset)) + (low_ >> offset) });
@@ -283,6 +304,9 @@ namespace elastic
 			template <detail::integer_like _Ty>
 			basic_int128 operator>>(_Ty offset) const
 			{
+				if (offset == 0)
+					return *this;
+
 				if (offset < offset_)
 				{
 					return std::move(basic_int128{ high_ >> offset, (high_ << (offset_ - offset)) + (low_ >> offset) });
@@ -441,8 +465,8 @@ namespace elastic
 			}
 
 		private:
-			_High high_;
 			_Low low_;
+			_High high_;
 		};
 	} // namespace detail
 } // namespace elastic
