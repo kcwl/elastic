@@ -47,21 +47,23 @@ namespace elastic
 				, low_(0)
 			{}
 
+			template <detail::integer_like _Ty>
+			basic_int128(_Ty other)
+			{
+				high_ = 0;
+				low_ = static_cast<_Low>(other);
+			}
+
 			basic_int128(_High high, _Low low)
 				: high_(high)
 				, low_(low)
 			{}
 
-			basic_int128(const basic_int128& other)
-				: basic_int128(0, 0)
-			{
-				if (this != &other)
-				{
-					high_ = other.high_;
-					low_ = other.low_;
-				}
-			}
+			basic_int128(const basic_int128& other) = default;
 
+			basic_int128(basic_int128&& other) = default;
+
+		public:
 			basic_int128& operator=(const basic_int128& other)
 			{
 				if (this != &other)
@@ -71,19 +73,6 @@ namespace elastic
 				}
 
 				return *this;
-			}
-
-			basic_int128(basic_int128&& other) noexcept
-			{
-				high_ = std::move(other.high_);
-				low_ = std::move(other.low_);
-			}
-
-			template <detail::integer_like _Ty>
-			basic_int128(_Ty other)
-			{
-				high_ = 0;
-				low_ = static_cast<_Low>(other);
 			}
 
 			basic_int128 operator~()
@@ -103,12 +92,7 @@ namespace elastic
 
 			basic_int128 operator+(const basic_int128& other)
 			{
-				basic_int128 tmp{ high_ + other.high_, low_ + other.low_ };
-
-				if (tmp.low_ < low_)
-					++tmp.high_;
-
-				return tmp;
+				return { high_ + other.high_ + static_cast<int>((low_ + other.low_) < low_), low_ + other.low_ };
 			}
 
 			basic_int128& operator+=(const basic_int128& other)
@@ -134,12 +118,7 @@ namespace elastic
 
 			basic_int128 operator-(const basic_int128& other)
 			{
-				basic_int128 tmp{ high_ - other.high_, low_ - other.low_ };
-
-				if (tmp.low_ > low_)
-					--tmp.high_;
-
-				return tmp;
+				return { high_ - other.high_ - static_cast<int>((low_ - other.low_) > low_), low_ - other.low_ };
 			}
 
 			basic_int128 operator-=(const basic_int128& other)
