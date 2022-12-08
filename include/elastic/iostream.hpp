@@ -1,7 +1,7 @@
 #pragma once
 #include <elastic/detail/basic_streambuf.hpp>
-#include <elastic/reflect.hpp>
 #include <elastic/message.hpp>
+#include <elastic/reflect.hpp>
 
 namespace elastic
 {
@@ -18,18 +18,21 @@ namespace elastic
 	public:
 		iostream()
 			: buffer_()
-		{
-		}
+		{}
 
 		iostream(const message_buffer& ios)
 			: buffer_(ios)
-		{
-		}
+		{}
 
-		iostream(std::span<message_buffer_value_type> data)
-			: buffer_(data)
-		{
-		}
+		template <typename _It>
+		iostream(_It begin, _It end)
+			: buffer_(begin, end)
+		{}
+
+		template <typename _Ty, std::size_t N>
+		iostream(std::span<_Ty, N> buf)
+			: buffer_(buf)
+		{}
 
 	public:
 		template <typename _Ty>
@@ -46,7 +49,7 @@ namespace elastic
 			return *this;
 		}
 
-		template<detail::string_t _Ty>
+		template <detail::string_t _Ty>
 		iostream& operator>>(_Ty& value)
 		{
 			value = pop_string<_Ty>();
@@ -145,7 +148,7 @@ namespace elastic
 		template <typename _Ty, std::size_t... I>
 		auto pop_element(std::index_sequence<I...>)
 		{
-			return _Ty{make_element<I, _Ty>()...};
+			return _Ty{ make_element<I, _Ty>()... };
 		}
 
 		template <detail::string_t _Ty>

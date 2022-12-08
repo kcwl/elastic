@@ -26,8 +26,7 @@ namespace elastic
 				: wpos_(0)
 				, rpos_(0)
 				, buffer_()
-			{
-			}
+			{}
 
 			basic_streambuf(size_type capa)
 				: basic_streambuf()
@@ -45,10 +44,11 @@ namespace elastic
 				commit(std::distance(begin, end));
 			}
 
-			basic_streambuf(std::span<_Ty> data)
+			template <typename _U, std::size_t N>
+			requires(std::is_convertible_v<_U,_Ty>)
+			basic_streambuf(std::span<_U, N> data)
 				: basic_streambuf(data.begin(), data.end())
-			{
-			}
+			{}
 
 			basic_streambuf(const basic_streambuf& buf)
 			{
