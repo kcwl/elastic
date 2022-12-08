@@ -4,3 +4,4 @@
 #include <elastic/strings.hpp>
 #include <elastic/tuple_size.hpp>
 #include <elastic/varint.hpp>
+#include <elastic/type.hpp>
