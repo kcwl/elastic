@@ -1,10 +1,17 @@
 #pragma once
-#include <elastic/detail/type_traits.hpp>
+#include <optional>
+#include <vector>
 
 namespace elastic
 {
-	namespace detail
+	namespace attr
 	{
+		template <typename _Ty>
+		struct basic_fixed
+		{
+			using type = _Ty;
+		};
+
 		template <typename _Ty>
 		class require_construct_base
 		{
@@ -48,18 +55,18 @@ namespace elastic
 		};
 
 		template <typename _Ty>
-		class require : private require_construct_base<_Ty>
+		class basic_require : private require_construct_base<_Ty>
 		{
 		public:
 			template <typename... _Args>
 			requires(std::is_constructible_v<_Ty, _Args...>)
-			constexpr explicit require(_Args&&... args) noexcept(std::is_nothrow_constructible_v<_Ty, _Args...>)
+			constexpr explicit basic_require(_Args&&... args) noexcept(std::is_nothrow_constructible_v<_Ty, _Args...>)
 				: require_construct_base<_Ty>(std::forward<_Args>(args)...)
 			{}
 
 			template <typename _Elem, typename... _Args>
 			requires(std::is_constructible_v<_Ty, std::initializer_list<_Elem>&, _Args...>)
-			constexpr explicit require(std::initializer_list<_Elem> init, _Args&&... args)
+			constexpr explicit basic_require(std::initializer_list<_Elem> init, _Args&&... args)
 				: require_construct_base<_Ty>(init, std::forward<_Args>(args)...)
 			{}
 
@@ -101,10 +108,55 @@ namespace elastic
 				return std::move(this->value_);
 			}
 
-			 bool has_value()
+			bool has_value()
 			{
 				return has_value_;
 			}
 		};
-	} // namespace detail
+	} // namespace attr
+
+	using fixed32 = attr::basic_fixed<uint32_t>;
+	using fixed64 = attr::basic_fixed<uint64_t>;
+
+	template <typename _Ty>
+	using optional = std::optional<_Ty>;
+
+	template <typename _Ty>
+	using repeated = std::vector<_Ty>;
+
+	template <typename _Ty>
+	using require = attr::basic_require<_Ty>;
+
+	template <typename _Ty>
+	struct unsign
+	{
+		static_assert(false, "maybe some type is not error!");
+
+		using type = void;
+	};
+
+	template <>
+	struct unsign<int8_t>
+	{
+		using type = uint8_t;
+	};
+
+	template <>
+	struct unsign<int16_t>
+	{
+		using type = uint16_t;
+	};
+
+	template <>
+	struct unsign<int32_t>
+	{
+		using type = uint32_t;
+	};
+
+	template <>
+	struct unsign<int64_t>
+	{
+		using type = uint64_t;
+	};
+
 } // namespace elastic

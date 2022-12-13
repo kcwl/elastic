@@ -64,6 +64,5 @@ namespace elastic
 
 		template<typename _Ty>
 		concept integer_like = std::convertible_to<_Ty, uint64_t>;
-
 	} // namespace detail
 } // namespace elastic
