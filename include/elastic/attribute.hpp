@@ -21,7 +21,7 @@ namespace elastic
 			template <typename... _Args>
 			constexpr _Ty& construct(_Args&&... args) noexcept(std::is_nothrow_constructible_v<_Ty, _Args...>)
 			{
-				std::_Construct_in_place(this->value, std::forward<Args>(args)...);
+				std::_Construct_in_place(this->value, std::forward<_Args>(args)...);
 
 				has_value_ = true;
 
@@ -110,7 +110,7 @@ namespace elastic
 
 			bool has_value()
 			{
-				return has_value_;
+				return this->has_value_;
 			}
 		};
 	} // namespace attr
@@ -128,12 +128,7 @@ namespace elastic
 	using require = attr::basic_require<_Ty>;
 
 	template <typename _Ty>
-	struct unsign
-	{
-		static_assert(false, "maybe some type is not error!");
-
-		using type = void;
-	};
+	struct unsign;
 
 	template <>
 	struct unsign<int8_t>

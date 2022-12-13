@@ -7,6 +7,7 @@
 #include <elastic/tuple_size.hpp>
 #include <tuple>
 #include <limits>
+#include <elastic/attribute.hpp>
 
 struct person
 {
@@ -1039,4 +1040,14 @@ BOOST_AUTO_TEST_CASE(iostream)
 		BOOST_TEST(p_in.b_ == p_out.b_);
 		BOOST_TEST(p_in.s_.b_ == p_out.s_.b_);
 	}
+}
+
+BOOST_AUTO_TEST_CASE(attr)
+{
+	elastic::optional<int> value1{};
+	elastic::repeated<int> value2{};
+	elastic::require<int> value3{};
+	elastic::fixed32 value4{};
+	elastic::fixed64 value5{};
+	elastic::unsign<int16_t>::type value6{};
 }
