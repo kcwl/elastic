@@ -7,7 +7,7 @@ namespace elastic
 	namespace attr
 	{
 		template <typename _Ty>
-		struct basic_fixed
+		struct fixed
 		{
 			using type = _Ty;
 		};
@@ -115,8 +115,8 @@ namespace elastic
 		};
 	} // namespace attr
 
-	using fixed32 = attr::basic_fixed<uint32_t>;
-	using fixed64 = attr::basic_fixed<uint64_t>;
+	using fixed32 = attr::fixed<uint32_t>::type;
+	using fixed64 = attr::fixed<uint64_t>::type;
 
 	template <typename _Ty>
 	using optional = std::optional<_Ty>;
