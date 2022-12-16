@@ -1042,12 +1042,93 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(attr)
+BOOST_AUTO_TEST_CASE(attr_to_iostream)
 {
-	elastic::optional<int> value1{};
-	elastic::repeated<int> value2{};
-	elastic::require<int> value3{};
-	elastic::fixed32 value4{};
-	elastic::fixed64 value5{};
-	elastic::unsign<int16_t>::type value6{};
+	{
+		elastic::optional<int> value{1};
+
+		elastic::iostream ios{};
+
+		ios << value;
+
+		elastic::optional<int> value1;
+
+		ios >> value1;
+
+		BOOST_TEST(value.value() == value1.value());
+	}
+
+	{
+		elastic::require<int> value{};
+		value.emplace(2);
+
+		elastic::iostream ios{};
+
+		ios << value;
+
+		elastic::require<int> value1{};
+
+		ios >> value1;
+
+		BOOST_TEST(value.value() == value1.value());
+	}
+
+	{
+		elastic::repeated<int> value{1,2,3};
+
+		elastic::iostream ios{};
+
+		ios << value;
+
+		elastic::repeated<int> value1{};
+
+		ios >> value1;
+
+		BOOST_TEST(value == value1);
+	}
+
+	{
+		elastic::fixed32 value{};
+		value = 2;
+
+		elastic::iostream ios{};
+
+		ios << value;
+
+		elastic::fixed32 value1{};
+
+		ios >> value1;
+
+		BOOST_TEST(value.value_ == value1.value_);
+	}
+
+	{
+		elastic::fixed64 value{};
+		value = 2;
+
+		elastic::iostream ios{};
+
+		ios << value;
+
+		elastic::fixed64 value1{};
+
+		ios >> value1;
+
+		BOOST_TEST(value.value_ == value1.value_);
+	}
+
+	{
+		elastic::unsign<int> value{};
+		value = 2;
+
+		elastic::iostream ios{};
+
+		ios << value;
+
+		elastic::unsign<int> value1{};
+
+		ios >> value1;
+
+		BOOST_TEST(value.value_ == value1.value_);
+	}
 }
