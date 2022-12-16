@@ -60,9 +60,13 @@ namespace elastic
 		concept negative_integar = requires { !positive_integar<_Ty>&& single_signed_numric<_Ty>; };
 
 		template <typename _Ty>
-		concept string_t = std::is_same_v<std::remove_cvref_t<_Ty>, std::string> || is_vector<_Ty>::value;
+		concept string_t =
+			std::is_same_v<std::remove_cvref_t<_Ty>, std::string> || is_vector<std::remove_cvref_t<_Ty>>::value;
 
 		template<typename _Ty>
 		concept integer_like = std::convertible_to<_Ty, uint64_t>;
+
+		template<typename _Ty>
+		concept signed_integer = std::_Is_any_of_v<_Ty, int8_t, int16_t, int32_t, int64_t>;
 	} // namespace detail
 } // namespace elastic

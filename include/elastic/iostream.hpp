@@ -2,6 +2,7 @@
 #include <elastic/detail/basic_streambuf.hpp>
 #include <elastic/message.hpp>
 #include <elastic/reflect.hpp>
+#include <elastic/attribute.hpp>
 
 namespace elastic
 {
@@ -117,12 +118,41 @@ namespace elastic
 		{
 			message<_Ty, message_buffer>::template to_binary(std::forward<_Ty>(value), buffer_);
 		}
-
-		template <detail::string_t _Ty>
+		
+		template<detail::string_t _Ty>
 		void push(_Ty&& value)
 		{
 			strings<_Ty, message_buffer>::template to_binary(std::move(value), buffer_);
 		}
+
+		template<attribute _Ty>
+		void push(_Ty&& value)
+		{
+			if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
+			{
+				if constexpr (_Ty::require_value)
+				{
+					if (!value.has_value())
+					{
+						throw std::runtime_error("maybe some type must have some values!");
+					}
+					else
+					{
+						push(*value);
+					}
+					
+				}
+				else
+				{
+					push(*value);
+				}
+			}
+			else
+			{
+				buffer_.append(std::move(value).value_);
+			}
+		}
+
 
 		template <std::size_t I, typename _Ty>
 		auto make_element()
@@ -162,6 +192,44 @@ namespace elastic
 		_Ty pop()
 		{
 			return pop_element<_Ty>(Indices{});
+		}
+
+		template<optional_t _Ty>
+		_Ty pop()
+		{
+			using type = typename _Ty::value_type;
+
+			type val = pop<type>();
+
+			_Ty value{};
+
+			value.emplace(val);
+
+			return value;
+		}
+
+		template<fixed_t _Ty>
+		_Ty pop()
+		{
+			using type = typename _Ty::type;
+			
+			_Ty value{};
+
+			buffer_.read(&value.value_, sizeof(type));
+
+			return value;
+		}
+
+		template<unsign_t _Ty>
+		_Ty pop()
+		{
+			using type = typename _Ty::value_type;
+
+			_Ty value{};
+
+			buffer_.read(&value.value_, sizeof(type));
+
+			return value;
 		}
 
 	private:
