@@ -43,7 +43,7 @@ AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: MultiLine
+AlwaysBreakTemplateDeclarations: Yes
 AttributeMacros:
   - __capability
 BinPackArguments: true
@@ -57,23 +57,23 @@ BraceWrapping:
   AfterNamespace:  true
   AfterObjCDeclaration: true
   AfterStruct:     true
-  AfterUnion:      false
+  AfterUnion:      true
   AfterExternBlock: true
   BeforeCatch:     true
   BeforeElse:      true
-  BeforeLambdaBody: false
+  BeforeLambdaBody: true
   BeforeWhile:     false
   IndentBraces:    false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: Always
 BreakBeforeBraces: Custom
 BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeColon
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializersBeforeComma: true
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
@@ -83,7 +83,7 @@ QualifierAlignment: Leave
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
-Cpp11BracedListStyle: true
+Cpp11BracedListStyle: false
 DeriveLineEnding: true
 DerivePointerAlignment: false
 DisableFormat:   false
@@ -101,7 +101,7 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
+IncludeBlocks:   Regroup
 IncludeCategories:
   - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
     Priority:        2
@@ -115,7 +115,7 @@ IncludeCategories:
     Priority:        1
     SortPriority:    0
     CaseSensitive:   false
-IncludeIsMainRegex: '(Test)?$'
+IncludeIsMainRegex: '(elastic)?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
 IndentCaseLabels: false
@@ -205,7 +205,7 @@ StatementMacros:
   - QT_REQUIRE_VERSION
 TabWidth:        4
 UseCRLF:         false
-UseTab:          Never
+UseTab:          Always
 WhitespaceSensitiveMacros:
   - STRINGIZE
   - PP_STRINGIZE
