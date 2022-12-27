@@ -40,5 +40,11 @@ namespace elastic
         {
         };
 
+        template<typename _Ty>
+        struct identify
+        {
+            using type = _Ty;
+        };
+
     } // namespace detail
 } // namespace elastic

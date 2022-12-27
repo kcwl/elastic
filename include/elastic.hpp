@@ -6,3 +6,7 @@
 #include <elastic/tuple_size.hpp>
 #include <elastic/type.hpp>
 #include <elastic/varint.hpp>
+#include <elastic/iserialize.hpp>
+#include <elastic/oserialize.hpp>
+#include <elastic/binary_iarchive.hpp>
+#include <elastic/binary_oarchive.hpp>
