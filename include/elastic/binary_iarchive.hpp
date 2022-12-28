@@ -9,7 +9,15 @@ namespace elastic
 	class binary_iarchive_impl : public binary_iprimitive<_Archive, _Elem, _Traits>
 	{
 	public:
-		binary_iarchive_impl(std::basic_streambuf<_Elem>& sb)
+		explicit binary_iarchive_impl() = default;
+
+		explicit binary_iarchive_impl(std::size_t number)
+			: binary_iprimitive<_Archive, _Elem, _Traits>(number)
+		{
+
+		}
+
+		explicit binary_iarchive_impl(std::basic_streambuf<_Elem>& sb)
 			: binary_iprimitive<_Archive, _Elem, _Traits>(sb)
 		{
 
@@ -35,13 +43,21 @@ namespace elastic
 		: public binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>
 	{
 	public:
-		binary_iarchive(std::istream& is)
+		explicit binary_iarchive() = default;
+
+		explicit binary_iarchive(std::size_t number)
+			: binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>(number)
+		{
+
+		}
+
+		explicit binary_iarchive(std::istream& is)
 			: binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>(is)
 		{
 
 		}
 
-		binary_iarchive(std::streambuf& bsb)
+		explicit binary_iarchive(std::streambuf& bsb)
 			: binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>(bsb)
 		{
 

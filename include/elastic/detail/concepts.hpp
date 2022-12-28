@@ -72,5 +72,8 @@ namespace elastic
 
 		template<typename _Ty>
 		concept char_t = std::is_same_v<std::remove_cvref_t<_Ty>, char> || std::is_same_v<std::remove_cvref_t<_Ty>, wchar_t>;
+
+		template<typename _Ty>
+		concept pod_class_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>> && std::is_class_v<std::remove_cvref_t<_Ty>>;
 	} // namespace detail
 } // namespace elastic
