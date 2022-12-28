@@ -51,6 +51,8 @@ namespace elastic
 			{}
 
 			basic_streambuf(const basic_streambuf& buf)
+				: rpos_(0)
+				, wpos_(0)
 			{
 				if (this != &buf)
 				{

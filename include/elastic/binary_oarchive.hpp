@@ -8,10 +8,18 @@ namespace elastic
 	namespace detail
 	{
 		template<typename _Archive, typename _Elem, typename _Traits>
-		class binary_oarchive_impl : public binary_oprimitive<_Archive, _Elem, _Traits>
+		class binary_oarchive_impl : private binary_oprimitive<_Archive, _Elem, _Traits>
 		{
 		public:
-			binary_oarchive_impl(std::basic_streambuf<_Elem, _Traits>& sb)
+			explicit binary_oarchive_impl() = default;
+
+			explicit binary_oarchive_impl(std::size_t number)
+				: binary_oprimitive<_Archive, _Elem, _Traits>(number)
+			{
+
+			}
+
+			explicit binary_oarchive_impl(std::basic_streambuf<_Elem, _Traits>& sb)
 				: binary_oprimitive<_Archive, _Elem, _Traits>(sb)
 			{
 
@@ -38,13 +46,21 @@ namespace elastic
 		: public detail::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>
 	{
 	public:
-		binary_oarchive(std::ostream& os)
+		explicit binary_oarchive() = default;
+
+		explicit binary_oarchive(std::size_t capa)
+			: detail::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>(capa)
+		{
+
+		}
+
+		explicit binary_oarchive(std::ostream& os)
 			: detail::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>(os)
 		{
 
 		}
 
-		binary_oarchive(std::streambuf& bsb)
+		explicit binary_oarchive(std::streambuf& bsb)
 			: detail::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>(bsb)
 		{
 

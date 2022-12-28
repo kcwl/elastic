@@ -1,6 +1,7 @@
 #pragma once
-#include <streambuf>
 #include <elastic/detail/concepts.hpp>
+#include <iterator>
+#include <streambuf>
 
 namespace
 {
@@ -9,41 +10,215 @@ namespace
 
 namespace elastic
 {
-	template<typename _Archive, typename _Elem, typename _Traits>
-	class binary_primitive
+	template<typename _Elem, typename _Traits, typename _Alloc>
+	class basic_binary_primitive
 	{
+		using pointer = typename std::basic_streambuf<_Elem, _Traits>::char_type*;
+		using const_pointer = const pointer;
+
 	public:
-		explicit binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: sb_(sb)
+		explicit basic_binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
+			: streambuf_(sb)
 		{
 
 		}
 
-		_Archive* _this()
+	public:
+		std::size_t active() noexcept
+		{
+			return streambuf_.pptr() - streambuf_.gptr();
+		}
+
+		std::size_t active() const noexcept
+		{
+			return streambuf_.pptr() - streambuf_.gptr();
+		}
+
+		pointer wdata() noexcept
+		{
+			return streambuf_.pptr();
+		}
+
+		const_pointer wdata() const noexcept
+		{
+			return streambuf_.pptr();
+		}
+
+		pointer rdata() noexcept
+		{
+			return streambuf_.gptr();
+		}
+
+		const_pointer rdata() const noexcept
+		{
+			return streambuf_.gptr();
+		}
+
+		void commit(int bytes)
+		{
+			bytes = std::(min)(bytes, streambuf_.epptr() - streambuf_.pptr());
+			streambuf_.pbump(static_cast<int>(bytes));
+			streambuf_.setg(streambuf_.eback(), streambuf_.gptr(), streambuf_.pptr());
+		}
+
+		void consume(int bytes)
+		{
+			if (streambuf_.egptr() < streambuf_.pptr())
+				streambuf_.setg(&buffer_[0], streambuf_.gptr(), streambuf_.pptr());
+
+			if (streambuf_.gptr() + bytes > streambuf_.pptr())
+				bytes = static_cast<int>(streambuf_.pptr() - streambuf_.gptr());
+
+			streambuf_.gbump(bytes);
+		}
+
+	public:
+		std::basic_streambuf<_Elem, _Traits>& streambuf_;
+	};
+
+	template<typename _Archive, typename _Elem, typename _Traits>
+	class binary_primitive
+		: public basic_binary_primitive<_Elem, _Traits, std::allocator<_Elem>>
+		, public std::basic_streambuf<_Elem, _Traits>
+	{
+		using allocator_type = std::allocator<_Elem>;
+
+		using base_type = std::basic_streambuf<_Elem, _Traits>;
+	public:
+		using iterator = typename std::vector<_Elem, allocator_type>::iterator;
+		using const_iterator = typename std::vector<_Elem, allocator_type>::const_iterator;
+		using value_type = typename std::vector<_Elem, allocator_type>::value_type;
+		using size_type = typename std::vector<_Elem, allocator_type>::size_type;
+		using reference = typename std::vector<_Elem, allocator_type>::reference;
+		using const_reference = typename std::vector<_Elem, allocator_type>::const_reference;
+
+		constexpr static size_type capacity = 4096;
+
+	public:
+		explicit binary_primitive()
+			: binary_primitive(capacity)
+		{
+
+		}
+
+		explicit binary_primitive(size_type number)
+			: buffer_(number)
+			, basic_binary_primitive<_Elem, _Traits, allocator_type>(*this)
+		{
+			reset();
+		}
+
+		explicit binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
+			: basic_binary_primitive<_Elem, _Traits, allocator_type>(sb)
+			, buffer_(0)
+		{
+
+		}
+
+		_Archive* archive()
 		{
 			return static_cast<_Archive*>(this);
 		}
 
+		constexpr iterator begin() noexcept
+		{
+			return buffer_.begin();
+		}
+
+		constexpr const_iterator begin() const noexcept
+		{
+			return buffer_.begin();
+		}
+
+		constexpr iterator end() noexcept
+		{
+			return buffer_.end();
+		}
+
+		constexpr const_iterator end() const noexcept
+		{
+			return buffer_.end();
+		}
+
+		void clear() noexcept
+		{
+			buffer_.clear();
+
+			reset();
+		}
+
+		void resize(size_type bytes)
+		{
+			buffer_.resize(bytes);
+		}
+
+		void swap(std::basic_streambuf<_Elem, _Traits>& buf)
+		{
+			buffer_.swap(buf);
+		}
+
+		auto erase(const_iterator& where)
+		{
+			this->consume(-1);
+
+			return buffer_.erase(where);
+		}
+
+		auto erase(const_iterator& begin, const_iterator& end)
+		{
+			auto dis = std::distance(begin, end);
+
+			this->consume(-dis);
+
+			return buffer_.erase(begin, end);
+		}
+
+		std::size_t size() noexcept
+		{
+			return buffer_.size();
+		}
+
+		std::size_t size() const noexcept
+		{
+			return buffer_.size();
+		}
+
 	private:
-		std::basic_streambuf<_Elem, _Traits>& sb_;
+		void reset()
+		{
+			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
+			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.size());
+		}
+
+
+	private:
+		std::vector<_Elem, std::allocator<_Elem>> buffer_;
 	};
 
 	template<typename _Archive, typename _Elem, typename _Traits>
-	class binary_iprimitive : public binary_primitive<_Archive, _Elem, _Traits>
+	class binary_oprimitive : private binary_primitive<_Archive, _Elem, _Traits>
 	{
 	public:
-		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: binary_primitive<_Archive,_Elem,_Traits>(sb)
+		explicit binary_oprimitive() = default;
+
+		explicit binary_oprimitive(size_type number)
+			: binary_primitive<_Archive, _Elem, _Traits>(number)
 		{
 
 		}
 
-		~binary_iprimitive() = default;
+		explicit binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
+			: binary_primitive<_Archive, _Elem, _Traits>(sb)
+		{
+
+		}
+
+		~binary_oprimitive() = default;
 
 		template<typename _Ty>
 		void save(const _Ty& t)
 		{
-			save_binary(&t, sizeof(T));
+			save_binary(&t, sizeof(_Ty));
 		}
 
 		template<detail::string_t _Ty>
@@ -51,7 +226,7 @@ namespace elastic
 		{
 			std::size_t bytes = s.size();
 
-			this->_this()->save(bytes);
+			this->archive()->save(bytes);
 
 			save_binary(s.data(), bytes * sizeof(typename _Ty::value_type) / bitwises);
 		}
@@ -61,7 +236,7 @@ namespace elastic
 		{
 			std::size_t bytes = str<_Ty>::len(t);
 
-			this->_this()->save(bytes);
+			this->archive()->save(bytes);
 
 			save_binary(t, bytes * sizeof(_Ty) / bitwises);
 		}
@@ -70,6 +245,23 @@ namespace elastic
 		void save_array(const _Array& a)
 		{
 
+		}
+
+		template<attribute _Ty>
+		void save(const _Ty& t)
+		{
+			if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
+			{
+				if constexpr (_Ty::require_value)
+				{
+					if (!t.has_value())
+					{
+						throw std::runtime_error("maybe some type must have some values!");
+					}
+				}
+			}
+
+			save(*t);
 		}
 
 	private:
@@ -96,24 +288,32 @@ namespace elastic
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
 
-			auto scount = sb_.sputn(static_cast<_Elem*>(address), static_cast<std::streamsize>(count));
+			auto scount = streambuf_.sputn(static_cast<_Elem*>(address), static_cast<std::streamsize>(count));
 
 			if (count != scount)
-				throw std::runtime_error("");
+				throw;
 		}
 	};
 
 	template<typename _Archive, typename _Elem, typename _Traits>
-	class binary_oprimitive : public binary_primitive<_Archive, _Elem, _Traits>
+	class binary_iprimitive : private binary_primitive<_Archive, _Elem, _Traits>
 	{
 	public:
-		binary_oprimitive(std::basic_streambuf<_Elem,_Traits>& sb)
+		explicit binary_iprimitive() = default;
+
+		explicit binary_iprimitive(size_type number)
+			: binary_primitive<_Archive, _Elem, _Traits>(number)
+		{
+
+		}
+
+		explicit binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)
 		{
 
 		}
 
-		~binary_oprimitive() = default;
+		~binary_iprimitive() = default;
 
 		template<typename _Ty>
 		void load(_Ty& t)
@@ -126,13 +326,13 @@ namespace elastic
 		{
 			std::size_t l{};
 
-			this->_this()->load(l);
+			this->archive()->load(l);
 
 			t.resize(l);
 
 			if (l == 0)
 				return;
-			
+
 			load_binary(&(*t.begin()), l);
 		}
 
@@ -140,7 +340,7 @@ namespace elastic
 		void load(_Ty& t)
 		{
 			std::size_t l{};
-			this->_this()->load(l);
+			this->archive()->load(l);
 			load_binary(&t, l * sizeof(_Ty) / bitwishes);
 			t[l] = end<_Ty>::value;
 		}
@@ -173,7 +373,7 @@ namespace elastic
 			if (s > 0)
 			{
 				_Elem t{};
-				scount = sb_.sgetn(&t, 1);
+				scount = streambuf_.sgetn(&t, 1);
 
 				if (scount != 1)
 					throw;
