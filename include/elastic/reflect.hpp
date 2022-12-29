@@ -18,6 +18,6 @@ namespace elastic
     template <std::size_t N, typename _Ty>
     constexpr auto get(const _Ty& val)
     {
-        return std::get<N>(detail::template make_tuple(val, detail::template size_t_<tuple_size_v<_Ty>>{}));
+        return std::get<N>(detail::template make_tuple(val, detail::template size_t_<elastic::tuple_size_v<_Ty>>{}));
     }
 } // namespace elastic

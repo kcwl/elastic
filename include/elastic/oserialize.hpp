@@ -12,29 +12,28 @@ namespace elastic
 		template<typename _Archive>
 		struct save_non_pointer_type
 		{
-
 			struct save_standard
 			{
 				template<typename _Ty>
-				static void invoke(_Archive& ar, const _Ty& t)
+				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					message<_Ty, _Archive>::to_binary(t, ar);
+					message<_Ty, _Archive>::to_binary(std::forward<_Ty>(t), ar);
 				}
 			};
 
 			struct save_only
 			{
 				template<typename _Ty>
-				static void invoke(_Archive& ar, const _Ty& t)
+				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					access::serialize(ar, const_cast<_Ty>(t));
+					access::serialize(ar, const_cast<_Ty&>(t));
 				}
 			};
 
 			struct save_varint
 			{
 				template<typename _Ty>
-				static void invoke(_Archive& ar, const _Ty& t)
+				static void invoke(_Archive& ar, _Ty&& t)
 				{
 					varint<_Archive>::to_binary(t, ar);
 				}
@@ -43,18 +42,18 @@ namespace elastic
 			struct save_string
 			{
 				template<typename _Ty>
-				static void invoke(_Archive& ar, const _Ty& t)
+				static void invoke(_Archive& ar, _Ty&& t)
 				{
 					strings<_Ty, _Archive>::to_binary(t, ar);
 				}
 			};
 
 			template<typename _Ty>
-			static void invoke(_Archive& ar, const _Ty& t)
+			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				using typex = std::conditional_t<detail::pod_class_t<_Ty>, detail::identify<save_standard>, std::conditional_t<detail::string_t<_Ty>, detail::identify<save_string>, detail::identify<save_only>>>>;
+				using typex = std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>, std::conditional_t<detail::string_t<_Ty>, detail::identify_t<save_string>, detail::identify_t<save_only>>>;
 
-				typex::invoke(ar, t);
+				typex::invoke(ar, std::forward<_Ty>(t));
 			}
 		};
 
@@ -72,7 +71,7 @@ namespace elastic
 		struct save_enum_type
 		{
 			template<typename _Ty>
-			static void invoke(_Archive& ar, const _Ty& t)
+			static void invoke(_Archive& ar, _Ty&& t)
 			{
 				ar << static_cast<int>(t);
 			}
@@ -82,7 +81,7 @@ namespace elastic
 		struct save_array_type
 		{
 			template<typename _Ty>
-			static void invoke(_Archive& ar, const _Ty& t)
+			static void invoke(_Archive& ar, _Ty&& t)
 			{
 				std::size_t c = sizeof(t) / (static_cast<const char*>(static_cast<const void*>(&t[1])) - static_cast<const char*>(static_cast<const void*>(&t[0])));
 
@@ -93,17 +92,17 @@ namespace elastic
 		};
 
 		template<typename _Archive, typename _Ty>
-		inline void save(_Archive& ar, _Ty& t)
+		inline void save(_Archive& ar, _Ty&& t)
 		{
-			using typex = std::conditional<std::is_pointer_v<_Ty>, detail::identify<save_pointer_type<_Archive>>,
-				std::conditional<std::is_enum_v<_Ty>, detail::identify<save_enum_type<_Archive>>,
-				std::conditional<std::is_array_v<_Ty>, detail::identify<save_array_type<_Archive>>,
-				detail::identify<save_non_pointer_type<_Archive>>
+			using typex = std::conditional_t<std::is_pointer_v<_Ty>, detail::identify_t<save_pointer_type<_Archive>>,
+				std::conditional_t<std::is_enum_v<_Ty>, detail::identify_t<save_enum_type<_Archive>>,
+				std::conditional_t<std::is_array_v<_Ty>, detail::identify_t<save_array_type<_Archive>>,
+				detail::identify_t<save_non_pointer_type<_Archive>>
 				>
 				>
-			>::type;
+			>;
 
-			typex::invoke(ar, t);
+			typex::invoke(ar, std::forward<_Ty>(t));
 		}
 	}
 }

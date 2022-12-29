@@ -10,3 +10,4 @@
 #include <elastic/oserialize.hpp>
 #include <elastic/binary_iarchive.hpp>
 #include <elastic/binary_oarchive.hpp>
+#include <elastic/serialize_streambuf.hpp>

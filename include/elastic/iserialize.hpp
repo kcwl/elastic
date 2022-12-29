@@ -14,7 +14,7 @@ namespace elastic
 				template<typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					message<_Ty, _Archive>::parse_binary(t, ar);
+					t = message<_Ty, _Archive>::parse_binary(ar);
 				}
 			};
 
@@ -32,7 +32,7 @@ namespace elastic
 				template<typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					varint<_Archive>::parse_binary(t, ar);
+					t = varint<_Archive>::parse_binary(ar);
 				}
 			};
 
@@ -41,14 +41,14 @@ namespace elastic
 				template<typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					strings<_Ty, _Archive>::parse_binary(t, ar);
+					t = strings<_Ty, _Archive>::parse_binary(ar);
 				}
 			};
 
 			template<typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				using typex = std::conditional_t<detail::pod_class_t<_Ty>, detail::identify<load_standard>, std::conditional_t<detail::string_t<_Ty>, detail::identify<load_string>, detail::identify<load_only>> >> ;
+				using typex = std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>, std::conditional_t<detail::string_t<_Ty>, detail::identify_t<load_string>, detail::identify_t<load_only>> > ;
 
 				typex::invoke(ar, t);
 			}
@@ -93,13 +93,13 @@ namespace elastic
 		template<typename _Archive, typename _Ty>
 		inline void load(_Archive& ar, _Ty& t)
 		{
-			using typex = std::conditional<std::is_pointer_v<_Ty>, detail::identify<load_pointer_type<_Archive>>,
-				std::conditional<std::is_enum_v<_Ty>, detail::identify<load_enum_type<_Archive>>,
-				std::conditional<std::is_array_v<_Ty>, detail::identify<load_array_type<_Archive>>,
-				detail::identify<load_non_pointer_type<_Archive>>
+			using typex = std::conditional_t<std::is_pointer_v<_Ty>, detail::identify_t<load_pointer_type<_Archive>>,
+				std::conditional_t<std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
+				std::conditional_t<std::is_array_v<_Ty>, detail::identify_t<load_array_type<_Archive>>,
+				detail::identify_t<load_non_pointer_type<_Archive>>
 				>
 				>
-			>::type;
+			>;
 
 			typex::invoke(ar, t);
 		}
