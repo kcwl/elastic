@@ -31,11 +31,19 @@ namespace elastic
 
 	public:
 		template<typename _Ty>
-		_Archive& operator>>(const _Ty& t)
+		_Archive& operator>>(_Ty& t)
 		{
-			serialize::load(this->_this(), t);
+			serialize::load<serialize::input_version>(this->archive(), t);
 
-			return *this->_this();
+			return *this->archive();
+		}
+
+		template<typename _Ty>
+		_Archive& operator&(_Ty& t)
+		{
+			this->archive() >> t;
+
+			return *this->archive();
 		}
 	};
 
