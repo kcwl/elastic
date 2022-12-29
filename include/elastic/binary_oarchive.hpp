@@ -35,9 +35,17 @@ namespace elastic
 			template<typename _Ty>
 			_Archive& operator<<(const _Ty& t)
 			{
-				serialize::save(this->_this(), t);
+				serialize::save(this->archive(), t);
 
-				return *this->_this();
+				return *this->archive();
+			}
+
+			template<typename _Ty>
+			_Archive& operator&(const _Ty& t)
+			{
+				this->archive() << t;
+
+				return this->archive();
 			}
 		};
 	}
