@@ -46,5 +46,8 @@ namespace elastic
             using type = _Ty;
         };
 
+        template<typename _Ty>
+        using identify_t = typename identify<std::remove_cvref_t<_Ty>>::type;
+
     } // namespace detail
 } // namespace elastic

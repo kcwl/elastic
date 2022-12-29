@@ -1,6 +1,5 @@
 #pragma once
 #include <elastic/strings.hpp>
-#include <elastic/tuple_size.hpp>
 #include <elastic/reflect.hpp>
 
 namespace
@@ -29,20 +28,20 @@ namespace elastic
 			_Ty value{};
 
 			for_each(std::move(value),
-					 [this](auto& v)
+					 [&](auto&& v)
 					 {
 						 using type = decltype(v);
 						 if constexpr (detail::varint<std::remove_cvref_t<type>>)
 						 {
-							 v = varint<_StreamBuf>::template parse_binary<type>(buf);
+							 value = varint<_StreamBuf>::template parse_binary<type>(buf);
 						 }
 						 else if constexpr (detail::string_t<std::_Remove_cvref_t<type>>)
 						 {
-							 v = strings<type, _StreamBuf>::template parse_binary(buf);
+							 value = strings<type, _StreamBuf>::template parse_binary(buf);
 						 }
 						 else
 						 {
-							 v = message<type, _StreamBuf>::template parse_binary(buf);
+							 value = message<type, _StreamBuf>::template parse_binary(buf);
 						 }
 					 });
 

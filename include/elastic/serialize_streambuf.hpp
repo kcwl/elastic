@@ -5,8 +5,11 @@
 
 namespace elastic
 {
+	constexpr static std::size_t capacity = 4096;
+
 	template<typename _Elem, typename _Traits, typename _Alloc = std::allocator<_Elem>>
-	class serialize_streambuf : public std::basic_streambuf<_Elem, _Traits>
+	class serialize_streambuf 
+		: public std::basic_streambuf<_Elem, _Traits>
 	{
 		using allocator_type = _Alloc;
 
@@ -20,8 +23,6 @@ namespace elastic
 		using const_reference = typename std::vector<_Elem, allocator_type>::const_reference;
 		using pointer = typename std::vector<_Elem, allocator_type>::pointer;
 		using const_pointer = std::vector<_Elem, allocator_type>::const_pointer;
-
-		constexpr static size_type capacity = 4096;
 
 	public:
 		serialize_streambuf()
@@ -42,11 +43,11 @@ namespace elastic
 			std::copy(begin, end, std::back_inserter(buffer_));
 		}
 
-		template<typename _Ty, std::size_t N, typename = std::is_convertible<_Ty,_Elem>>
+		template<typename _Ty, std::size_t N, typename = std::is_convertible<_Ty, _Elem>>
 		serialize_streambuf(std::span<_Ty, N> data)
 			: serialize_streambuf()
 		{
-			
+
 		}
 
 		serialize_streambuf(const serialize_streambuf& buf)
@@ -112,6 +113,15 @@ namespace elastic
 				bytes = static_cast<int>(base_type::pptr() - base_type::gptr());
 
 			base_type::gbump(bytes);
+		}
+
+		std::streamsize xsputn(const _Elem* _Ptr, std::streamsize _Count) override
+		{
+			auto res = base_type::xsputn(_Ptr, _Count);
+
+			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
+
+			return res;
 		}
 
 		constexpr iterator begin() noexcept

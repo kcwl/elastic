@@ -33,7 +33,7 @@ namespace elastic
 
 			value % 2 == 0 ? value /= 2 : value = (uint128_t{ 0 } - (value - 1)) / 2;
 
-			return static_cast<_Ty>(value.low());
+			return std::move(static_cast<_Ty>(value.low()));
 		}
 
 		template <detail::multi_numric _Ty>

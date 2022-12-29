@@ -20,6 +20,11 @@ namespace elastic
 
 		}
 
+		std::basic_streambuf<_Elem, _Traits>* rdbuf()
+		{
+			return &streambuf_;
+		}
+
 	public:
 		std::basic_streambuf<_Elem, _Traits>& streambuf_;
 	};
@@ -29,22 +34,8 @@ namespace elastic
 		: public basic_binary_primitive<_Elem, _Traits>
 	{
 	public:
-		explicit binary_primitive()
-			: binary_primitive(0)
-		{
-
-		}
-
-		explicit binary_primitive(std::size_t number)
-			: buffer_(number)
-			, basic_binary_primitive<_Elem, _Traits>(*buffer_.rdbuf())
-		{
-
-		}
-
 		explicit binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: basic_binary_primitive<_Elem, _Traits>(sb)
-			, buffer_(0)
 		{
 
 		}
@@ -53,23 +44,12 @@ namespace elastic
 		{
 			return static_cast<_Archive*>(this);
 		}
-
-	private:
-		serialize_streambuf<_Elem,_Traits> buffer_;
 	};
 
 	template<typename _Archive, typename _Elem, typename _Traits>
 	class binary_oprimitive : public binary_primitive<_Archive, _Elem, _Traits>
 	{
 	public:
-		explicit binary_oprimitive() = default;
-
-		explicit binary_oprimitive(std::size_t number)
-			: binary_primitive<_Archive, _Elem, _Traits>(number)
-		{
-
-		}
-
 		explicit binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)
 		{
@@ -78,53 +58,31 @@ namespace elastic
 
 		~binary_oprimitive() = default;
 
+	public:
 		template<typename _Ty>
-		void save(const _Ty& t)
+		void append(const _Ty& t)
 		{
-			save_binary(&t, sizeof(_Ty));
+			save_binary(std::addressof(t), sizeof(_Ty));
 		}
 
 		template<detail::string_t _Ty>
-		void save(const _Ty& s)
+		void append(const _Ty& s)
 		{
 			std::size_t bytes = s.size();
 
-			this->archive()->save(bytes);
+			this->archive()->append(bytes);
 
 			save_binary(s.data(), bytes * sizeof(typename _Ty::value_type) / bitwises);
 		}
 
 		template<detail::char_t _Ty>
-		void save(const _Ty* t)
+		void append(const _Ty* t)
 		{
 			std::size_t bytes = str<_Ty>::len(t);
 
-			this->archive()->save(bytes);
+			this->archive()->append(bytes);
 
 			save_binary(t, bytes * sizeof(_Ty) / bitwises);
-		}
-
-		template<typename _Array>
-		void save_array(const _Array& a)
-		{
-
-		}
-
-		template<attribute _Ty>
-		void save(const _Ty& t)
-		{
-			if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
-			{
-				if constexpr (_Ty::require_value)
-				{
-					if (!t.has_value())
-					{
-						throw std::runtime_error("maybe some type must have some values!");
-					}
-				}
-			}
-
-			save(*t);
 		}
 
 	private:
@@ -151,9 +109,9 @@ namespace elastic
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
 
-			auto scount = streambuf_.sputn(static_cast<_Elem*>(address), static_cast<std::streamsize>(count));
+			auto scount = streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
 
-			if (count != scount)
+			if (count != static_cast<std::size_t>(scount))
 				throw;
 		}
 	};
@@ -162,14 +120,6 @@ namespace elastic
 	class binary_iprimitive : public binary_primitive<_Archive, _Elem, _Traits>
 	{
 	public:
-		explicit binary_iprimitive() = default;
-
-		explicit binary_iprimitive(std::size_t number)
-			: binary_primitive<_Archive, _Elem, _Traits>(number)
-		{
-
-		}
-
 		explicit binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)
 		{
@@ -178,18 +128,25 @@ namespace elastic
 
 		~binary_iprimitive() = default;
 
+	public:
 		template<typename _Ty>
-		void load(_Ty& t)
+		_Ty read()
 		{
-			load_binary(&t, sizeof(_Ty));
+			_Ty t{};
+
+			load_binary(std::addressof(t), sizeof(_Ty));
+
+			return t;
 		}
 
 		template<detail::string_t _Ty>
-		void load(_Ty& t)
+		_Ty read()
 		{
+			_Ty t{};
+
 			std::size_t l{};
 
-			this->archive()->load(l);
+			this->archive()->template read(l);
 
 			t.resize(l);
 
@@ -197,15 +154,19 @@ namespace elastic
 				return;
 
 			load_binary(&(*t.begin()), l);
+
+			return t;
 		}
 
 		template<detail::char_t _Ty>
-		void load(_Ty& t)
+		_Ty read()
 		{
 			std::size_t l{};
-			this->archive()->load(l);
+			this->archive()->template read(l);
 			load_binary(&t, l * sizeof(_Ty) / bitwishes);
 			t[l] = end<_Ty>::value;
+
+			return t;
 		}
 
 	private:
@@ -226,7 +187,7 @@ namespace elastic
 		{
 			std::streamsize s = count / sizeof(_Elem);
 
-			auto scount = sb_.sgetn(static_cast<_Elem*>(address), s);
+			auto scount = streambuf_.sgetn(static_cast<_Elem*>(address), s);
 
 			if (scount != s)
 				throw;

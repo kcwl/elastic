@@ -37,7 +37,7 @@ namespace elastic
 			std::is_same_v<_Ty, uint32_t> || std::is_same_v<_Ty, uint64_t>;
 
 		template <typename _Ty>
-		concept single_numric = single_signed_numric<_Ty> || single_unsigned_numric<_Ty>;
+		concept single_numric = single_signed_numric<std::remove_cvref_t<_Ty>> || single_unsigned_numric<std::remove_cvref_t<_Ty>>;
 
 		template <typename _Ty>
 		concept multi_numric =
