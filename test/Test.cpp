@@ -1102,7 +1102,6 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::binary_oarchive oa(buf);
 
 		BOOST_CHECK_THROW(oa << value, std::runtime_error);
-
 	}
 
 	{
@@ -1254,7 +1253,7 @@ private:
 	void serialize(_Archive& ar)
 	{
 		ar& elastic::serialize::base_object<son>(*this);
-		ar & b;
+		ar& b;
 	}
 };
 
@@ -1268,11 +1267,22 @@ BOOST_AUTO_TEST_CASE(nested)
 	ss.b = 2;
 
 	oa << ss;
-	
+
 	grand_son sr{};
 	elastic::binary_iarchive ia(buf);
 	ia >> sr;
 
 	BOOST_CHECK(ss.a == sr.a);
 	BOOST_CHECK(ss.b == sr.b);
+}
+
+BOOST_AUTO_TEST_CASE(serialize_buffer)
+{
+	{
+		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::binary_iarchive ia(buf);
+
+		int a = 0;
+		BOOST_CHECK_THROW(ia >> a, std::runtime_error);
+	}
 }

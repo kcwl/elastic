@@ -109,10 +109,7 @@ namespace elastic
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
 
-			auto scount = streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
-
-			if (count != static_cast<std::size_t>(scount))
-				throw;
+			streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
 		}
 	};
 
@@ -190,20 +187,7 @@ namespace elastic
 			auto scount = streambuf_.sgetn(static_cast<_Elem*>(address), s);
 
 			if (scount != s)
-				throw;
-
-			s = count % sizeof(_Elem);
-
-			if (s > 0)
-			{
-				_Elem t{};
-				scount = streambuf_.sgetn(&t, 1);
-
-				if (scount != 1)
-					throw;
-
-				std::memcpy(static_cast<char*>(address) + (count - s), &t, static_cast<std::size_t>(s));
-			}
+				throw std::runtime_error("memory is not enough!");
 		}
 
 	};
