@@ -1228,3 +1228,51 @@ BOOST_AUTO_TEST_CASE(int128)
 		BOOST_CHECK((a / 2) == 3);
 	}
 }
+
+struct son
+{
+	int a;
+
+private:
+	friend class elastic::access;
+
+	template <typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar& a;
+	}
+};
+
+struct grand_son : son
+{
+	int b;
+
+private:
+	friend class elastic::access;
+
+	template <typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar& elastic::serialize::base_object<son>(*this);
+		ar & b;
+	}
+};
+
+BOOST_AUTO_TEST_CASE(nested)
+{
+	elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+	elastic::binary_oarchive oa(buf);
+
+	grand_son ss{};
+	ss.a = 1;
+	ss.b = 2;
+
+	oa << ss;
+	
+	grand_son sr{};
+	elastic::binary_iarchive ia(buf);
+	ia >> sr;
+
+	BOOST_CHECK(ss.a == sr.a);
+	BOOST_CHECK(ss.b == sr.b);
+}
