@@ -1,6 +1,7 @@
 #pragma once
 #include <streambuf>
 #include <vector>
+#include <span>
 
 
 namespace elastic
@@ -198,6 +199,24 @@ namespace elastic
 		std::size_t size() const noexcept
 		{
 			return buffer_.size();
+		}
+
+		void normalize()
+		{
+			if (rdata() == &buffer_[0])
+				return;
+
+			std::memmove(buffer_.data(), rdata(), wdata() - rdata());
+
+			reset();
+		}
+
+		void ensure()
+		{
+			if (buffer_.size() != wpos_)
+				return;
+
+			buffer_.resize(buffer_.size() * 2);
 		}
 
 	private:
