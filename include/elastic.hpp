@@ -1,6 +1,5 @@
 #pragma once
 #include <elastic/attribute.hpp>
-#include <elastic/iostream.hpp>
 #include <elastic/reflect.hpp>
 #include <elastic/sequence.hpp>
 #include <elastic/tuple_size.hpp>
