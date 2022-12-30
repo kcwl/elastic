@@ -28,15 +28,6 @@ namespace elastic
 				}
 			};
 
-			struct save_varint
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty&& t)
-				{
-					varint<_Archive>::to_binary(t, ar);
-				}
-			};
-
 			struct save_string
 			{
 				template <typename _Ty>
@@ -87,18 +78,10 @@ namespace elastic
 					if constexpr (std::remove_cvref_t<_Ty>::require_value)
 					{
 						if (!t.has_value())
-						{
 							throw std::runtime_error("maybe some type must have some values!");
-						}
-						else
-						{
-							ar << *t;
-						}
 					}
-					else
-					{
-						ar << *t;
-					}
+
+					ar << *t;
 				}
 				else
 				{
