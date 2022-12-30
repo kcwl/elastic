@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <elastic/detail/basic_streambuf.hpp>
 #include <elastic/int128.hpp>
 
 namespace elastic
