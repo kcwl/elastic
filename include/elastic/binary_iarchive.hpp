@@ -33,7 +33,7 @@ namespace elastic
 		template<typename _Ty>
 		_Archive& operator&(_Ty& t)
 		{
-			this->archive() >> t;
+			*this->archive() >> t;
 
 			return *this->archive();
 		}

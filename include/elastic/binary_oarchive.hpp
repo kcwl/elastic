@@ -35,9 +35,9 @@ namespace elastic
 			template<typename _Ty>
 			_Archive& operator&(const _Ty& t)
 			{
-				this->archive() << t;
+				*this->archive() << t;
 
-				return this->archive();
+				return *this->archive();
 			}
 		};
 	}
