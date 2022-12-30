@@ -1,5 +1,5 @@
 #pragma once
-#include <elastic/strings.hpp>
+#include <elastic/sequence.hpp>
 #include <elastic/reflect.hpp>
 
 namespace
@@ -23,41 +23,46 @@ namespace elastic
 	template <typename _Ty, typename _StreamBuf>
 	struct message
 	{
+		template <std::size_t I, typename _Ty>
+		static auto make_element(_StreamBuf& buf)
+		{
+			auto element = elastic::get<I>(_Ty{});
+
+			using element_t = decltype(element);
+
+			if constexpr (detail::varint<element_t>)
+			{
+				return varint<_StreamBuf>::template parse_binary<element_t>(buf);
+			}
+			else if constexpr (detail::sequence_t<element_t>)
+			{
+				return sequence<element_t, _StreamBuf>::template parse_binary(buf);
+			}
+			else
+			{
+				return message<element_t, _StreamBuf>::template parse_binary(buf);
+			}
+		}
+
+		template <typename _Ty, std::size_t... I>
+		static auto pop_element(_StreamBuf& buf, std::index_sequence<I...>)
+		{
+			return _Ty{ make_element<I, _Ty>(buf)... };
+		}
+
 		static _Ty parse_binary(_StreamBuf& buf)
 		{
-			_Ty value{};
+			constexpr auto N = elastic::tuple_size_v<_Ty>;
 
-			for_each(std::move(value),
-					 [&](auto&& v)
-					 {
-						 using type = decltype(v);
-						 if constexpr (detail::varint<std::remove_cvref_t<type>>)
-						 {
-							 value = varint<_StreamBuf>::template parse_binary<type>(buf);
-						 }
-						 else if constexpr (detail::string_t<std::_Remove_cvref_t<type>>)
-						 {
-							 value = strings<type, _StreamBuf>::template parse_binary(buf);
-						 }
-						 else
-						 {
-							 value = message<type, _StreamBuf>::template parse_binary(buf);
-						 }
-					 });
+			using Indices = std::make_index_sequence<N>;
+
+			_Ty value = pop_element<_Ty>(buf, Indices{});
 
 			return value;
 		}
 
 		static void to_binary(_Ty&& value, _StreamBuf& buf)
 		{
-			// auto bytes = value.size();
-
-			// varint<_StreamBuf>::to_binary(std::move(bytes), buf);
-
-			// for (auto s : std::forward<_Ty>(value))
-			//{
-			//	varint<_StreamBuf>::to_binary(std::move(s), buf);
-			// }
 			for_each(std::move(value),
 					 [&](auto&& v)
 					 {
@@ -66,9 +71,9 @@ namespace elastic
 						 {
 							 varint<_StreamBuf>::template to_binary(std::move(v), buf);
 						 }
-						 else if constexpr (detail::string_t<std::_Remove_cvref_t<type>>)
+						 else if constexpr (detail::sequence_t<std::_Remove_cvref_t<type>>)
 						 {
-							 strings<type, _StreamBuf>::template to_binary(std::move(v), buf);
+							 sequence<type, _StreamBuf>::template to_binary(std::move(v), buf);
 						 }
 						 else
 						 {

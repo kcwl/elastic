@@ -250,11 +250,11 @@ namespace elastic
 
 				if (offset < offset_)
 				{
-					basic_int128 tmp{ (high_ << offset) + (low_ >> (offset_ - offset)), low_ << offset };
+					basic_int128 tmp{ static_cast<_High>((high_ << offset) + (low_ >> (offset_ - offset))), low_ << offset };
 					return tmp;
 				}
 
-				return basic_int128{ low_ << (offset - offset_), 0 };
+				return basic_int128{ static_cast<_High>(low_ << (offset - offset_)), 0 };
 			}
 
 			template <detail::integer_like _Ty>
@@ -277,7 +277,7 @@ namespace elastic
 					return std::move(basic_int128{ high_ >> offset, (high_ << (offset_ - offset)) + (low_ >> offset) });
 				}
 
-				return std::move(basic_int128{ 0, high_ >> (offset - offset_) });
+				return std::move(basic_int128{ 0, static_cast<_Low>(high_ >> (offset - offset_)) });
 			}
 
 			template <detail::integer_like _Ty>
@@ -291,7 +291,7 @@ namespace elastic
 					return std::move(basic_int128{ high_ >> offset, (high_ << (offset_ - offset)) + (low_ >> offset) });
 				}
 
-				return std::move(basic_int128{ 0, high_ >> (offset - offset_) });
+				return std::move(basic_int128{ 0, static_cast<_Low>(high_ >> (offset - offset_)) });
 			}
 
 			template <detail::integer_like _Ty>

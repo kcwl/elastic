@@ -1,7 +1,6 @@
 #pragma once
 #include <elastic/detail/basic_streambuf.hpp>
 #include <elastic/message.hpp>
-#include <elastic/reflect.hpp>
 #include <elastic/attribute.hpp>
 
 namespace elastic
@@ -50,7 +49,7 @@ namespace elastic
 			return *this;
 		}
 
-		template <detail::string_t _Ty>
+		template <detail::sequence_t _Ty>
 		iostream& operator>>(_Ty& value)
 		{
 			value = pop_string<_Ty>();
@@ -119,10 +118,10 @@ namespace elastic
 			message<_Ty, message_buffer>::template to_binary(std::forward<_Ty>(value), buffer_);
 		}
 		
-		template<detail::string_t _Ty>
+		template<detail::sequence_t _Ty>
 		void push(_Ty&& value)
 		{
-			strings<_Ty, message_buffer>::template to_binary(std::move(value), buffer_);
+			sequence<_Ty, message_buffer>::template to_binary(std::move(value), buffer_);
 		}
 
 		template<attribute _Ty>
@@ -167,7 +166,7 @@ namespace elastic
 			}
 			else if constexpr (detail::string_t<element_t>)
 			{
-				return strings<element_t, message_buffer>::template parse_binary(buffer_);
+				return sequence<element_t, message_buffer>::template parse_binary(buffer_);
 			}
 			else
 			{
@@ -181,10 +180,10 @@ namespace elastic
 			return _Ty{ make_element<I, _Ty>()... };
 		}
 
-		template <detail::string_t _Ty>
+		template <detail::sequence_t _Ty>
 		_Ty pop_string()
 		{
-			return strings<_Ty, message_buffer>::template parse_binary(buffer_);
+			return sequence<_Ty, message_buffer>::template parse_binary(buffer_);
 		}
 
 		template <typename _Ty, std::size_t N = elastic::tuple_size_v<_Ty>,
