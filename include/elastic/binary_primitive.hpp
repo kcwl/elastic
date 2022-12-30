@@ -65,7 +65,7 @@ namespace elastic
 			save_binary(std::addressof(t), sizeof(_Ty));
 		}
 
-		template<detail::string_t _Ty>
+		template <detail::sequence_t _Ty>
 		void append(const _Ty& s)
 		{
 			std::size_t bytes = s.size();
@@ -139,7 +139,7 @@ namespace elastic
 			return t;
 		}
 
-		template<detail::string_t _Ty>
+		template <detail::sequence_t _Ty>
 		_Ty read()
 		{
 			_Ty t{};

@@ -23,7 +23,7 @@ namespace elastic
 				template<typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					access::serialize(ar, const_cast<_Ty>(t));
+					access::serialize(ar, t);
 				}
 			};
 
@@ -32,7 +32,7 @@ namespace elastic
 				template<typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = varint<_Archive>::parse_binary(ar);
+					t = varint<_Archive>::parse_binary<_Ty>(ar);
 				}
 			};
 
@@ -41,14 +41,14 @@ namespace elastic
 				template<typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = strings<_Ty, _Archive>::parse_binary(ar);
+					t = sequence<_Ty, _Archive>::parse_binary(ar);
 				}
 			};
 
 			template<typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				using typex = std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>, std::conditional_t<detail::string_t<_Ty>, detail::identify_t<load_string>, detail::identify_t<load_only>> > ;
+				using typex = std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>, std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<load_string>, detail::identify_t<load_only>> > ;
 
 				typex::invoke(ar, t);
 			}
@@ -71,7 +71,11 @@ namespace elastic
 			template<typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				ar << static_cast<int>(t);
+				int value{};
+
+				load_non_pointer_type<_Archive>::load_varint::template invoke<int>(ar, value);
+
+				t = static_cast<_Ty>(value);
 			}
 		};
 
@@ -81,11 +85,33 @@ namespace elastic
 			template<typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				std::size_t c = sizeof(t) / (static_cast<const char*>(static_cast<const void*>(&t[1])) - static_cast<const char*>(static_cast<const void*>(&t[0])));
 
-				ar << c;
+			}
+		};
 
-				ar << t;
+		template<typename _Archive>
+		struct laod_optional_type
+		{
+			template <typename _Ty>
+			static void invoke(_Archive& ar, _Ty& t)
+			{
+				using type = typename _Ty::value_type;
+
+				type val{};
+
+				ar >> val;
+
+				t.emplace(val);
+			}
+		};
+
+		template <typename _Archive>
+		struct load_unsign_or_fixed_type
+		{
+			template <typename _Ty>
+			static void invoke(_Archive& ar, _Ty& t)
+			{
+				t.value_ = ar.read<typename _Ty::value_type>();
 			}
 		};
 
@@ -96,7 +122,10 @@ namespace elastic
 			using typex = std::conditional_t<std::is_pointer_v<_Ty>, detail::identify_t<load_pointer_type<_Archive>>,
 				std::conditional_t<std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
 				std::conditional_t<std::is_array_v<_Ty>, detail::identify_t<load_array_type<_Archive>>,
-				detail::identify_t<load_non_pointer_type<_Archive>>
+						std::conditional_t<optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
+										   std::conditional_t<unsign_t<_Ty> || fixed_t<_Ty>,
+															  detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
+															  detail::identify_t<load_non_pointer_type<_Archive>>>>
 				>
 				>
 			>;

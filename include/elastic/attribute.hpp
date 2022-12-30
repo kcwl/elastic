@@ -10,7 +10,7 @@ namespace elastic
 		template <typename _Ty>
 		struct fixed
 		{
-			using type = _Ty;
+			using value_type = _Ty;
 
 			template <typename _Integer>
 			fixed& operator=(const _Integer& other)
@@ -20,7 +20,7 @@ namespace elastic
 				return *this;
 			}
 
-			type value_;
+			value_type value_;
 		};
 
 		template <bool flag, typename _Ty>
@@ -101,6 +101,6 @@ namespace elastic
 	concept unsign_t = is_unsign<_Ty>::value;
 
 	template <typename _Ty>
-	concept attribute = optional_t<_Ty> || fixed_t<_Ty> || unsign_t<_Ty>;
+	concept attribute = optional_t<std::remove_cvref_t<_Ty>> || fixed_t<std::remove_cvref_t<_Ty>> || unsign_t<std::remove_cvref_t<_Ty>>;
 
 } // namespace elastic
