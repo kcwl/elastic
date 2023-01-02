@@ -33,13 +33,15 @@ namespace elastic
 		}
 
 		serialize_streambuf(size_type number)
-			: buffer_(number)
+			: start_trans_pos_(0) 
+			, buffer_(number)
 		{
 			reset();
 		}
 
 		template<typename _Iter>
 		serialize_streambuf(_Iter begin, _Iter end)
+			: serialize_streambuf()
 		{
 			std::copy(begin, end, std::back_inserter(buffer_));
 		}
@@ -219,6 +221,16 @@ namespace elastic
 			buffer_.resize(buffer_.size() * 2);
 		}
 
+		void start_transaction()
+		{
+			start_trans_pos_ = base_type::gptr() - buffer_.data();
+		}
+
+		void roll_back()
+		{
+			base_type::setg(&buffer_[start_trans_pos_], &buffer_[start_trans_pos_], &buffer_[start_trans_pos_]);
+		}
+
 	private:
 		void reset()
 		{
@@ -228,5 +240,7 @@ namespace elastic
 
 	private:
 		std::vector<_Elem, allocator_type> buffer_;
+
+		std::size_t start_trans_pos_;
 	};
 }

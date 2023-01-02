@@ -1276,6 +1276,13 @@ BOOST_AUTO_TEST_CASE(nested)
 	BOOST_CHECK(ss.b == sr.b);
 }
 
+struct part
+{
+	int a;
+	int b;
+	int c;
+};
+
 BOOST_AUTO_TEST_CASE(serialize_buffer)
 {
 	{
@@ -1284,5 +1291,25 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		int a = 0;
 		BOOST_CHECK_THROW(ia >> a, std::runtime_error);
+	}
+	{
+		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::binary_oarchive oa(buf);
+
+		int a = 0;
+		oa << 1;
+		oa << 2;
+
+		elastic::binary_iarchive ia(buf);
+
+		ia >> a;
+
+		part p{};
+
+		ia >> p;
+
+		part p1{};
+
+		BOOST_CHECK(p.a == p1.a && p.b == p1.b && p.c == p1.c);
 	}
 }
