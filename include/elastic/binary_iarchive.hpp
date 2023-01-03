@@ -56,9 +56,5 @@ namespace elastic
 		explicit binary_iarchive(std::streambuf& bsb)
 			: binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>(bsb)
 		{}
-
-		explicit binary_iarchive(serialize_streambuf<std::istream::char_type, std::istream::traits_type>& sb)
-			: binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>(sb)
-		{}
 	};
 } // namespace elastic
