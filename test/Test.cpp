@@ -1289,8 +1289,10 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_iarchive ia(buf);
 
-		int a = 0;
-		BOOST_CHECK_THROW(ia >> a, std::runtime_error);
+		int a = 1;
+		ia >> a;
+
+		BOOST_TEST(a == 1);
 	}
 	{
 		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
