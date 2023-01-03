@@ -4,7 +4,7 @@
 namespace elastic
 {
 	template <typename _Ty, typename _StreamBuf>
-	struct message; 
+	struct message;
 
 	template <detail::sequence_t _Ty, typename _StreamBuf>
 	struct sequence
@@ -31,7 +31,8 @@ namespace elastic
 
 			for (auto s : std::forward<_Ty>(value))
 			{
-				message<typename std::remove_cvref_t<_Ty>::value_type, _StreamBuf>::template to_binary(std::move(s), buf);
+				message<typename std::remove_cvref_t<_Ty>::value_type, _StreamBuf>::template to_binary(std::move(s),
+																									   buf);
 			}
 		}
 	};

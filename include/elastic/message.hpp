@@ -1,6 +1,6 @@
 #pragma once
-#include <elastic/sequence.hpp>
 #include <elastic/reflect.hpp>
+#include <elastic/sequence.hpp>
 
 namespace
 {
