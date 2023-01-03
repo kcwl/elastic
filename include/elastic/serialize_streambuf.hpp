@@ -1,20 +1,19 @@
 #pragma once
+#include <span>
 #include <streambuf>
 #include <vector>
-#include <span>
-
 
 namespace elastic
 {
 	constexpr static std::size_t capacity = 4096;
 
-	template<typename _Elem, typename _Traits, typename _Alloc = std::allocator<_Elem>>
-	class serialize_streambuf 
-		: public std::basic_streambuf<_Elem, _Traits>
+	template <typename _Elem, typename _Traits, typename _Alloc = std::allocator<_Elem>>
+	class serialize_streambuf : public std::basic_streambuf<_Elem, _Traits>
 	{
 		using allocator_type = _Alloc;
 
 		using base_type = std::basic_streambuf<_Elem, _Traits>;
+
 	public:
 		using iterator = typename std::vector<_Elem, allocator_type>::iterator;
 		using const_iterator = typename std::vector<_Elem, allocator_type>::const_iterator;
@@ -25,39 +24,38 @@ namespace elastic
 		using pointer = typename std::vector<_Elem, allocator_type>::pointer;
 		using const_pointer = std::vector<_Elem, allocator_type>::const_pointer;
 
+		using off_type = typename base_type::off_type;
+		using pos_type = typename base_type::pos_type;
+
 	public:
 		serialize_streambuf()
 			: serialize_streambuf(capacity)
-		{
-
-		}
+		{}
 
 		serialize_streambuf(size_type number)
-			: start_trans_pos_(0) 
-			, buffer_(number)
+			: buffer_(number)
 		{
 			reset();
 		}
 
-		template<typename _Iter>
+		template <typename _Iter>
 		serialize_streambuf(_Iter begin, _Iter end)
 			: serialize_streambuf()
 		{
 			std::copy(begin, end, std::back_inserter(buffer_));
 		}
 
-		template<typename _Ty, std::size_t N, typename = std::is_convertible<_Ty, _Elem>>
+		template <typename _Ty, std::size_t N, typename = std::is_convertible<_Ty, _Elem>>
 		serialize_streambuf(std::span<_Ty, N> data)
 			: serialize_streambuf()
-		{
-
-		}
+		{}
 
 		serialize_streambuf(const serialize_streambuf& buf)
 			: serialize_streambuf(buf.begin(), buf.end())
-		{
+		{}
 
-		}
+		serialize_streambuf(const std::streambuf& buf)
+		{}
 
 	public:
 		std::size_t active() noexcept
@@ -221,14 +219,107 @@ namespace elastic
 			buffer_.resize(buffer_.size() * 2);
 		}
 
-		void start_transaction()
+	protected:
+		virtual pos_type seekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode) override
 		{
-			start_trans_pos_ = base_type::gptr() - buffer_.data();
+			// change position by offset, according to way and mode
+
+			const auto pptr_old = base_type::pptr();
+
+			const auto gptr_old = base_type::gptr();
+
+			const auto seek_low = base_type::eback();
+
+			const auto seek_dist = pptr_old - seek_low;
+
+			off_type new_off{};
+
+			switch (way)
+			{
+			case std::ios::beg:
+				{
+					new_off = 0;
+				}
+				break;
+			case std::ios::end:
+				{
+					new_off = pptr_old - base_type::eback();
+				}
+				break;
+			case std::ios::cur:
+				{
+					constexpr auto both = std::ios::in | std::ios::out;
+					if ((mode & both) != both)
+					{
+						if (mode & std::ios::in)
+						{
+							if (gptr_old || !base_type::eback())
+							{
+								new_off = gptr_old - base_type::eback();
+							}
+						}
+						else if ((mode & std::ios::out) && (pptr_old || !base_type::eback()))
+						{
+							new_off = pptr_old - base_type::eback();
+						}
+					}
+				}
+				break;
+			default:
+				return pos_type(off_type(-1));
+			}
+
+			if (static_cast<unsigned long long>(off) + new_off > static_cast<unsigned long long>(seek_dist))
+				return pos_type(off_type(-1));
+
+			off += new_off;
+
+			if (off != 0 && (((mode & std::ios::in) && !gptr_old) || (mode & std::ios::out) && !pptr_old))
+				return pos_type(off_type(-1));
+
+			const auto new_ptr = seek_low + off;
+
+			if ((mode & std::ios::in) && gptr_old)
+				base_type::setg(seek_low, new_ptr, pptr_old);
+
+			if ((mode & std::ios::out) && pptr_old)
+				base_type::setg(seek_low, new_ptr, base_type::epptr());
+
+			return pos_type(off);
 		}
 
-		void roll_back()
+		virtual pos_type seekpos(pos_type pos, std::ios_base::openmode mode) override
 		{
-			base_type::setg(&buffer_[start_trans_pos_], &buffer_[start_trans_pos_], &buffer_[start_trans_pos_]);
+			// change to specified position, according to mode
+			const auto off = static_cast<std::streamoff>(pos);
+
+			const auto gptr_old = base_type::gptr();
+
+			const auto pptr_old = base_type::pptr();
+
+			const auto seek_low = base_type::eback();
+
+			const auto seek_dist = pptr_old - seek_low;
+
+			if (static_cast<unsigned long long>(off) > static_cast<unsigned long long>(seek_dist))
+				return pos_type(off_type(-1));
+
+			if (off != 0 && (((mode & std::ios::in) && !gptr_old)||((mode & std::ios::out)&& !pptr_old)))
+				return pos_type(off_type(-1));
+
+			const auto new_ptr = seek_low + off;
+
+			if ((mode & std::ios::in) && gptr_old)
+			{
+				base_type::setg(seek_low, new_ptr, pptr_old);
+			}
+
+			if ((mode & std::ios::out) && pptr_old)
+			{
+				base_type::setp(seek_low, new_ptr, base_type::epptr());
+			}
+
+			return pos_type(off);
 		}
 
 	private:
@@ -241,6 +332,6 @@ namespace elastic
 	private:
 		std::vector<_Elem, allocator_type> buffer_;
 
-		std::size_t start_trans_pos_;
+		pos_type transaction_start_;
 	};
-}
+} // namespace elastic

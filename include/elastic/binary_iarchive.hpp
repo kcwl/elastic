@@ -18,24 +18,19 @@ namespace elastic
 			: binary_iprimitive<_Archive, _Elem, _Traits>(*is.rdbuf())
 		{}
 
-		explicit binary_iarchive_impl(serialize_streambuf<_Elem, _Traits>& sb)
-			: buf_(sb)
-			, binary_iprimitive<_Archive, _Elem, _Traits>(sb)
-		{}
-
 	public:
 		template <typename _Ty>
 		_Archive& operator>>(_Ty& t)
 		{
 			try
 			{
-				buf_.start_transaction();
+				this->start();
 
 				serialize::load(*this->archive(), t);
 			}
 			catch (...)
 			{
-				buf_.roll_back();
+				this->roll_back();
 			}
 
 			return *this->archive();
@@ -48,9 +43,6 @@ namespace elastic
 
 			return *this->archive();
 		}
-
-	private:
-		serialize_streambuf<_Elem, _Traits> buf_;
 	};
 
 	class binary_iarchive
