@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <elastic/detail/basic_streambuf.hpp>
 #include <elastic/int128.hpp>
 
 namespace elastic
@@ -33,7 +32,7 @@ namespace elastic
 
 			value % 2 == 0 ? value /= 2 : value = (uint128_t{ 0 } - (value - 1)) / 2;
 
-			return static_cast<_Ty>(value.low());
+			return std::move(static_cast<_Ty>(value.low()));
 		}
 
 		template <detail::multi_numric _Ty>
@@ -47,7 +46,7 @@ namespace elastic
 		{
 			uint128_t result{};
 
-			value < 0 ? result = uint128_t{ (0ul-value)* 2 } + 1 : result = uint128_t{ value } * 2;
+			value < 0 ? result = uint128_t{ (0ul - value)* 2 } + 1 : result = uint128_t{ value } * 2;
 
 			while (result > 0x80)
 			{

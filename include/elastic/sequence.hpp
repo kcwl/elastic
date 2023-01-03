@@ -3,8 +3,11 @@
 
 namespace elastic
 {
-	template <detail::string_t _Ty,typename _StreamBuf>
-	struct strings
+	template <typename _Ty, typename _StreamBuf>
+	struct message;
+
+	template <detail::sequence_t _Ty, typename _StreamBuf>
+	struct sequence
 	{
 		static _Ty parse_binary(_StreamBuf& buf)
 		{
@@ -14,7 +17,7 @@ namespace elastic
 
 			for (uint16_t i = 0; i < bytes; ++i)
 			{
-				value.push_back(varint<_StreamBuf>::template parse_binary<typename _Ty::value_type>(buf));
+				value.push_back(message<typename _Ty::value_type, _StreamBuf>::template parse_binary(buf));
 			}
 
 			return value;
@@ -24,11 +27,12 @@ namespace elastic
 		{
 			auto bytes = value.size();
 
-			varint<_StreamBuf>::to_binary(std::move(bytes), buf);
+			varint<_StreamBuf>::template to_binary(std::move(bytes), buf);
 
 			for (auto s : std::forward<_Ty>(value))
 			{
-				varint<_StreamBuf>::to_binary(std::move(s), buf);
+				message<typename std::remove_cvref_t<_Ty>::value_type, _StreamBuf>::template to_binary(std::move(s),
+																									   buf);
 			}
 		}
 	};
