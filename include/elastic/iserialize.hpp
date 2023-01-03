@@ -1,5 +1,6 @@
 #pragma once
 #include <elastic/detail/type_traits.hpp>
+#include <elastic/access.hpp>
 
 namespace elastic
 {
@@ -32,7 +33,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = varint<_Archive>::parse_binary<_Ty>(ar);
+					t = varint<_Archive>::template parse_binary<_Ty>(ar);
 				}
 			};
 
@@ -41,7 +42,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = sequence<_Ty, _Archive>::parse_binary(ar);
+					t = sequence<_Ty, _Archive>::template parse_binary(ar);
 				}
 			};
 

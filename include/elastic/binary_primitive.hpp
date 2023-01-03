@@ -1,18 +1,16 @@
 #pragma once
 #include <elastic/detail/concepts.hpp>
-#include <elastic/serialize_streambuf.hpp>
+#include <streambuf>
 #include <iterator>
-
-namespace
-{
-	constexpr static std::size_t bitwises = sizeof(char);
-}
 
 namespace elastic
 {
 	template <typename _Elem, typename _Traits>
 	class basic_binary_primitive
 	{
+	public:
+		constexpr static std::size_t bitwises = sizeof(char);
+
 	public:
 		explicit basic_binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: streambuf_(sb)
@@ -65,7 +63,7 @@ namespace elastic
 
 			this->archive()->append(bytes);
 
-			save_binary(s.data(), bytes * sizeof(typename _Ty::value_type) / bitwises);
+			save_binary(s.data(), bytes * sizeof(typename _Ty::value_type) / this->bitwises);
 		}
 
 		template <detail::char_t _Ty>
@@ -75,7 +73,7 @@ namespace elastic
 
 			this->archive()->append(bytes);
 
-			save_binary(t, bytes * sizeof(_Ty) / bitwises);
+			save_binary(t, bytes * sizeof(_Ty) / this->bitwises);
 		}
 
 	private:
@@ -102,7 +100,7 @@ namespace elastic
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
 
-			streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
+			this->streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
 		}
 	};
 
@@ -151,9 +149,10 @@ namespace elastic
 		template <detail::char_t _Ty>
 		_Ty read()
 		{
+			_Ty t{};
 			std::size_t l{};
 			this->archive()->template read(l);
-			load_binary(&t, l * sizeof(_Ty) / bitwishes);
+			load_binary(&t, l * sizeof(_Ty) / this->bitwishes);
 			t[l] = end<_Ty>::value;
 
 			return t;
@@ -161,12 +160,12 @@ namespace elastic
 
 		void start()
 		{
-			trans_pos_ = static_cast<int>(streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+			trans_pos_ = static_cast<int>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
 		}
 
 		void roll_back()
 		{
-			streambuf_.pubseekpos(trans_pos_, std::ios::in);
+			this->streambuf_.pubseekpos(trans_pos_, std::ios::in);
 		}
 
 	private:
@@ -187,7 +186,7 @@ namespace elastic
 		{
 			std::streamsize s = count / sizeof(_Elem);
 
-			auto scount = streambuf_.sgetn(static_cast<_Elem*>(address), s);
+			auto scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
 
 			if (scount != s)
 				throw std::runtime_error("memory is not enough!");
