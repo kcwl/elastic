@@ -100,7 +100,7 @@ namespace elastic
 
 		void commit(int bytes)
 		{
-			bytes = std::(min)(bytes, base_type::epptr() - base_type::pptr());
+			bytes = static_cast<int>((std::min<std::size_t>)(bytes, base_type::epptr() - base_type::pptr()));
 			base_type::pbump(static_cast<int>(bytes));
 			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
 		}
@@ -213,7 +213,7 @@ namespace elastic
 
 		void ensure()
 		{
-			if (buffer_.size() != wpos_)
+			if (active() != 0)
 				return;
 
 			buffer_.resize(buffer_.size() * 2);
