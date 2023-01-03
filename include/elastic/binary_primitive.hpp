@@ -1,7 +1,7 @@
 #pragma once
 #include <elastic/detail/concepts.hpp>
-#include <iterator>
 #include <elastic/serialize_streambuf.hpp>
+#include <iterator>
 
 namespace
 {
@@ -10,15 +10,13 @@ namespace
 
 namespace elastic
 {
-	template<typename _Elem, typename _Traits>
+	template <typename _Elem, typename _Traits>
 	class basic_binary_primitive
 	{
 	public:
 		explicit basic_binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: streambuf_(sb)
-		{
-
-		}
+		{}
 
 		std::basic_streambuf<_Elem, _Traits>* rdbuf()
 		{
@@ -29,16 +27,13 @@ namespace elastic
 		std::basic_streambuf<_Elem, _Traits>& streambuf_;
 	};
 
-	template<typename _Archive, typename _Elem, typename _Traits>
-	class binary_primitive
-		: public basic_binary_primitive<_Elem, _Traits>
+	template <typename _Archive, typename _Elem, typename _Traits>
+	class binary_primitive : public basic_binary_primitive<_Elem, _Traits>
 	{
 	public:
 		explicit binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: basic_binary_primitive<_Elem, _Traits>(sb)
-		{
-
-		}
+		{}
 
 		_Archive* archive()
 		{
@@ -46,20 +41,18 @@ namespace elastic
 		}
 	};
 
-	template<typename _Archive, typename _Elem, typename _Traits>
+	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_oprimitive : public binary_primitive<_Archive, _Elem, _Traits>
 	{
 	public:
 		explicit binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)
-		{
-
-		}
+		{}
 
 		~binary_oprimitive() = default;
 
 	public:
-		template<typename _Ty>
+		template <typename _Ty>
 		void append(const _Ty& t)
 		{
 			save_binary(std::addressof(t), sizeof(_Ty));
@@ -75,7 +68,7 @@ namespace elastic
 			save_binary(s.data(), bytes * sizeof(typename _Ty::value_type) / bitwises);
 		}
 
-		template<detail::char_t _Ty>
+		template <detail::char_t _Ty>
 		void append(const _Ty* t)
 		{
 			std::size_t bytes = str<_Ty>::len(t);
@@ -86,7 +79,7 @@ namespace elastic
 		}
 
 	private:
-		template<typename _Ty>
+		template <typename _Ty>
 		struct str
 		{
 			static std::size_t len(const _Ty* t)
@@ -95,7 +88,7 @@ namespace elastic
 			}
 		};
 
-		template<>
+		template <>
 		struct str<wchar_t>
 		{
 			static std::size_t len(const wchar_t* t)
@@ -113,20 +106,19 @@ namespace elastic
 		}
 	};
 
-	template<typename _Archive, typename _Elem, typename _Traits>
+	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_iprimitive : public binary_primitive<_Archive, _Elem, _Traits>
 	{
+		friend class std::basic_streambuf<_Elem, _Traits>;
 	public:
 		explicit binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)
-		{
-
-		}
+		{}
 
 		~binary_iprimitive() = default;
 
 	public:
-		template<typename _Ty>
+		template <typename _Ty>
 		_Ty read()
 		{
 			_Ty t{};
@@ -155,7 +147,7 @@ namespace elastic
 			return t;
 		}
 
-		template<detail::char_t _Ty>
+		template <detail::char_t _Ty>
 		_Ty read()
 		{
 			std::size_t l{};
@@ -166,14 +158,24 @@ namespace elastic
 			return t;
 		}
 
+		void start()
+		{
+			trans_pos_ = static_cast<int>(streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+		}
+
+		void roll_back()
+		{
+			streambuf_.pubseekpos(trans_pos_, std::ios::in);
+		}
+
 	private:
-		template<typename _Ty>
+		template <typename _Ty>
 		struct end
 		{
 			static constexpr _Ty value = '\0';
 		};
 
-		template<>
+		template <>
 		struct end<wchar_t>
 		{
 			static constexpr wchar_t value = L'\0';
@@ -190,5 +192,7 @@ namespace elastic
 				throw std::runtime_error("memory is not enough!");
 		}
 
+	private:
+		int trans_pos_;
 	};
-}
+} // namespace elastic
