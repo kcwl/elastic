@@ -110,6 +110,7 @@ namespace elastic
 	class binary_iprimitive : public binary_primitive<_Archive, _Elem, _Traits>
 	{
 		friend class std::basic_streambuf<_Elem, _Traits>;
+
 	public:
 		explicit binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)

@@ -101,6 +101,7 @@ namespace elastic
 	concept unsign_t = is_unsign<_Ty>::value;
 
 	template <typename _Ty>
-	concept attribute = optional_t<std::remove_cvref_t<_Ty>> || fixed_t<std::remove_cvref_t<_Ty>> || unsign_t<std::remove_cvref_t<_Ty>>;
+	concept attribute =
+		optional_t<std::remove_cvref_t<_Ty>> || fixed_t<std::remove_cvref_t<_Ty>> || unsign_t<std::remove_cvref_t<_Ty>>;
 
 } // namespace elastic

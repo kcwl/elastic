@@ -304,7 +304,7 @@ namespace elastic
 			if (static_cast<unsigned long long>(off) > static_cast<unsigned long long>(seek_dist))
 				return pos_type(off_type(-1));
 
-			if (off != 0 && (((mode & std::ios::in) && !gptr_old)||((mode & std::ios::out)&& !pptr_old)))
+			if (off != 0 && (((mode & std::ios::in) && !gptr_old) || ((mode & std::ios::out) && !pptr_old)))
 				return pos_type(off_type(-1));
 
 			const auto new_ptr = seek_low + off;

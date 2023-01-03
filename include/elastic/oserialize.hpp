@@ -112,9 +112,10 @@ namespace elastic
 				std::is_pointer_v<_Ty>, detail::identify_t<save_pointer_type<_Archive>>,
 				std::conditional_t<
 					std::is_enum_v<_Ty>, detail::identify_t<save_enum_type<_Archive>>,
-					std::conditional_t<std::is_array_v<_Ty>, detail::identify_t<save_array_type<_Archive>>,
-									   std::conditional_t<attribute<_Ty>, detail::identify_t<save_optional_type<_Archive>>,
-														  detail::identify_t<save_non_pointer_type<_Archive>>>>>>;
+					std::conditional_t<
+						std::is_array_v<_Ty>, detail::identify_t<save_array_type<_Archive>>,
+						std::conditional_t<attribute<_Ty>, detail::identify_t<save_optional_type<_Archive>>,
+										   detail::identify_t<save_non_pointer_type<_Archive>>>>>>;
 
 			typex::invoke(ar, std::forward<_Ty>(t));
 		}

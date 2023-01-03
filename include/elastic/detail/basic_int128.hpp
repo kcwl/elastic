@@ -250,7 +250,8 @@ namespace elastic
 
 				if (offset < offset_)
 				{
-					basic_int128 tmp{ static_cast<_High>((high_ << offset) + (low_ >> (offset_ - offset))), low_ << offset };
+					basic_int128 tmp{ static_cast<_High>((high_ << offset) + (low_ >> (offset_ - offset))),
+									  low_ << offset };
 					return tmp;
 				}
 
