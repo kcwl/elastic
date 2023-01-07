@@ -60,12 +60,12 @@ namespace elastic
 	public:
 		std::size_t active() noexcept
 		{
-			return base_type::pptr() - base_type::gptr();
+			return base_type::epptr() - base_type::gptr();
 		}
 
 		std::size_t active() const noexcept
 		{
-			return base_type::pptr() - base_type::gptr();
+			return base_type::epptr() - base_type::gptr();
 		}
 
 		pointer data() noexcept
