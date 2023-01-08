@@ -67,13 +67,11 @@ namespace elastic
 		}
 
 		template <detail::char_t _Ty>
-		void append(const _Ty* t)
+		void append(_Ty* t)
 		{
 			std::size_t bytes = str<_Ty>::len(t);
 
-			this->archive()->append(bytes);
-
-			save_binary(t, bytes * sizeof(_Ty) / this->bitwises);
+			save_binary(t, bytes);
 		}
 
 	private:
