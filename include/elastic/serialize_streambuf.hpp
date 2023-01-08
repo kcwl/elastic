@@ -193,12 +193,12 @@ namespace elastic
 
 		std::size_t size() noexcept
 		{
-			return buffer_.size();
+			return base_type::pptr() - rdata();
 		}
 
 		std::size_t size() const noexcept
 		{
-			return buffer_.size();
+			return base_type::pptr() - rdata();
 		}
 
 		void normalize()
