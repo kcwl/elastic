@@ -42,6 +42,8 @@ namespace elastic
 		serialize_streambuf(_Iter begin, _Iter end)
 			: serialize_streambuf()
 		{
+			buffer_.clear();
+
 			std::copy(begin, end, std::back_inserter(buffer_));
 		}
 
