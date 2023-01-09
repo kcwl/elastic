@@ -52,12 +52,16 @@ namespace elastic
 			: serialize_streambuf()
 		{}
 
-		serialize_streambuf(const serialize_streambuf& buf)
-			: serialize_streambuf(buf.begin(), buf.end())
-		{}
+		serialize_streambuf(serialize_streambuf&& other)
+		{
+			if (this != std::addressof(other))
+			{
+				this->swap(other);
+			}
+		}
 
-		serialize_streambuf(const std::streambuf& buf)
-		{}
+		serialize_streambuf(const serialize_streambuf&) = delete;
+		serialize_streambuf& operator=(const serialize_streambuf&) = delete;
 
 	public:
 		std::size_t active() noexcept
@@ -159,9 +163,13 @@ namespace elastic
 			buffer_.resize(bytes);
 		}
 
-		void swap(std::basic_streambuf<_Elem, _Traits>& buf)
+		void swap(serialize_streambuf& buf)
 		{
-			buffer_.swap(buf);
+			base_type::swap(buf);
+
+			buffer_.swap(buf.buffer_);
+
+			transaction_start_ = std::move(buf.transaction_start_);
 		}
 
 		auto erase(const_iterator& where)
