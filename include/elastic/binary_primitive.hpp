@@ -62,6 +62,8 @@ namespace elastic
 	public:
 		explicit binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: binary_primitive<_Archive, _Elem, _Traits>(sb)
+			, trans_pos_(0)
+			, interpret_(false)
 		{}
 
 		~binary_iprimitive() = default;
@@ -87,15 +89,34 @@ namespace elastic
 
 		void start()
 		{
+			if (trans_pos_ != 0)
+				return;
+
 			trans_pos_ = static_cast<int>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
 		}
 
 		void roll_back()
 		{
 			this->streambuf_.pubseekpos(trans_pos_, std::ios::in);
+
+			trans_pos_ = 0;
+
+			interpret();
+		}
+
+		void interpret(bool f = true)
+		{
+			interpret_ = f;
+		}
+
+		bool interpret_state()
+		{
+			return interpret_;
 		}
 
 	private:
 		int trans_pos_;
+
+		bool interpret_;
 	};
 } // namespace elastic

@@ -30,7 +30,7 @@ namespace elastic
 			}
 			catch (...)
 			{
-				this->roll_back();
+				this->archive()->roll_back();
 			}
 
 			return *this->archive();
