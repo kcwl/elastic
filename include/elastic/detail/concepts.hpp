@@ -44,7 +44,7 @@ namespace elastic
 			std::is_same_v<std::remove_cvref_t<_Ty>, double> || std::is_same_v<std::remove_cvref_t<_Ty>, float>;
 
 		template <typename _Ty>
-		concept varint = single_signed_numric<_Ty> || single_unsigned_numric<_Ty> || multi_numric<_Ty>;
+		concept varint_t = single_signed_numric<std::remove_cvref_t<_Ty>> || single_unsigned_numric<std::remove_cvref_t<_Ty>> || multi_numric<std::remove_cvref_t<_Ty>>;
 
 		template <typename _Ty>
 		concept pod =

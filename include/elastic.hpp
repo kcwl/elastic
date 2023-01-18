@@ -5,8 +5,7 @@
 #include <elastic/iserialize.hpp>
 #include <elastic/oserialize.hpp>
 #include <elastic/reflect.hpp>
-#include <elastic/sequence.hpp>
 #include <elastic/serialize_streambuf.hpp>
 #include <elastic/tuple_size.hpp>
-#include <elastic/type.hpp>
-#include <elastic/varint.hpp>
+#include <elastic/types.hpp>
+#include <elastic/parser.hpp>
