@@ -1,6 +1,6 @@
 #pragma once
-#include <elastic/detail/type_traits.hpp>
 #include <elastic/access.hpp>
+#include <elastic/detail/type_traits.hpp>
 
 namespace elastic
 {
@@ -16,15 +16,6 @@ namespace elastic
 				static void invoke(_Archive& ar, _Ty& t)
 				{
 					t = message<_Ty, _Archive>::parse_binary(ar);
-				}
-			};
-
-			struct load_only
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					access::serialize(ar, t);
 				}
 			};
 
@@ -49,10 +40,8 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				using typex =
-					std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<load_string>,
-														  detail::identify_t<load_only>>>;
+				using typex = std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
+												 detail::identify_t<load_string>>;
 
 				typex::invoke(ar, t);
 			}
