@@ -106,7 +106,7 @@ namespace elastic
 
 		void interpret(bool f = true)
 		{
-			interpret_ = f;
+			interpret_ != f ? interpret_ = f : 0;
 		}
 
 		bool interpret_state()
