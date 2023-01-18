@@ -4,8 +4,8 @@
 #include <elastic/binary_oarchive.hpp>
 #include <elastic/iserialize.hpp>
 #include <elastic/oserialize.hpp>
+#include <elastic/parser.hpp>
 #include <elastic/reflect.hpp>
 #include <elastic/serialize_streambuf.hpp>
 #include <elastic/tuple_size.hpp>
 #include <elastic/types.hpp>
-#include <elastic/parser.hpp>
