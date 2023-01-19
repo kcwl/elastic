@@ -8,7 +8,7 @@ namespace elastic
 	namespace detail
 	{
 		template <typename _Ty>
-		constexpr auto make_tuple(_Ty& val, size_t_<0>) noexcept
+		constexpr auto make_tuple(_Ty&, size_t_<0>) noexcept
 		{
 			return std::make_tuple();
 		}

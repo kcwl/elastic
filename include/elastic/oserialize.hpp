@@ -1,7 +1,7 @@
 #pragma once
 #include <elastic/access.hpp>
 #include <elastic/detail/concepts.hpp>
-#include <elastic/message.hpp>
+#include <elastic/parser.hpp>
 
 namespace elastic
 {
@@ -15,16 +15,16 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					message<_Ty, _Archive>::to_binary(std::forward<_Ty>(t), ar);
+					message<_Ty, _Archive>::deserialize(std::forward<_Ty>(t), ar);
 				}
 			};
 
-			struct save_only
+			struct save_varint
 			{
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					access::serialize(ar, std::forward<_Ty>(t));
+					varint<_Archive>::deserialize(std::forward<_Ty>(t), ar);
 				}
 			};
 
@@ -33,17 +33,16 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					sequence<_Ty, _Archive>::to_binary(t, ar);
+					sequence<_Ty, _Archive>::deserialize(t, ar);
 				}
 			};
 
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				using typex =
-					std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<save_string>,
-														  detail::identify_t<save_only>>>;
+				using typex = std::conditional_t<detail::varint_t<_Ty>, detail::identify_t<save_varint>,
+												 std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>,
+																	detail::identify_t<save_string>>>;
 
 				typex::invoke(ar, std::forward<_Ty>(t));
 			}

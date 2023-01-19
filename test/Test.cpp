@@ -852,7 +852,7 @@ BOOST_AUTO_TEST_CASE(reflect)
 	static_assert(elastic::get<0>(t3) == 1, "get value error!");
 	static_assert(elastic::get<1>(t3) == 2, "get value error!");
 	static_assert(elastic::get<2>(t3) == 3, "get value error!");
-	static_assert(elastic::struct_name<test3>() == "test3", "get name error!");
+	static_assert(elastic::name<test3>() == "test3", "get name error!");
 }
 
 BOOST_AUTO_TEST_CASE(iostream)
@@ -1228,58 +1228,24 @@ BOOST_AUTO_TEST_CASE(int128)
 	}
 }
 
-struct son
+struct ppp
 {
 	int a;
-
-private:
-	friend class elastic::access;
-
-	template <typename _Archive>
-	void serialize(_Archive& ar)
-	{
-		ar& a;
-	}
+	int b;
 };
 
-struct grand_son : son
+struct pp
 {
+	int a;
 	int b;
 
-private:
-	friend class elastic::access;
-
-	template <typename _Archive>
-	void serialize(_Archive& ar)
-	{
-		ar& elastic::serialize::base_object<son>(*this);
-		ar& b;
-	}
+	ppp c;
 };
-
-BOOST_AUTO_TEST_CASE(nested)
-{
-	elastic::serialize_streambuf<char, std::char_traits<char>> buf;
-	elastic::binary_oarchive oa(buf);
-
-	grand_son ss{};
-	ss.a = 1;
-	ss.b = 2;
-
-	oa << ss;
-
-	grand_son sr{};
-	elastic::binary_iarchive ia(buf);
-	ia >> sr;
-
-	BOOST_CHECK(ss.a == sr.a);
-	BOOST_CHECK(ss.b == sr.b);
-}
 
 struct part
 {
 	int a;
-	int b;
+	pp b;
 	int c;
 };
 
@@ -1301,6 +1267,9 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 		int a = 0;
 		oa << 1;
 		oa << 2;
+		oa << 3;
+		oa << 4;
+		oa << 5;
 
 		elastic::binary_iarchive ia(buf);
 
@@ -1312,6 +1281,6 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		part p1{};
 
-		BOOST_CHECK(p.a == p1.a && p.b == p1.b && p.c == p1.c);
+		BOOST_CHECK(p.a == p1.a && p.b.a == p1.b.a && p.c == p1.c);
 	}
 }

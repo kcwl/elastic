@@ -1,6 +1,6 @@
 #pragma once
-#include <elastic/detail/type_traits.hpp>
 #include <elastic/access.hpp>
+#include <elastic/detail/concepts.hpp>
 
 namespace elastic
 {
@@ -15,16 +15,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = message<_Ty, _Archive>::parse_binary(ar);
-				}
-			};
-
-			struct load_only
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					access::serialize(ar, t);
+					t = message<_Ty, _Archive>::serialize(ar);
 				}
 			};
 
@@ -33,7 +24,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = varint<_Archive>::template parse_binary<_Ty>(ar);
+					t = varint<_Archive>::template serialize<_Ty>(ar);
 				}
 			};
 
@@ -42,17 +33,16 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = sequence<_Ty, _Archive>::template parse_binary(ar);
+					t = sequence<_Ty, _Archive>::template serialize(ar);
 				}
 			};
 
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				using typex =
-					std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<load_string>,
-														  detail::identify_t<load_only>>>;
+				using typex = std::conditional_t<detail::varint_t<_Ty>, detail::identify_t<load_varint>,
+												 std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
+																	detail::identify_t<load_string>>>;
 
 				typex::invoke(ar, t);
 			}

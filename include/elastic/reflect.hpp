@@ -6,13 +6,13 @@
 namespace elastic
 {
 	template <typename _Ty>
-	constexpr auto struct_name() -> std::string_view
+	constexpr auto name() -> std::string_view
 	{
 		using namespace std::string_view_literals;
 
 		constexpr std::string_view name = __FUNCSIG__ ""sv;
 
-		return name.substr(102, name.size() - 109);
+		return name.substr(95, name.size() - 102);
 	}
 
 	template <std::size_t N, typename _Ty>
