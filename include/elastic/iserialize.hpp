@@ -15,7 +15,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = message<_Ty, _Archive>::serialize(ar);
+					t = message<_Ty, _Archive>::deserialize(ar);
 				}
 			};
 
@@ -24,7 +24,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = varint<_Archive>::template serialize<_Ty>(ar);
+					t = varint<_Archive>::template deserialize<_Ty>(ar);
 				}
 			};
 
@@ -33,7 +33,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = sequence<_Ty, _Archive>::template serialize(ar);
+					t = sequence<_Ty, _Archive>::template deserialize(ar);
 				}
 			};
 
