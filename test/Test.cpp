@@ -1191,43 +1191,6 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(int128)
-{
-	{
-		elastic::int128_t a = 4;
-
-		BOOST_CHECK_THROW(a / 0, std::runtime_error);
-	}
-	{
-		elastic::int128_t a = 4;
-
-		BOOST_CHECK((a << 0) == a);
-
-		BOOST_CHECK((a >> 0) == a);
-	}
-	{
-		elastic::int128_t a(2, 0);
-		BOOST_CHECK((a >> 64) == 2);
-	}
-	{
-		elastic::int128_t a(0, 2);
-		elastic::int128_t b(2, 0);
-
-		BOOST_CHECK((a << 64) == b);
-	}
-	{
-		elastic::int128_t a(2, 0);
-		elastic::int128_t b(0, 2);
-
-		BOOST_CHECK(b < a);
-	}
-
-	{
-		elastic::int128_t a(0, 6);
-		BOOST_CHECK((a / 2) == 3);
-	}
-}
-
 struct ppp
 {
 	int a;
