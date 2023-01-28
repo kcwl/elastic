@@ -112,7 +112,7 @@ namespace elastic
 
 		static void serialize(_Ty&& value, _Archive& ar)
 		{
-			for_each(std::move(value), [&](auto&& v) { ar << std::move(v); });
+			for_each(std::forward<_Ty>(value), [&](auto&& v) { ar << v; });
 		}
 	};
 
