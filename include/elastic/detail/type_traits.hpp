@@ -71,5 +71,35 @@ namespace elastic
 		template <typename _Ty>
 		using identify_t = typename identify<std::remove_cvref_t<_Ty>>::type;
 
+		template <typename _Ty>
+		struct relative
+		{
+			using type = _Ty;
+		};
+
+		template <>
+		struct relative<int8_t>
+		{
+			using type = uint8_t;
+		};
+
+		template <>
+		struct relative<int16_t>
+		{
+			using type = uint16_t;
+		};
+
+		template <>
+		struct relative<int32_t>
+		{
+			using type = uint32_t;
+		};
+
+		template <>
+		struct relative<int64_t>
+		{
+			using type = uint64_t;
+		};
+
 	} // namespace detail
 } // namespace elastic

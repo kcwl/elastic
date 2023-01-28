@@ -1,5 +1,4 @@
 #pragma once
-#include <elastic/int128.hpp>
 #include <elastic/reflect.hpp>
 
 namespace
@@ -24,9 +23,9 @@ namespace elastic
 	struct varint
 	{
 		template <detail::single_numric _Ty>
-		static _Ty serialize(_Archive& ar)
+		static _Ty deserialize(_Archive& ar)
 		{
-			uint128_t value = ar.read<uint8_t>();
+			uint64_t value = ar.read<uint8_t>();
 
 			if (value > 0x80)
 			{
@@ -37,32 +36,30 @@ namespace elastic
 				uint8_t c{};
 				while (((c = ar.read<uint8_t>()) & 0x80) != 0)
 				{
-					value += static_cast<uint128_t>(c) << bit;
-					value -= static_cast<uint128_t>(0x80) << bit;
+					value += static_cast<uint64_t>(c) << bit;
+					value -= static_cast<uint64_t>(0x80) << bit;
 
 					bit += 7;
 				}
 
-				value += static_cast<uint128_t>(c) << bit;
+				value += static_cast<uint64_t>(c) << bit;
 			}
 
-			value % 2 == 0 ? value /= 2 : value = (uint128_t{ 0 } - (value - 1)) / 2;
-
-			return std::move(static_cast<_Ty>(value.low()));
+			return std::move(static_cast<_Ty>(value));
 		}
 
 		template <detail::multi_numric _Ty>
-		static _Ty serialize(_Archive& ar)
+		static _Ty deserialize(_Archive& ar)
 		{
 			return ar.read<_Ty>();
 		}
 
 		template <detail::single_numric _Ty>
-		static void deserialize(_Ty&& value, _Archive& ar)
+		static void serialize(_Ty&& value, _Archive& ar)
 		{
-			uint128_t result{};
+			using type = detail::relative<_Ty>::type;
 
-			value < 0 ? result = uint128_t{ (0ul - value)* 2 } + 1 : result = uint128_t{ value } * 2;
+			uint64_t result = static_cast<type>(std::forward<_Ty>(value));
 
 			while (result > 0x80)
 			{
@@ -74,7 +71,7 @@ namespace elastic
 		}
 
 		template <detail::multi_numric _Ty>
-		static void deserialize(_Ty&& value, _Archive& ar)
+		static void serialize(_Ty&& value, _Archive& ar)
 		{
 			ar.append(std::forward<_Ty>(value));
 		}
@@ -102,7 +99,7 @@ namespace elastic
 			return _Ty{ make_element<I, _Ty>(ar)... };
 		}
 
-		static _Ty serialize(_Archive& ar)
+		static _Ty deserialize(_Archive& ar)
 		{
 			constexpr auto N = elastic::tuple_size_v<_Ty>;
 
@@ -113,43 +110,38 @@ namespace elastic
 			return value;
 		}
 
-		static void deserialize(_Ty&& value, _Archive& ar)
+		static void serialize(_Ty&& value, _Archive& ar)
 		{
-			for_each(std::move(value),
-					 [&](auto&& v)
-					 {
-						 ar << std::move(v);
-					 });
+			for_each(std::forward<_Ty>(value), [&](auto&& v) { ar << v; });
 		}
 	};
 
 	template <detail::sequence_t _Ty, typename _Archive>
 	struct sequence
 	{
-		static _Ty serialize(_Archive& ar)
+		static _Ty deserialize(_Archive& ar)
 		{
-			uint16_t bytes = varint<_Archive>::template serialize<uint16_t>(ar);
+			uint16_t bytes = varint<_Archive>::template deserialize<uint16_t>(ar);
 
 			_Ty value{};
 
 			for (uint16_t i = 0; i < bytes; ++i)
 			{
-				value.push_back(message<typename _Ty::value_type, _Archive>::template serialize(ar));
+				value.push_back(message<typename _Ty::value_type, _Archive>::template deserialize(ar));
 			}
 
 			return value;
 		}
 
-		static void deserialize(_Ty&& value, _Archive& ar)
+		static void serialize(_Ty&& value, _Archive& ar)
 		{
 			auto bytes = value.size();
 
-			varint<_Archive>::template deserialize(std::move(bytes), ar);
+			varint<_Archive>::template serialize(std::move(bytes), ar);
 
 			for (auto s : std::forward<_Ty>(value))
 			{
-				message<typename std::remove_cvref_t<_Ty>::value_type, _Archive>::template deserialize(std::move(s),
-																									   ar);
+				message<typename std::remove_cvref_t<_Ty>::value_type, _Archive>::template serialize(std::move(s), ar);
 			}
 		}
 	};
