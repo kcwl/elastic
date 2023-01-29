@@ -37,12 +37,23 @@ namespace elastic
 				}
 			};
 
+			struct save_only
+			{
+				template <typename _Ty>
+				static void invoke(_Archive& ar, _Ty&& t)
+				{
+					access::serialize(ar, std::forward<_Ty>(t));
+				}
+			};
+
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				using typex = std::conditional_t<detail::varint_t<_Ty>, detail::identify_t<save_varint>,
-												 std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>,
-																	detail::identify_t<save_string>>>;
+				using typex = std::conditional_t<
+					detail::varint_t<_Ty>, detail::identify_t<save_varint>,
+					std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>,
+									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<save_string>,
+														  detail::identify_t<save_only>>>>;
 
 				typex::invoke(ar, std::forward<_Ty>(t));
 			}
