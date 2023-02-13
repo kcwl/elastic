@@ -20,7 +20,8 @@ namespace elastic
 
 		void init()
 		{
-
+			const std::string file_signature(archive_signature());
+			*this->This() << file_signature;
 		}
 	};
 }

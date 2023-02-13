@@ -9,12 +9,11 @@ namespace elastic
 	class common_iarchive : public basic_iarchive, public interface_iarchive<_Archive>
 	{
 	protected:
-		common_iarchive(uint32_t flag =0)
-			: basic_iarchive(flag)
-			, interface_iarchive<_Archive>()
-		{
+		common_iarchive() = default;
 
-		}
+	public:
+		virtual void vload() const override
+		{}
 
 	protected:
 		template<typename _Ty>

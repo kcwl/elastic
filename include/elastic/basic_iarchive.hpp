@@ -10,5 +10,8 @@ namespace elastic
 	public:
 		basic_iarchive() = default;
 		~basic_iarchive() = default;
+
+	public:
+		virtual void vload() const = 0;
 	};
 }

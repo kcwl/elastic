@@ -11,9 +11,10 @@ namespace elastic
 		friend class basic_oarchive;
 
 	protected:
-		common_oarchive(uint32_t flags = 0)
-			: basic_oarchive(flags)
-			, interface_oarchive<_Archive>()
+		common_oarchive() = default;
+
+	public:
+		virtual void vsave() const override
 		{}
 
 	protected:
@@ -25,17 +26,6 @@ namespace elastic
 		{}
 
 		void save_end(const char*)
-		{}
-
-		virtual void vsave(const version_type)
-		{}
-		virtual void vsave(const object_id_type)
-		{}
-		virtual void vsave(const class_id_type)
-		{}
-		virtual void vsave(const class_name_type)
-		{}
-		virtual void vsave(const tracking_type)
 		{}
 	};
 } // namespace elastic
