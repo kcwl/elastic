@@ -1,49 +1,49 @@
 #pragma once
-#include <elastic/binary_primitive.hpp>
 #include <elastic/iserialize.hpp>
 #include <elastic/serialize_streambuf.hpp>
 #include <istream>
+#include <elastic/binary_iarchive_impl.hpp>
 
 namespace elastic
 {
-	template <typename _Archive, typename _Elem, typename _Traits>
-	class binary_iarchive_impl : public binary_iprimitive<_Archive, _Elem, _Traits>
-	{
-	public:
-		binary_iarchive_impl(std::basic_streambuf<_Elem, _Traits>& sb)
-			: binary_iprimitive<_Archive, _Elem, _Traits>(sb)
-		{}
+	//template <typename _Archive, typename _Elem, typename _Traits>
+	//class binary_iarchive_impl : public binary_iprimitive<_Archive, _Elem, _Traits>
+	//{
+	//public:
+	//	binary_iarchive_impl(std::basic_streambuf<_Elem, _Traits>& sb)
+	//		: binary_iprimitive<_Archive, _Elem, _Traits>(sb)
+	//	{}
 
-		binary_iarchive_impl(std::istream& is)
-			: binary_iprimitive<_Archive, _Elem, _Traits>(*is.rdbuf())
-		{}
+	//	binary_iarchive_impl(std::istream& is)
+	//		: binary_iprimitive<_Archive, _Elem, _Traits>(*is.rdbuf())
+	//	{}
 
-	public:
-		template <typename _Ty>
-		_Archive& operator>>(_Ty& t)
-		{
-			try
-			{
-				this->start();
+	//public:
+	//	template <typename _Ty>
+	//	_Archive& operator>>(_Ty& t)
+	//	{
+	//		try
+	//		{
+	//			this->start();
 
-				serialize::load(*this->archive(), t);
-			}
-			catch (...)
-			{
-				this->archive()->roll_back();
-			}
+	//			serialize::load(*this->archive(), t);
+	//		}
+	//		catch (...)
+	//		{
+	//			this->archive()->roll_back();
+	//		}
 
-			return *this->archive();
-		}
+	//		return *this->archive();
+	//	}
 
-		template <typename _Ty>
-		_Archive& operator&(_Ty& t)
-		{
-			*this->archive() >> t;
+	//	template <typename _Ty>
+	//	_Archive& operator&(_Ty& t)
+	//	{
+	//		*this->archive() >> t;
 
-			return *this->archive();
-		}
-	};
+	//		return *this->archive();
+	//	}
+	//};
 
 	class binary_iarchive
 		: public binary_iarchive_impl<binary_iarchive, std::istream::char_type, std::istream::traits_type>
