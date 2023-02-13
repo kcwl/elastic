@@ -1,6 +1,7 @@
 #pragma once
 #include <elastic/interface_iarchive.hpp>
 #include <elastic/basic_iarchive.hpp>
+#include <elastic/iserialize.hpp>
 
 namespace elastic
 {
@@ -19,37 +20,17 @@ namespace elastic
 		template<typename _Ty>
 		void load_override(_Ty& t)
 		{
-
+			archive::load(*this->_this(), t);
 		}
 
 		void load_start()
-		{}
+		{
+
+		}
 		
 		void laod_end()
 		{
 
-		}
-
-	private:
-		void vload(version_type& t) override
-		{
-			*this->_this() >> t;
-		}
-		void vload(object_id_type& t) override
-		{
-			*this->_this() >> t;
-		}
-		void vload(class_id_type& t) override
-		{
-			*this->_this() >> t;
-		}
-		void vload(tracking_type& t) override
-		{
-			*this->_this() >> t;
-		}
-		void vload(class_name_type& s) override
-		{
-			*this->_this() >> s;
 		}
 	};
 }
