@@ -20,25 +20,21 @@ namespace elastic
 			this->common_iarchive<_Archive>::load_override(t);
 		}
 
-		// binary files don't include the optional information
-		void load_override(class_id_optional_type& /* t */)
-		{}
-
 		void load_override(tracking_type& t, int /*version*/)
 		{
-			boost::serialization::library_version_type lv = this->get_library_version();
-			if (boost::serialization::library_version_type(6) < lv)
-			{
-				int_least8_t x = 0;
-				*this->This() >> x;
-				t = tracking_type(x);
-			}
-			else
-			{
-				bool x = 0;
-				*this->This() >> x;
-				t = tracking_type(x);
-			}
+			//boost::serialization::library_version_type lv = this->get_library_version();
+			//if (boost::serialization::library_version_type(6) < lv)
+			//{
+			//	int_least8_t x = 0;
+			//	*this->This() >> x;
+			//	t = tracking_type(x);
+			//}
+			//else
+			//{
+			//	bool x = 0;
+			//	*this->This() >> x;
+			//	t = tracking_type(x);
+			//}
 		}
 		void load_override(class_id_type& t)
 		{
@@ -74,6 +70,11 @@ namespace elastic
 			//}
 		}
 
+		void load_override(object_id_type& t)
+		{
+
+		}
+
 		void load_override(version_type& t)
 		{
 			//library_version_type lv = this->get_library_version();
@@ -104,7 +105,7 @@ namespace elastic
 			{
 				unsigned int x = 0;
 				*this->_this() >> x;
-				t = version_type(x);
+				//t = version_type(x);
 			}
 		}
 

@@ -2,14 +2,14 @@
 #include <cstdint>
 #include <elastic/nocopyable.hpp>
 #include <elastic/basic_iserializer.hpp>
-#include <elastic/>
+#include <elastic/basic_archive.hpp>
 
 namespace elastic
 {
 	class basic_iarchive : private nocopyable
 	{
 	protected:
-		basic_iarchive(uint32_t flags)
+		basic_iarchive([[maybe_unused]]uint32_t flags)
 		{
 
 		}
@@ -21,24 +21,24 @@ namespace elastic
 		}
 
 	public:
-		void next_oject_pointer(void* t)
+		void next_oject_pointer([[maybe_unused]]void* t)
 		{
 
 		}
 
-		void register_basic_serializer(const basic_iserializer& bis)
+		void register_basic_serializer([[maybe_unused]]const basic_iserializer& bis)
 		{
 
 		}
 
-		void load_object(void* t, const basic_iserializer& bis)
+		void load_object([[maybe_unused]]void* t, [[maybe_unused]]const basic_iserializer& bis)
 		{
 
 		}
 
 		const basic_pointer_iserializer* load_pointer(
-			void*& t, const basic_pointer_iserializer* bpis_ptr,
-			const basic_pointer_iserializer* (*finder)(const extended_type_info& eti))
+			[[maybe_unused]]void*& t, [[maybe_unused]]const basic_pointer_iserializer* bpis_ptr,
+			[[maybe_unused]]const basic_pointer_iserializer* (*finder)(const extended_type_info& eti))
 		{
 
 		}
@@ -48,7 +48,7 @@ namespace elastic
 
 		}
 
-		void reset_object_address(const void* new_address, const void* old_address)
+		void reset_object_address([[maybe_unused]]const void* new_address, [[maybe_unused]]const void* old_address)
 		{
 
 		}
@@ -57,5 +57,12 @@ namespace elastic
 		{
 
 		}
+
+	protected:
+		virtual void vload(version_type& t) = 0;
+		virtual void vload(object_id_type& t) = 0;
+		virtual void vload(class_id_type& t) = 0;
+		virtual void vload(tracking_type& t) = 0;
+		virtual void vload(class_name_type& s) = 0;
 	};
 }

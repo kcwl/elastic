@@ -10,7 +10,8 @@ namespace elastic
 	class basic_binary_iprimitive
 	{
 	protected:
-		basic_binary_iprimitive(std::basic_streambuf<_Elem, _Tratis>& sb, bool no_codecvt)
+		basic_binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb, [[maybe_unused]]bool no_codecvt)
+			: buffer_(sb)
 		{
 
 		}
@@ -28,28 +29,28 @@ namespace elastic
 		};
 
 		template<typename _ValueType>
-		void load_array(array_wrapper<_ValueType>& a, uint32)
+		void load_array(array_wrapper<_ValueType>& a, uint32_t)
 		{
 			load_binary(a.address(), a.count() * sizeof(_ValueType));
 		}
 
 		void load_binary(void* address, std::size_t count)
 		{
-			std::streamsize s = static_cast<std::streamsize>(count / sizeof(Elem));
-			std::streamsize scount = m_sb.sgetn(static_cast<Elem*>(address), s);
+			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
+			std::streamsize scount = buffer_.sgetn(static_cast<_Elem*>(address), s);
 			if (scount != s)
 				throw(archive_exception(archive_exception::exception_code::input_stream_error));
 			// note: an optimizer should eliminate the following for char files
 			//BOOST_ASSERT(count % sizeof(Elem) <= boost::integer_traits<std::streamsize>::const_max);
-			s = static_cast<std::streamsize>(count % sizeof(Elem));
+			s = static_cast<std::streamsize>(count % sizeof(_Elem));
 			if (0 < s)
 			{
 				//        if(is.fail())
 				//            boost::serialization::throw_exception(
 				//                archive_exception(archive_exception::stream_error)
 				//        );
-				Elem t;
-				scount = m_sb.sgetn(&t, 1);
+				_Elem t{};
+				scount = buffer_.sgetn(&t, 1);
 				if (scount != 1)
 					throw(archive_exception(archive_exception::exception_code::input_stream_error));
 				std::memcpy(static_cast<char*>(address) + (count - s), &t, static_cast<std::size_t>(s));
@@ -63,6 +64,6 @@ namespace elastic
 		}
 
 	protected:
-		std::basic_streambuf<_Elem, _Traits> buffer_;
+		std::basic_streambuf<_Elem, _Traits>& buffer_;
 	};
 }

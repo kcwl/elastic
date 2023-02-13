@@ -24,10 +24,10 @@ namespace elastic
 			{}
 
 		public:
-			virtual bool is_less_than(const extended_type_info& rhs) const override
+			virtual bool is_less_than([[maybe_unused]] const extended_type_info& rhs) const override
 			{}
 
-			virtual bool is_equal(const extended_type_info& rhs) const override
+			virtual bool is_equal([[maybe_unused]] const extended_type_info& rhs) const override
 			{}
 
 			const std::type_info& get_typeid() const
@@ -36,13 +36,13 @@ namespace elastic
 			}
 
 		protected:
-			void type_register(const std::type_info& ti)
+			void type_register([[maybe_unused]]const std::type_info& ti)
 			{}
 
 			void type_unregister()
 			{}
 
-			const extended_type_info* get_extended_type_info(const std::type_info& ti) const
+			const extended_type_info* get_extended_type_info([[maybe_unused]]const std::type_info& ti) const
 			{}
 
 		protected:
@@ -80,25 +80,25 @@ namespace elastic
 
 		virtual void* construct(unsigned int count, ...) const override
 		{
-			 std::va_list ap;
-			 va_start(ap, count);
-			 switch (count)
-			{
-			 case 0:
-				return factory<typename boost::remove_const<T>::type, 0>(ap);
-			 case 1:
-				return factory<typename boost::remove_const<T>::type, 1>(ap);
-			 case 2:
-				return factory<typename boost::remove_const<T>::type, 2>(ap);
-			 case 3:
-				return factory<typename boost::remove_const<T>::type, 3>(ap);
-			 case 4:
-				return factory<typename boost::remove_const<T>::type, 4>(ap);
-			 default:
-				//BOOST_ASSERT(false); // too many arguments
-				// throw exception here?
-				break;
-			 }
+			//std::va_list ap{};
+			// va_start(ap, count);
+			// switch (count)
+			//{
+			// case 0:
+			//	return factory<typename boost::remove_const<T>::type, 0>(ap);
+			// case 1:
+			//	return factory<typename boost::remove_const<T>::type, 1>(ap);
+			// case 2:
+			//	return factory<typename boost::remove_const<T>::type, 2>(ap);
+			// case 3:
+			//	return factory<typename boost::remove_const<T>::type, 3>(ap);
+			// case 4:
+			//	return factory<typename boost::remove_const<T>::type, 4>(ap);
+			// default:
+			//	//BOOST_ASSERT(false); // too many arguments
+			//	// throw exception here?
+			//	break;
+			// }
 
 			return nullptr;
 		}

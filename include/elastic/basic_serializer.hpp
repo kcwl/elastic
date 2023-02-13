@@ -7,8 +7,8 @@ namespace elastic
 	class basic_serializer : private nocopyable
 	{
 	protected:
-		explicit basic_serializer(const extended_type_info& eti)
-			: eti_ptr_(&eti)
+		explicit basic_serializer([[maybe_unused]]const extended_type_info& eti)
+			//: eti_ptr_(&eti)
 		{}
 
 	public:
