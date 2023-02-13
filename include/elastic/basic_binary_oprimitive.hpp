@@ -10,7 +10,7 @@ namespace elastic
 	class basic_binary_oprimitive
 	{
 	protected:
-		basic_binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb, bool no_codecvt)
+		basic_binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb, [[maybe_unused]]bool no_codecvt)
 			: streambuf_(sb)
 		{
 
@@ -34,10 +34,11 @@ namespace elastic
 
 		void save_binary(const void* address, std::size_t count)
 		{
-			count = (count + sizeof(Elem) - 1) / sizeof(Elem);
-			std::streamsize scount = m_sb.sputn(static_cast<const Elem*>(address), static_cast<std::streamsize>(count));
+			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
+			std::streamsize scount =
+				streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
 			if (count != static_cast<std::size_t>(scount))
-				boost::serialization::throw_exception(archive_exception(archive_exception::output_stream_error));
+				throw(archive_exception(archive_exception::exception_code::output_stream_error));
 		}
 
 	protected:
@@ -83,12 +84,6 @@ namespace elastic
 		}
 
 	protected:
-		std::basic_streambuf<_Elem, _Traits> streambuf_;
-
-		codecvt_null<_Elem> codecvt_null_fact_;
-
-		streambuf_guard locale_saver_;
-
-		std::locale archive_locale_;
+		std::basic_streambuf<_Elem, _Traits>& streambuf_;
 	};
 } // namespace elastic

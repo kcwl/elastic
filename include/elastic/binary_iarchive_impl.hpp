@@ -5,19 +5,19 @@
 namespace elastic
 {
 	template<typename _Archive,typename _Elem, typename _Traits>
-	class binary_iarchive_impl : public basic_binary_iprimitive<_Archive, _Elem, _Tratis>, public basic_binary_iarchive<_Archive>
+	class binary_iarchive_impl : public basic_binary_iprimitive<_Archive, _Elem, _Traits>, public basic_binary_iarchive<_Archive>
 	{
 	protected:
 		binary_iarchive_impl(std::basic_streambuf<_Elem, _Traits>& bsb, unsigned int flags)
-			: basic_binary_iprimitive<_Archive, _Elem, _Traits>(bsb, 0 != (flags & no_codecvt))
+			: basic_binary_iprimitive<_Archive, _Elem, _Traits>(bsb, 0 != (flags & static_cast<int>(active_flags::no_codecvt)))
 			, basic_binary_iarchive<_Archive>(flags)
 		{}
 		binary_iarchive_impl(std::basic_istream<_Elem, _Traits>& is, unsigned int flags)
-			: basic_binary_iprimitive<_Archive, _Elem, _Traits>(*is.rdbuf(), 0 != (flags & no_codecvt))
+			: basic_binary_iprimitive<_Archive, _Elem, _Traits>(*is.rdbuf(), 0 != (flags & static_cast<int>(active_flags::no_codecvt)))
 			, basic_binary_iarchive<_Archive>(flags)
 		{}
 
-	protected:
+	public:
 		template<typename _Ty>
 		void load_override(_Ty& t)
 		{
@@ -26,7 +26,7 @@ namespace elastic
 
 		void init(unsigned int flags)
 		{
-			if (0 != (flags & active_flags::no_header))
+			if (0 != (flags & static_cast<int>(active_flags::no_header)))
 			{
 				return;
 			}

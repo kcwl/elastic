@@ -14,54 +14,55 @@ namespace elastic
 			if (lhs == rhs)
 				return false;
 
-			const char* l = lhs->get_key();
+			//const char* l = lhs->get_key();
 
-			const char* r = rhs->get_key();
+			//const char* r = rhs->get_key();
 
-			if (l == r)
-				return false;
+			//if (l == r)
+			//	return false;
 
-			return std::strcmp(l, r) < 0;
+			//return std::strcmp(l, r) < 0;
+			return true;
 		}
 	};
 
 	using ktmap = std::multiset<const extended_type_info*,keycomp>;
 
-	class extended_type_info_arg : public extended_type_info
-	{
-	public:
-		extended_type_info_arg(const char* key)
-			: extended_type_info(0, key)
-		{}
+	//class extended_type_info_arg : public extended_type_info
+	//{
+	//public:
+	//	extended_type_info_arg(const char* key)
+	//		: extended_type_info(0, key)
+	//	{}
 
-		~extended_type_info_arg() override
-		{}
+	//	~extended_type_info_arg() override
+	//	{}
 
-	private:
-		bool is_less_than(const extended_type_info&) const override
-		{
-			return false;
-		}
+	//private:
+	//	bool is_less_than(const extended_type_info&) const override
+	//	{
+	//		return false;
+	//	}
 
-		bool is_equal(const extended_type_info&) const override
-		{
-			return false;
-		}
+	//	bool is_equal(const extended_type_info&) const override
+	//	{
+	//		return false;
+	//	}
 
-		const char* get_debug_info() const override
-		{
-			return get_key();
-		}
+	//	const char* get_debug_info() const override
+	//	{
+	//		return get_key();
+	//	}
 
-		virtual void* construct(unsigned int, ...) const override
-		{
-			return nullptr;
-		}
+	//	virtual void* construct(unsigned int, ...) const override
+	//	{
+	//		return nullptr;
+	//	}
 
-		virtual void destroy(const void* const) const override
-		{
-		}
-	};
+	//	virtual void destroy(const void* const) const override
+	//	{
+	//	}
+	//};
 
 	class extended_type_info : public nocopyable
 	{
@@ -109,13 +110,14 @@ namespace elastic
 			return !(operator==(rhs));
 		}
 
-		static const extended_type_info* find(const char* key)
+		static const extended_type_info* find([[maybe_unused]]const char* key)
 		{
 			auto& x = singleton<ktmap>::get_mutable_instance();
 
-			const extended_type_info_arg arg(key);
+			//const extended_type_info_arg arg(key);
+			extended_type_info* arg = nullptr;
 
-			auto iter = x.find((extended_type_info*)&arg);
+			auto iter = x.find(arg);
 
 			if (iter == x.end())
 				return nullptr;

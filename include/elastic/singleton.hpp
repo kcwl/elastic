@@ -3,6 +3,46 @@
 
 namespace elastic
 {
+	namespace detail
+	{
+
+		// This is the class actually instantiated and hence the real singleton.
+		// So there will only be one instance of this class. This does not hold
+		// for singleton<T> as a class derived from singleton<T> could be
+		// instantiated multiple times.
+		// It also provides a flag `is_destroyed` which returns true, when the
+		// class was destructed. It is static and hence accesible even after
+		// destruction. This can be used to check, if the singleton is still
+		// accesible e.g. in destructors of other singletons.
+		template <class T>
+		class singleton_wrapper : public T
+		{
+			static bool& get_is_destroyed()
+			{
+				// Prefer a static function member to avoid LNK1179.
+				// Note: As this is for a singleton (1 instance only) it must be set
+				// never be reset (to false)!
+				static bool is_destroyed_flag = false;
+				return is_destroyed_flag;
+			}
+
+		public:
+			singleton_wrapper()
+			{
+				//BOOST_ASSERT(!is_destroyed());
+			}
+			~singleton_wrapper()
+			{
+				get_is_destroyed() = true;
+			}
+			static bool is_destroyed()
+			{
+				return get_is_destroyed();
+			}
+		};
+
+	} // namespace detail
+
 	template <class T>
 	class singleton
 	{

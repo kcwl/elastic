@@ -36,7 +36,7 @@ namespace elastic
 		_Archive& operator<<(const _Ty& t)
 		{
 			this->_this()->save_override(t);
-			return *this;
+			return *this->_this();
 		}
 
 		template<typename _Ty>

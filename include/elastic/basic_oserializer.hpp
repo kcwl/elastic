@@ -5,6 +5,7 @@
 namespace elastic
 {
 	class basic_pointer_oserializer;
+	class basic_oarchive;
 
 	class basic_oserializer : public basic_serializer
 	{
