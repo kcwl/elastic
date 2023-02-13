@@ -1,7 +1,7 @@
 #pragma once
-#include <elastic/access.hpp>
+#include <elastic/serialize/access.hpp>
 #include <elastic/detail/concepts.hpp>
-#include <elastic/parser.hpp>
+#include <elastic/serialize/parser.hpp>
 
 namespace elastic
 {

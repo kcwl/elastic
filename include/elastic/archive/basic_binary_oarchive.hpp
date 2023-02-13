@@ -1,5 +1,5 @@
 #pragma once
-#include <elastic/common_oarchive.hpp>
+#include <elastic/archive/common_oarchive.hpp>
 
 namespace elastic
 {
@@ -7,8 +7,8 @@ namespace elastic
 	class basic_binary_oarchive : public common_oarchive<_Archive>
 	{
 	protected:
-		basic_binary_oarchive(uint32_t flags)
-			: common_oarchive<_Archive>(flags)
+		basic_binary_oarchive()
+			: common_oarchive<_Archive>()
 		{}
 
 	protected:

@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
-#include <elastic/nocopyable.hpp>
-#include <elastic/basic_archive.hpp>
+#include <elastic/detail/nocopyable.hpp>
+#include <elastic/archive/basic_archive.hpp>
 
 namespace elastic
 {

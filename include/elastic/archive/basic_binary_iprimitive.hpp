@@ -1,8 +1,7 @@
 #pragma once
 #include <elastic/detail/concepts.hpp>
 #include <streambuf>
-#include <elastic/array_wrapper.hpp>
-#include <elastic/archive_exception.hpp>
+#include <elastic/archive/archive_exception.hpp>
 
 namespace elastic
 {
@@ -10,7 +9,7 @@ namespace elastic
 	class basic_binary_iprimitive
 	{
 	protected:
-		basic_binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb, [[maybe_unused]]bool no_codecvt)
+		basic_binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: buffer_(sb)
 		{
 
@@ -27,12 +26,6 @@ namespace elastic
 			struct apply : std::is_arithmetic<_Ty>
 			{};
 		};
-
-		template<typename _ValueType>
-		void load_array(array_wrapper<_ValueType>& a, uint32_t)
-		{
-			load_binary(a.address(), a.count() * sizeof(_ValueType));
-		}
 
 		void load_binary(void* address, std::size_t count)
 		{
