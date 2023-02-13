@@ -4,7 +4,7 @@
 
 namespace elastic
 {
-	template<typename _Archive>
+	template <typename _Archive>
 	class common_oarchive : public basic_oarchive, public interface_oarchive<_Archive>
 	{
 		friend class interface_oarchive<_Archive>;
@@ -17,20 +17,25 @@ namespace elastic
 		{}
 
 	protected:
-		template<typename _Ty>
+		template <typename _Ty>
 		void save_override(_Ty& t)
-		{
-
-		}
+		{}
 
 		void save_start(const char*)
-		{
-
-		}
+		{}
 
 		void save_end(const char*)
-		{
+		{}
 
-		}
+		virtual void vsave(const version_type)
+		{}
+		virtual void vsave(const object_id_type)
+		{}
+		virtual void vsave(const class_id_type)
+		{}
+		virtual void vsave(const class_name_type)
+		{}
+		virtual void vsave(const tracking_type)
+		{}
 	};
-}
+} // namespace elastic
