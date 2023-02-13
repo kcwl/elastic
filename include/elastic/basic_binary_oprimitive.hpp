@@ -80,7 +80,12 @@ namespace elastic
 
 		void init()
 		{
-
+			this->_this()->save(static_cast<unsigned char>(sizeof(int)));
+			this->_this()->save(static_cast<unsigned char>(sizeof(long)));
+			this->_this()->save(static_cast<unsigned char>(sizeof(float)));
+			this->_this()->save(static_cast<unsigned char>(sizeof(double)));
+			// for checking endianness
+			this->_this()->save(int(1));
 		}
 
 	protected:
