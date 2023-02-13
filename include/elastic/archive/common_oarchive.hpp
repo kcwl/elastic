@@ -1,6 +1,6 @@
 #pragma once
-#include <elastic/basic_oarchive.hpp>
-#include <elastic/interface_oarchive.hpp>
+#include <elastic/archive/basic_oarchive.hpp>
+#include <elastic/archive/interface_oarchive.hpp>
 
 namespace elastic
 {

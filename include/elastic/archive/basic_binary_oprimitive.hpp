@@ -1,8 +1,5 @@
 #pragma once
-#include <elastic/codecvt_null.hpp>
 #include <elastic/detail/concepts.hpp>
-#include <elastic/streambuf_guard.hpp>
-#include <elastic/array_wrapper.hpp>
 
 namespace elastic
 {
@@ -10,7 +7,7 @@ namespace elastic
 	class basic_binary_oprimitive
 	{
 	protected:
-		basic_binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb, [[maybe_unused]]bool no_codecvt)
+		basic_binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: streambuf_(sb)
 		{
 
@@ -25,12 +22,6 @@ namespace elastic
 			struct apply : std::is_arithmetic<_Ty>
 			{};
 		};
-
-		template <typename _ValueType>
-		void save_array(const array_wrapper<_ValueType>& a, uint32_t)
-		{
-			save_binary(a.address(), a.count() * sizeof(_ValueType));
-		}
 
 		void save_binary(const void* address, std::size_t count)
 		{
