@@ -2,7 +2,7 @@
 #include <elastic/codecvt_null.hpp>
 #include <elastic/detail/concepts.hpp>
 #include <elastic/streambuf_guard.hpp>
-#include <elastic/wrapper_traits.hpp>
+#include <elastic/array_wrapper.hpp>
 
 namespace elastic
 {
@@ -27,7 +27,7 @@ namespace elastic
 		};
 
 		template <typename _ValueType>
-		void save_array(const wrapper_traits<_ValueType>& a, uint32_t)
+		void save_array(const array_wrapper<_ValueType>& a, uint32_t)
 		{
 			save_binary(a.address(), a.count() * sizeof(_ValueType));
 		}
