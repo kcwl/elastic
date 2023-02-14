@@ -74,6 +74,10 @@ namespace elastic
 	{
 		template <typename _Ty>
 		using repeated = std::vector<_Ty>;
+
+		using bytes = repeated<std::byte>;
+
+		using string = std::string;
 	}
 
 	template <typename _Ty>

@@ -16,13 +16,6 @@ namespace elastic
 		~basic_binary_oprimitive() = default;
 
 	public:
-		struct use_array_optimization
-		{
-			template <typename _Ty>
-			struct apply : std::is_arithmetic<_Ty>
-			{};
-		};
-
 		template<typename _Ty>
 		void save(_Ty&& t)
 		{
@@ -30,16 +23,22 @@ namespace elastic
 		}
 
 		void save(const std::string& s)
-		{}
+		{
+			auto l = s.size();
+
+			save(l);
+
+			save_binary(s.data(), l);
+		}
 
 		void save(const std::wstring& s)
-		{}
+		{
+			auto l = s.size();
 
-		void save(const char* t)
-		{}
+			save(l);
 
-		void save(const wchar_t* t)
-		{}
+			save_binary(s.data(), sizeof(wchar_t) / sizeof(char) * l);
+		}
 
 
 		void save_binary(const void* address, std::size_t count)
