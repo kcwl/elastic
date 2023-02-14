@@ -1065,14 +1065,14 @@ BOOST_AUTO_TEST_CASE(iostream)
 BOOST_AUTO_TEST_CASE(attr_to_iostream)
 {
 	{
-		elastic::optional<int> value{ 1 };
+		elastic::opt::optional<int> value{ 1 };
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
 
-		elastic::optional<int> value1;
+		elastic::opt::optional<int> value1;
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -1081,7 +1081,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::require<int> value{};
+		elastic::opt::require<int> value{};
 		value.emplace(2);
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
@@ -1089,7 +1089,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::require<int> value1{};
+		elastic::opt::require<int> value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -1097,7 +1097,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		BOOST_TEST(value.value() == value1.value());
 	}
 	{
-		elastic::require<int> value{};
+		elastic::opt::require<int> value{};
 		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
@@ -1105,14 +1105,14 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::repeated<int> value{ 1, 2, 3 };
+		elastic::rt::repeated<int> value{ 1, 2, 3 };
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
 
-		elastic::repeated<int> value1{};
+		elastic::rt::repeated<int> value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -1121,7 +1121,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::fixed32 value{};
+		elastic::ft::fixed32 value{};
 		value = 2;
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
@@ -1129,7 +1129,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::fixed32 value1{};
+		elastic::ft::fixed32 value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -1138,7 +1138,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::fixed64 value{};
+		elastic::ft::fixed64 value{};
 		value = 2;
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
@@ -1146,7 +1146,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::fixed64 value1{};
+		elastic::ft::fixed64 value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -1155,7 +1155,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::unsign<int> value{};
+		elastic::ut::uint32 value{};
 		value = 2;
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
@@ -1163,12 +1163,12 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::unsign<int> value1{};
+		elastic::ut::uint32 value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_TEST(value.value_ == value1.value_);
+		BOOST_TEST(value == value1);
 	}
 	{
 		enum class color
