@@ -68,6 +68,10 @@ namespace elastic
 
 			value_type value_;
 		};
+
+		using fixed32 = fixed<uint32_t>;
+		using fixed64 = fixed<uint64_t>;
+
 	} // namespace fix_type
 
 	namespace rt

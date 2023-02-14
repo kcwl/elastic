@@ -95,7 +95,7 @@ namespace elastic
 				}
 				else
 				{
-					ar.append(std::move(t).value_);
+					ar.save(std::move(t).value_);
 				}
 			}
 		};

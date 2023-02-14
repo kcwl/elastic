@@ -57,7 +57,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					t = sequence<_Ty, _Archive>::template deserialize<_Ty>(ar);
+					t = sequence<_Ty, _Archive>::template deserialize(ar);
 				}
 			};
 
@@ -92,7 +92,9 @@ namespace elastic
 		{
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
-			{}
+			{
+				t = ar.template load<_Ty>();
+			}
 		};
 
 		template <typename _Archive>
