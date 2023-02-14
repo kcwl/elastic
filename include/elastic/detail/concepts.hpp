@@ -82,5 +82,8 @@ namespace elastic
 		concept pod_class_t =
 			std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>> &&
 			std::is_class_v<std::remove_cvref_t<_Ty>>;
+
+		template<typename _Ty>
+		concept string_t = std::is_same_v<_Ty, std::string>;
 	} // namespace detail
 } // namespace elastic
