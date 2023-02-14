@@ -25,35 +25,33 @@ namespace elastic
 		template <detail::single_numric _Ty>
 		static _Ty deserialize(_Archive& ar)
 		{
-			//uint64_t value = ar.read<uint8_t>();
+			uint64_t value = ar.load<uint8_t>();
 
-			//if (value > 0x80)
-			//{
-			//	value -= 0x80;
+			if (value > 0x80)
+			{
+				value -= 0x80;
 
-			//	uint8_t bit = 7;
+				uint8_t bit = 7;
 
-			//	uint8_t c{};
-			//	while (((c = ar.read<uint8_t>()) & 0x80) != 0)
-			//	{
-			//		value += static_cast<uint64_t>(c) << bit;
-			//		value -= static_cast<uint64_t>(0x80) << bit;
+				uint8_t c{};
+				while (((c = ar.load<uint8_t>()) & 0x80) != 0)
+				{
+					value += static_cast<uint64_t>(c) << bit;
+					value -= static_cast<uint64_t>(0x80) << bit;
 
-			//		bit += 7;
-			//	}
+					bit += 7;
+				}
 
-			//	value += static_cast<uint64_t>(c) << bit;
-			//}
+				value += static_cast<uint64_t>(c) << bit;
+			}
 
-			//return std::move(static_cast<_Ty>(value));
-			return _Ty{};
+			return std::move(static_cast<_Ty>(value));
 		}
 
 		template <detail::multi_numric _Ty>
 		static _Ty deserialize(_Archive& ar)
 		{
-			//return ar.read<_Ty>();
-			return _Ty{};
+			return ar.load<_Ty>();
 		}
 
 		template <detail::single_numric _Ty>
@@ -65,17 +63,17 @@ namespace elastic
 
 			while (result > 0x80)
 			{
-				ar.append(static_cast<uint8_t>(result | 0x80));
+				ar.save(static_cast<uint8_t>(result | 0x80));
 				result >>= 7;
 			}
 
-			ar.append(static_cast<uint8_t>(result));
+			ar.save(static_cast<uint8_t>(result));
 		}
 
 		template <detail::multi_numric _Ty>
 		static void serialize(_Ty&& value, _Archive& ar)
 		{
-			//ar.append(std::forward<_Ty>(value));
+			ar.save(std::forward<_Ty>(value));
 		}
 	};
 
@@ -89,8 +87,8 @@ namespace elastic
 
 			ar >> element;
 
-			if (ar.interpret_state())
-				throw std::runtime_error("make element error!\n");
+			//if (ar.interpret_state())
+				//throw std::runtime_error("make element error!\n");
 
 			return element;
 		}

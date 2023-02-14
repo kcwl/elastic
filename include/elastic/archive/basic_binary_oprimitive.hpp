@@ -23,6 +23,25 @@ namespace elastic
 			{};
 		};
 
+		template<typename _Ty>
+		void save(_Ty&& t)
+		{
+			save_binary(std::addressof(t), sizeof(_Ty));
+		}
+
+		void save(const std::string& s)
+		{}
+
+		void save(const std::wstring& s)
+		{}
+
+		void save(const char* t)
+		{}
+
+		void save(const wchar_t* t)
+		{}
+
+
 		void save_binary(const void* address, std::size_t count)
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
@@ -36,37 +55,6 @@ namespace elastic
 		_Archive* _this()
 		{
 			return static_cast<_Archive*>(this);
-		}
-
-		template<typename _Ty>
-		void save(const _Ty& t)
-		{
-			save_binary(t, sizeof(_Ty));
-		}
-
-		void save(const bool t)
-		{
-			save_binary(&t, sizeof(t));
-		}
-
-		void save(const std::string& s)
-		{
-
-		}
-
-		void save(const std::wstring& s)
-		{
-
-		}
-
-		void save(const char* t)
-		{
-
-		}
-
-		void save(const wchar_t* t)
-		{
-
 		}
 
 		void init()

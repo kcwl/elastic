@@ -1,11 +1,11 @@
 #pragma once
 #include <elastic/serialize/access.hpp>
-#include <elastic/detail/concepts.hpp>
 #include <elastic/serialize/parser.hpp>
+#include <elastic/serialize/attribute.hpp>
 
 namespace elastic
 {
-	namespace serialize
+	namespace archive
 	{
 		template <typename _Archive>
 		struct save_non_pointer_type
@@ -124,7 +124,7 @@ namespace elastic
 					std::is_enum_v<_Ty>, detail::identify_t<save_enum_type<_Archive>>,
 					std::conditional_t<
 						std::is_array_v<_Ty>, detail::identify_t<save_array_type<_Archive>>,
-						std::conditional_t<attribute<_Ty>, detail::identify_t<save_optional_type<_Archive>>,
+						std::conditional_t<attribute_t<_Ty>, detail::identify_t<save_optional_type<_Archive>>,
 										   detail::identify_t<save_non_pointer_type<_Archive>>>>>>;
 
 			typex::invoke(ar, std::forward<_Ty>(t));

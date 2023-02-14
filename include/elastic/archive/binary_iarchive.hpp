@@ -1,6 +1,5 @@
 #pragma once
-#include <elastic/serialize/iserialize.hpp>
-#include <elastic/serialize/serialize_streambuf.hpp>
+#include <elastic/serialize/streambuf.hpp>
 #include <istream>
 #include <elastic/archive/binary_iarchive_impl.hpp>
 
