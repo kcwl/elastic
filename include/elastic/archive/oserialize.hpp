@@ -1,7 +1,7 @@
 #pragma once
 #include <elastic/serialize/access.hpp>
 #include <elastic/serialize/parser.hpp>
-#include <elastic/serialize/attribute.hpp>
+#include <elastic/types/types.hpp>
 
 namespace elastic
 {
