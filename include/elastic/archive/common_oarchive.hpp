@@ -1,6 +1,7 @@
 #pragma once
 #include <elastic/archive/basic_oarchive.hpp>
 #include <elastic/archive/interface_oarchive.hpp>
+#include <elastic/archive/oserialize.hpp>
 
 namespace elastic
 {
@@ -20,7 +21,9 @@ namespace elastic
 	protected:
 		template <typename _Ty>
 		void save_override(_Ty& t)
-		{}
+		{
+			archive::save(*this->_this(), t);
+		}
 
 		void save_start(const char*)
 		{}

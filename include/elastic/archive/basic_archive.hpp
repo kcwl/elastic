@@ -7,7 +7,7 @@ namespace elastic
 	class basic_archive : public nocopyable
 	{};
 
-	const char* archive_signature()
+	constexpr const char* archive_signature()
 	{
 		return "serialization::archive";
 	}

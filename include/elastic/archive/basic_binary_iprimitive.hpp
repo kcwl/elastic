@@ -27,6 +27,16 @@ namespace elastic
 			{};
 		};
 
+		template<typename _Ty>
+		_Ty load()
+		{
+			_Ty t{};
+
+			load_binary(&t, sizeof(_Ty));
+
+			return t;
+		}
+
 		void load_binary(void* address, std::size_t count)
 		{
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
