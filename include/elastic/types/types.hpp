@@ -5,7 +5,7 @@
 
 namespace elastic
 {
-	namespace numric_type
+	namespace nt
 	{
 		using int8 = int8_t;
 
@@ -16,7 +16,7 @@ namespace elastic
 		using int64 = int64_t;
 	} // namespace numric_type
 
-	namespace unsigned_type
+	namespace ut
 	{
 		using uint8 = uint8_t;
 
@@ -27,7 +27,7 @@ namespace elastic
 		using uint64 = uint64_t;
 	} // namespace unsigned_type
 
-	namespace optional_type
+	namespace opt
 	{
 		namespace impl
 		{
@@ -51,7 +51,7 @@ namespace elastic
 		using require = impl::basic_optional<true, _Ty>;
 	} // namespace optional_type
 
-	namespace fix_type
+	namespace ft
 	{
 		template <typename _Ty>
 		struct fixed
@@ -70,7 +70,7 @@ namespace elastic
 		};
 	} // namespace fix_type
 
-	namespace repeated_type
+	namespace rt
 	{
 		template <typename _Ty>
 		using repeated = std::vector<_Ty>;
@@ -95,7 +95,7 @@ namespace elastic
 	{};
 
 	template <typename _Ty>
-	struct is_fixed<fix_type::fixed<_Ty>> : std::true_type
+	struct is_fixed<ft::fixed<_Ty>> : std::true_type
 	{};
 
 	template <typename _Ty>
