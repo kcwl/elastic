@@ -125,9 +125,11 @@ namespace elastic
 
 			_Ty value{};
 
-			for (uint16_t i = 0; i < bytes; ++i)
+			value.resize(bytes);
+
+			for (auto& v : value)
 			{
-				value.push_back(message<typename _Ty::value_type, _Archive>::template deserialize(ar));
+				ar >> v;
 			}
 
 			return value;
@@ -137,11 +139,11 @@ namespace elastic
 		{
 			auto bytes = value.size();
 
-			varint<_Archive>::template serialize(std::move(bytes), ar);
+			ar << bytes;
 
-			for (auto s : std::forward<_Ty>(value))
+			for (auto& s : std::forward<_Ty>(value))
 			{
-				message<typename std::remove_cvref_t<_Ty>::value_type, _Archive>::template serialize(std::move(s), ar);
+				ar << s;
 			}
 		}
 	};
