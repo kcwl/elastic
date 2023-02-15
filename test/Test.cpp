@@ -1148,8 +1148,8 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	{
 		enum class color
 		{
-			red,
-			blue
+			red = 1,
+			blue = 2
 		};
 
 		elastic::streambuf<char, std::char_traits<char>> buf;
