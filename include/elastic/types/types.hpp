@@ -5,51 +5,24 @@
 
 namespace elastic
 {
-	namespace nt
-	{
-		using int8 = int8_t;
+	using int8 = int8_t;
 
-		using int16 = int16_t;
+	using int16 = int16_t;
 
-		using int32 = int32_t;
+	using int32 = int32_t;
 
-		using int64 = int64_t;
-	} // namespace numric_type
+	using int64 = int64_t;
 
-	namespace ut
-	{
-		using uint8 = uint8_t;
+	using uint8 = uint8_t;
 
-		using uint16 = uint16_t;
+	using uint16 = uint16_t;
 
-		using uint32 = uint32_t;
+	using uint32 = uint32_t;
 
-		using uint64 = uint64_t;
-	} // namespace unsigned_type
+	using uint64 = uint64_t;
 
-	namespace opt
-	{
-		namespace impl
-		{
-			template <bool flag, typename _Ty>
-			struct basic_optional : std::optional<_Ty>
-			{
-				constexpr static bool require_value = false;
-			};
-
-			template <typename _Ty>
-			struct basic_optional<true, _Ty> : std::optional<_Ty>
-			{
-				constexpr static bool require_value = true;
-			};
-		} // namespace impl
-
-		template <typename _Ty>
-		using optional = impl::basic_optional<false, _Ty>;
-
-		template <typename _Ty>
-		using require = impl::basic_optional<true, _Ty>;
-	} // namespace optional_type
+	template <typename _Ty>
+	using optional = std::optional<_Ty>;
 
 	namespace ft
 	{
@@ -68,21 +41,17 @@ namespace elastic
 
 			value_type value_;
 		};
+	} // namespace ft
 
-		using fixed32 = fixed<uint32_t>;
-		using fixed64 = fixed<uint64_t>;
+	using fixed32 = ft::fixed<uint32_t>;
+	using fixed64 = ft::fixed<uint64_t>;
 
-	} // namespace fix_type
+	template <typename _Ty>
+	using repeated = std::vector<_Ty>;
 
-	namespace rt
-	{
-		template <typename _Ty>
-		using repeated = std::vector<_Ty>;
+	using bytes = repeated<std::byte>;
 
-		using bytes = repeated<std::byte>;
-
-		using string = std::string;
-	}
+	using string = std::string;
 
 	template <typename _Ty>
 	struct is_unsign : std::false_type
