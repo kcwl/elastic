@@ -84,10 +84,6 @@ namespace elastic
 		};
 
 		template <typename _Archive>
-		struct load_pointer_type
-		{};
-
-		template <typename _Archive>
 		struct load_enum_type
 		{
 			template <typename _Ty>
@@ -135,15 +131,13 @@ namespace elastic
 		inline void load(_Archive& ar, _Ty& t)
 		{
 			using typex = std::conditional_t<
-				std::is_pointer_v<_Ty>, detail::identify_t<load_pointer_type<_Archive>>,
-				std::conditional_t<
 					std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
 					std::conditional_t<
 						std::is_array_v<_Ty>, detail::identify_t<load_array_type<_Archive>>,
 						std::conditional_t<optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
 										   std::conditional_t<unsign_t<_Ty> || fixed_t<_Ty>,
 															  detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
-															  detail::identify_t<load_non_pointer_type<_Archive>>>>>>>;
+															  detail::identify_t<load_non_pointer_type<_Archive>>>>>>;
 
 			typex::invoke(ar, t);
 		}
