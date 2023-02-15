@@ -28,7 +28,7 @@ namespace elastic
 				}
 			};
 
-			struct save_string
+			struct save_sequence
 			{
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
@@ -52,7 +52,7 @@ namespace elastic
 				using typex = std::conditional_t<
 					detail::varint_t<_Ty>, detail::identify_t<save_varint>,
 					std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<save_string>,
+									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<save_sequence>,
 														  detail::identify_t<save_only>>>>;
 
 				typex::invoke(ar, std::forward<_Ty>(t));
@@ -65,7 +65,7 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				ar << static_cast<int>(t);
+				ar << static_cast<int32_t>(std::forward<_Ty>(t));
 			}
 		};
 
@@ -81,23 +81,8 @@ namespace elastic
 				}
 				else
 				{
-					ar.save(std::move(t).value_);
+					ar.save(std::forward<_Ty>(t).value_);
 				}
-			}
-		};
-
-		template <typename _Archive>
-		struct save_array_type
-		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty&& t)
-			{
-				std::size_t c = sizeof(t) / (static_cast<const char*>(static_cast<const void*>(&t[1])) -
-											 static_cast<const char*>(static_cast<const void*>(&t[0])));
-
-				ar << c;
-
-				ar << t;
 			}
 		};
 
@@ -107,13 +92,11 @@ namespace elastic
 			using type = std::remove_reference_t<_Ty>;
 
 			using typex = std::conditional_t<
-					std::is_enum_v<type>, detail::identify_t<save_enum_type<_Archive>>,
-					std::conditional_t<
-						std::is_array_v<type>, detail::identify_t<save_array_type<_Archive>>,
-						std::conditional_t<attribute_t<type>, detail::identify_t<save_optional_type<_Archive>>,
-										   detail::identify_t<save_non_pointer_type<_Archive>>>>>;
+				std::is_enum_v<type>, detail::identify_t<save_enum_type<_Archive>>,
+				std::conditional_t<attribute_t<type>, detail::identify_t<save_optional_type<_Archive>>,
+								   detail::identify_t<save_non_pointer_type<_Archive>>>>;
 
 			typex::invoke(ar, std::forward<_Ty>(t));
 		}
-	} // namespace serialize
+	} // namespace archive
 } // namespace elastic
