@@ -90,7 +90,7 @@ namespace elastic
 			ar >> element;
 
 			if (ar.interrupt())
-				throw(archive_exception::exception_code::output_stream_error, "make element error!");
+				throw(archive_exception::exception_number::output_stream_error, "make element error!");
 
 			return element;
 		}

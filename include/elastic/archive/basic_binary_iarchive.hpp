@@ -28,7 +28,7 @@ namespace elastic
 			*this->_this() >> file_signature;
 
 			if (file_signature != archive_signature())
-				throw(archive_exception(archive_exception::exception_code::invalid_signature));
+				throw(archive_exception(archive_exception::exception_number::invalid_signature));
 		}
 	};
 }

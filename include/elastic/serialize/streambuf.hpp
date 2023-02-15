@@ -367,6 +367,9 @@ namespace elastic
 	private:
 		void reset()
 		{
+			if (buffer_.empty())
+				return;
+
 			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
 			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.size());
 		}
