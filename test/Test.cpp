@@ -1195,9 +1195,8 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		int a = 1;
 		ia >> a;
-		//BOOST_CHECK_THROW(ia >> a, elastic::archive_exception);
+		// BOOST_CHECK_THROW(ia >> a, elastic::archive_exception);
 		BOOST_CHECK(a == 1);
-
 	}
 	{
 		elastic::streambuf<char, std::char_traits<char>> buf;
@@ -1222,4 +1221,46 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		BOOST_CHECK(p.a == p1.a && p.b.a == p1.b.a && p.c == p1.c);
 	}
+}
+
+struct base
+{
+	int a;
+	int b;
+};
+
+struct deri : base
+{
+	int c;
+	int d;
+
+private:
+	friend class elastic::access;
+	template <typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar& elastic::serialize::base_object<base>(*this);
+		ar& c;
+		ar& d;
+	}
+};
+
+BOOST_AUTO_TEST_CASE(inherit)
+{
+	deri d{};
+	d.a = 1;
+	d.b = 2;
+	d.c = 3;
+	d.d = 4;
+
+	elastic::streambuf<char, std::char_traits<char>> buf;
+	elastic::binary_oarchive oa(buf);
+
+	oa << d;
+
+	deri dd{};
+	elastic::binary_iarchive ia(buf);
+	ia >> dd;
+
+	BOOST_CHECK(d.a == dd.a && d.b == dd.b && d.c == dd.c && d.d == dd.d);
 }
