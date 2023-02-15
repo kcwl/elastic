@@ -31,7 +31,9 @@ namespace elastic
 			{
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
-				{}
+				{
+					access::serialize(ar, t);
+				}
 			};
 
 			struct load_standard

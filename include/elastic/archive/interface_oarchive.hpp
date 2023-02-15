@@ -21,9 +21,9 @@ namespace elastic
 		}
 
 		template<typename _Ty>
-		_Archive& operator<<(const _Ty& t)
+		_Archive& operator<<(_Ty&& t)
 		{
-			this->_this()->save_override(t);
+			this->_this()->save_override(std::forward<_Ty>(t));
 			return *this->_this();
 		}
 

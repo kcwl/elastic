@@ -21,9 +21,9 @@ namespace elastic
 
 	public:
 		template<typename _Ty>
-		void save_override(_Ty& t)
+		void save_override(_Ty&& t)
 		{
-			this->basic_binary_oarchive<_Archive>::save_override(t);
+			this->basic_binary_oarchive<_Archive>::save_override(std::forward<_Ty>(t));
 		}
 
 		void init()

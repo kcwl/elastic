@@ -13,9 +13,9 @@ namespace elastic
 
 	protected:
 		template<typename _Ty>
-		void save_override(const _Ty& t)
+		void save_override(_Ty&& t)
 		{
-			this->common_oarchive<_Archive>::save_override(t);
+			this->common_oarchive<_Archive>::save_override(std::forward<_Ty>(t));
 		}
 
 		void init()
