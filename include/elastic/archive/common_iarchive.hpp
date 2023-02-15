@@ -19,6 +19,8 @@ namespace elastic
 		template<typename _Ty>
 		void load_override(_Ty& t)
 		{
+			vload();
+
 			archive::load(*this->_this(), t);
 		}
 

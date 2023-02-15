@@ -62,7 +62,7 @@ namespace elastic
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = buffer_.sgetn(static_cast<_Elem*>(address), s);
 			if (scount == 0)
-				throw(archive_exception(archive_exception::exception_code::input_stream_error));
+				throw(archive_exception(archive_exception::exception_number::input_stream_error));
 
 		}
 
@@ -73,25 +73,25 @@ namespace elastic
 			this->_this()->load(size);
 			if (size != sizeof(int))
 			{
-				throw(archive_exception(archive_exception::exception_code::incompatible_native_format, "size of int"));
+				throw(archive_exception(archive_exception::exception_number::incompatible_native_format, "size of int"));
 			}
 
 			this->_this()->load(size);
 			if (size != sizeof(long))
 			{
-				throw(archive_exception(archive_exception::exception_code::incompatible_native_format, "size of long"));
+				throw(archive_exception(archive_exception::exception_number::incompatible_native_format, "size of long"));
 			}
 
 			this->_this()->load(size);
 			if (size != sizeof(float))
 			{
-				throw(archive_exception(archive_exception::exception_code::incompatible_native_format, "size of float"));
+				throw(archive_exception(archive_exception::exception_number::incompatible_native_format, "size of float"));
 			}
 
 			this->_this()->load(size);
 			if (size != sizeof(double))
 			{
-				throw(archive_exception(archive_exception::exception_code::incompatible_native_format, "size of double"));
+				throw(archive_exception(archive_exception::exception_number::incompatible_native_format, "size of double"));
 			}
 		}
 

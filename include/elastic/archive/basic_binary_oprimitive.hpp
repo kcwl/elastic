@@ -40,14 +40,13 @@ namespace elastic
 			save_binary(s.data(), sizeof(wchar_t) / sizeof(char) * l);
 		}
 
-
 		void save_binary(const void* address, std::size_t count)
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
 			std::streamsize scount =
 				streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
-			if (count != static_cast<std::size_t>(scount))
-				throw(archive_exception(archive_exception::exception_code::output_stream_error));
+			if (static_cast<std::size_t>(scount) == 0)
+				throw(archive_exception(archive_exception::exception_number::output_stream_error));
 		}
 
 	protected:

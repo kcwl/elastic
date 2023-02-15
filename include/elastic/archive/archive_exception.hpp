@@ -7,64 +7,21 @@ namespace elastic
 	class archive_exception : public virtual std::exception
 	{
 	public:
-		enum class exception_code
+		enum class exception_number
 		{
-			no_exception,
-			other_exception,
-			unregistered_class,
-			invalid_signature,
-			unsupported_version,
-			pointer_conflict,
-			incompatible_native_format,
-			array_size_too_short,
 			input_stream_error,
-			invalid_class_name,
-			unregistered_cast,
-			unsupported_class_version,
-			multiple_code_instantiation,
 			output_stream_error
 		};
 
 	public:
-		archive_exception(exception_code c, const char* e1 = nullptr, const char* e2 = nullptr) noexcept
+		archive_exception(exception_number c, const char* e1 = nullptr, const char* e2 = nullptr) noexcept
 			: code_(c)
 			, buffer_()
 		{
 			unsigned int length = 0;
 			switch (code_)
 			{
-			case exception_code::no_exception:
-				length = append(length, "uninitialized exception");
-				break;
-			case exception_code::unregistered_class:
-				length = append(length, "unregistered class");
-				if (NULL != e1)
-				{
-					length = append(length, " - ");
-					length = append(length, e1);
-				}
-				break;
-			case exception_code::invalid_signature:
-				length = append(length, "invalid signature");
-				break;
-			case exception_code::unsupported_version:
-				length = append(length, "unsupported version");
-				break;
-			case exception_code::pointer_conflict:
-				length = append(length, "pointer conflict");
-				break;
-			case exception_code::incompatible_native_format:
-				length = append(length, "incompatible native format");
-				if (NULL != e1)
-				{
-					length = append(length, " - ");
-					length = append(length, e1);
-				}
-				break;
-			case exception_code::array_size_too_short:
-				length = append(length, "array size too short");
-				break;
-			case exception_code::input_stream_error:
+			case exception_number::input_stream_error:
 				length = append(length, "input stream error");
 				if (NULL != e1)
 				{
@@ -77,33 +34,7 @@ namespace elastic
 					length = append(length, e2);
 				}
 				break;
-			case exception_code::invalid_class_name:
-				length = append(length, "class name too long");
-				break;
-			case exception_code::unregistered_cast:
-				length = append(length, "unregistered void cast ");
-				length = append(length, (NULL != e1) ? e1 : "?");
-				length = append(length, "<-");
-				length = append(length, (NULL != e2) ? e2 : "?");
-				break;
-			case exception_code::unsupported_class_version:
-				length = append(length, "class version ");
-				length = append(length, (NULL != e1) ? e1 : "<unknown class>");
-				break;
-			case exception_code::other_exception:
-				// if get here - it indicates a derived exception
-				// was sliced by passing by value in catch
-				length = append(length, "unknown derived exception");
-				break;
-			case exception_code::multiple_code_instantiation:
-				length = append(length, "code instantiated in more than one module");
-				if (NULL != e1)
-				{
-					length = append(length, " - ");
-					length = append(length, e1);
-				}
-				break;
-			case exception_code::output_stream_error:
+			case exception_number::output_stream_error:
 				length = append(length, "output stream error");
 				if (NULL != e1)
 				{
@@ -117,7 +48,6 @@ namespace elastic
 				}
 				break;
 			default:
-				length = append(length, "programming error");
 				break;
 			}
 		}
@@ -156,7 +86,7 @@ namespace elastic
 		}
 
 	public:
-		exception_code code_;
+		exception_number code_;
 
 	private:
 		char buffer_[128];

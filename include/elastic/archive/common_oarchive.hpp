@@ -22,7 +22,9 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			archive::save(*this->_this(), std::move(t));
+			vsave();
+
+			archive::save(*this->_this(), std::forward<_Ty>(t));
 		}
 
 		void save_start(const char*)
