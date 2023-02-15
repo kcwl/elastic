@@ -1220,8 +1220,9 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		int a = 1;
 		ia >> a;
+		//BOOST_CHECK_THROW(ia >> a, elastic::archive_exception);
+		BOOST_CHECK(a == 1);
 
-		BOOST_TEST(a == 1);
 	}
 	{
 		elastic::streambuf<char, std::char_traits<char>> buf;
