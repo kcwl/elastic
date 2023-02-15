@@ -1221,6 +1221,26 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		BOOST_CHECK(p.a == p1.a && p.b.a == p1.b.a && p.c == p1.c);
 	}
+
+	{
+		elastic::streambuf<char, std::char_traits<char>> buf(0);
+		elastic::binary_oarchive oa(buf);
+
+		BOOST_CHECK_THROW(oa << 1, elastic::archive_exception);
+	}
+
+	{
+		elastic::streambuf<char, std::char_traits<char>> buf;
+		elastic::binary_oarchive oa(buf);
+
+		oa << 1;
+
+		BOOST_CHECK(buf.size() == 1);
+		BOOST_CHECK(buf.data()[0] == 1);
+		BOOST_CHECK(buf.pubseekoff(0, std::ios::beg, std::ios::in) == 0);
+		BOOST_CHECK(buf.pubseekoff(0, std::ios::end, std::ios::in) == 1);
+		BOOST_CHECK(buf.pubseekoff(0, 3, std::ios::in) == -1);
+	}
 }
 
 struct base
@@ -1263,4 +1283,14 @@ BOOST_AUTO_TEST_CASE(inherit)
 	ia >> dd;
 
 	BOOST_CHECK(d.a == dd.a && d.b == dd.b && d.c == dd.c && d.d == dd.d);
+}
+
+BOOST_AUTO_TEST_CASE(archive_exception_test)
+{
+	elastic::archive_exception exc(elastic::archive_exception::exception_number::input_stream_error, "test", "test");
+	exc.what();
+
+	elastic::archive_exception exc1(exc);
+
+	elastic::archive_exception exc2(elastic::archive_exception::exception_number::output_stream_error, "test", "test");
 }
