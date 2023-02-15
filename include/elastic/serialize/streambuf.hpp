@@ -251,6 +251,12 @@ namespace elastic
 			if (!pptr)
 				return _Traits::eof();
 
+			if (pptr == base_type::eback())
+				return _Traits::eof();
+
+			if (gptr == pptr)
+				return _Traits::eof();
+
 			base_type::setg(&buffer_[0], base_type::gptr(), base_type::pptr());
 
 			return _Traits::to_int_type(*base_type::gptr());

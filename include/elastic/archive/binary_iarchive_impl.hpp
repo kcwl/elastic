@@ -22,7 +22,16 @@ namespace elastic
 		template<typename _Ty>
 		void load_override(_Ty& t)
 		{
-			this->basic_binary_iarchive<_Archive>::load_override(t);
+			try
+			{
+				this->start();
+
+				this->basic_binary_iarchive<_Archive>::load_override(t);
+			}
+			catch (...)
+			{
+				this->roll_back();
+			}
 		}
 
 		void init()

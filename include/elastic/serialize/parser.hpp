@@ -87,8 +87,8 @@ namespace elastic
 
 			ar >> element;
 
-			//if (ar.interpret_state())
-				//throw std::runtime_error("make element error!\n");
+			if (ar.interrupt())
+				throw(archive_exception::exception_code::output_stream_error, "make element error!");
 
 			return element;
 		}

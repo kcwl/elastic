@@ -5,7 +5,8 @@
 namespace elastic
 {
 	class basic_archive : public nocopyable
-	{};
+	{
+	};
 
 	constexpr const char* archive_signature()
 	{

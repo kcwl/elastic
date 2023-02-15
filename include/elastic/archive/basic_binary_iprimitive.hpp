@@ -11,6 +11,8 @@ namespace elastic
 	protected:
 		basic_binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: buffer_(sb)
+			, trans_pos_(0)
+			, interrupt_(false)
 		{
 
 		}
@@ -20,13 +22,6 @@ namespace elastic
 		}
 
 	public:
-		struct use_array_optimization
-		{
-			template<typename _Ty>
-			struct apply : std::is_arithmetic<_Ty>
-			{};
-		};
-
 		template<typename _Ty>
 		_Ty load()
 		{
@@ -76,6 +71,7 @@ namespace elastic
 				scount = buffer_.sgetn(&t, 1);
 				if (scount != 1)
 					throw(archive_exception(archive_exception::exception_code::input_stream_error));
+					
 				std::memcpy(static_cast<char*>(address) + (count - s), &t, static_cast<std::size_t>(s));
 			}
 		}
@@ -109,6 +105,33 @@ namespace elastic
 			}
 		}
 
+		void start()
+		{
+			if (trans_pos_ != 0)
+				return;
+
+			trans_pos_ = static_cast<int32_t>(buffer_.pubseekoff(0, std::ios::cur, std::ios::in));
+		}
+
+		void roll_back()
+		{
+			buffer_.pubseekpos(trans_pos_, std::ios::in);
+
+			trans_pos_ = 0;
+
+			interrupt(true);
+		}
+
+		void interrupt(bool f)
+		{
+			interrupt_ = f;
+		}
+
+		bool interrupt()
+		{
+			return interrupt_;
+		}
+
 	protected:
 		_Archive* _this()
 		{
@@ -117,5 +140,9 @@ namespace elastic
 
 	protected:
 		std::basic_streambuf<_Elem, _Traits>& buffer_;
+
+		int32_t trans_pos_;
+
+		bool interrupt_;
 	};
 }
