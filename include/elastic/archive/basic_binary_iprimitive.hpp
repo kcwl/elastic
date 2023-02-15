@@ -61,19 +61,9 @@ namespace elastic
 		{
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = buffer_.sgetn(static_cast<_Elem*>(address), s);
-			if (scount != s)
+			if (scount == 0)
 				throw(archive_exception(archive_exception::exception_code::input_stream_error));
 
-			s = static_cast<std::streamsize>(count % sizeof(_Elem));
-			if (0 < s)
-			{
-				_Elem t{};
-				scount = buffer_.sgetn(&t, 1);
-				if (scount != 1)
-					throw(archive_exception(archive_exception::exception_code::input_stream_error));
-					
-				std::memcpy(static_cast<char*>(address) + (count - s), &t, static_cast<std::size_t>(s));
-			}
 		}
 
 		void init()
