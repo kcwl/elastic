@@ -20,9 +20,9 @@ namespace elastic
 
 	protected:
 		template <typename _Ty>
-		void save_override(_Ty& t)
+		void save_override(_Ty&& t)
 		{
-			archive::save(*this->_this(), t);
+			archive::save(*this->_this(), std::move(t));
 		}
 
 		void save_start(const char*)
