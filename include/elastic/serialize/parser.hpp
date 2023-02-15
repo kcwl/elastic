@@ -83,7 +83,9 @@ namespace elastic
 		template <std::size_t I, typename _Ty>
 		static auto make_element(_Archive& ar)
 		{
-			auto element = elastic::get<I>(_Ty{});
+			using type = elastic::tuple_element_t<I,_Ty>;
+
+			type element{};
 
 			ar >> element;
 
