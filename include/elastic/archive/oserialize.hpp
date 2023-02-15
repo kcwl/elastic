@@ -85,12 +85,6 @@ namespace elastic
 			{
 				if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
 				{
-					if constexpr (std::remove_cvref_t<_Ty>::require_value)
-					{
-						if (!t.has_value())
-							throw std::runtime_error("maybe some type must have some values!");
-					}
-
 					ar << *t;
 				}
 				else
