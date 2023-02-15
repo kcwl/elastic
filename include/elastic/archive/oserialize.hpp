@@ -60,14 +60,6 @@ namespace elastic
 		};
 
 		template <typename _Archive>
-		struct save_pointer_type
-		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, const _Ty t)
-			{}
-		};
-
-		template <typename _Archive>
 		struct save_enum_type
 		{
 			template <typename _Ty>
@@ -115,13 +107,11 @@ namespace elastic
 			using type = std::remove_reference_t<_Ty>;
 
 			using typex = std::conditional_t<
-				std::is_pointer_v<type>, detail::identify_t<save_pointer_type<_Archive>>,
-				std::conditional_t<
 					std::is_enum_v<type>, detail::identify_t<save_enum_type<_Archive>>,
 					std::conditional_t<
 						std::is_array_v<type>, detail::identify_t<save_array_type<_Archive>>,
 						std::conditional_t<attribute_t<type>, detail::identify_t<save_optional_type<_Archive>>,
-										   detail::identify_t<save_non_pointer_type<_Archive>>>>>>;
+										   detail::identify_t<save_non_pointer_type<_Archive>>>>>;
 
 			typex::invoke(ar, std::forward<_Ty>(t));
 		}
