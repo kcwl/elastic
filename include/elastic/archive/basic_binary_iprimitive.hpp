@@ -23,20 +23,14 @@ namespace elastic
 
 	public:
 		template<typename _Ty>
-		_Ty load()
+		void load(_Ty& t)
 		{
-			_Ty t{};
-
 			load_binary(&t, sizeof(_Ty));
-
-			return t;
 		}
 
 		template<>
-		std::string load<std::string>()
+		void load(std::string& s)
 		{
-			std::string s{};
-
 			std::size_t l = this->_this()->load<std::size_t>();
 
 			s.resize(l);
@@ -46,11 +40,11 @@ namespace elastic
 		}
 
 		template<>
-		std::wstring load<std::wstring>()
+		void load(std::wstring& ws)
 		{
-			std::wstring ws{};
+			std::size_t l{};
 
-			std::size_t l = this->_this()->load();
+			this->_this()->load(l);
 
 			ws.resize(l);
 

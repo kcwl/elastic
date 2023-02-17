@@ -23,35 +23,35 @@ namespace elastic
 	struct varint
 	{
 		template <detail::single_numric _Ty>
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
-			uint64_t value = ar.load<uint8_t>();
+			uint8_t c{};
+			ar.load<uint8_t>(c);
+			t = static_cast<_Ty>(c);
 
-			if (value > 0x80)
+			if (t > 0x80)
 			{
-				value -= 0x80;
+				t -= 0x80;
 
 				uint8_t bit = 7;
 
-				uint8_t c{};
-				while (((c = ar.load<uint8_t>()) & 0x80) != 0)
+				
+				while (ar.load(c), (c & 0x80) != 0)
 				{
-					value += static_cast<uint64_t>(c) << bit;
-					value -= static_cast<uint64_t>(0x80) << bit;
+					t += static_cast<_Ty>(c) << bit;
+					t -= static_cast<_Ty>(0x80) << bit;
 
 					bit += 7;
 				}
 
-				value += static_cast<uint64_t>(c) << bit;
+				t += static_cast<uint64_t>(c) << bit;
 			}
-
-			return std::move(static_cast<_Ty>(value));
 		}
 
 		template <detail::multi_numric _Ty>
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
-			return ar.load<_Ty>();
+			return ar.load<_Ty>(t);
 		}
 
 		template <detail::single_numric _Ty>
@@ -105,20 +105,17 @@ namespace elastic
 	template <detail::sequence_t _Ty, typename _Archive>
 	struct sequence
 	{
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint16_t bytes = varint<_Archive>::template deserialize<uint16_t>(ar);
 
-			_Ty value{};
+			t.resize(bytes);
 
-			value.resize(bytes);
-
-			for (auto& v : value)
+			for (auto& v : t)
 			{
 				ar >> v;
 			}
 
-			return value;
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)
