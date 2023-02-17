@@ -80,36 +80,20 @@ namespace elastic
 	template <typename _Ty, typename _Archive>
 	struct message
 	{
-		template <std::size_t I, typename _Ty>
-		static auto make_element(_Archive& ar)
-		{
-			using type = elastic::tuple_element_t<I,_Ty>;
-
-			type element{};
-
-			ar >> element;
-
-			if (ar.interrupt())
-				throw(archive_exception::exception_number::output_stream_error, "make element error!");
-
-			return element;
-		}
-
-		template <typename _Ty, std::size_t... I>
-		static auto pop_element(_Archive& ar, std::index_sequence<I...>)
-		{
-			return _Ty{ make_element<I, _Ty>(ar)... };
-		}
-
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			constexpr auto N = elastic::tuple_size_v<_Ty>;
 
 			using Indices = std::make_index_sequence<N>;
 
-			_Ty value = pop_element<_Ty>(ar, Indices{});
+			for_each(std::move(t),
+					 [&](auto&& v)
+					 {
+						 ar >> v;
 
-			return value;
+						 if (ar.interrupt())
+							 throw(archive_exception::exception_number::output_stream_error, "make element error!");
+					 });
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)
