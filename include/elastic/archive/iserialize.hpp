@@ -1,42 +1,14 @@
 #pragma once
-#include <elastic/access.hpp>
 #include <elastic/detail/concepts.hpp>
+#include <elastic/serialize/access.hpp>
 
 namespace elastic
 {
-	namespace serialize
+	namespace archive
 	{
 		template <typename _Archive>
 		struct load_non_pointer_type
 		{
-
-			struct load_standard
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					t = message<_Ty, _Archive>::deserialize(ar);
-				}
-			};
-
-			struct load_varint
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					t = varint<_Archive>::template deserialize<_Ty>(ar);
-				}
-			};
-
-			struct load_string
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					t = sequence<_Ty, _Archive>::template deserialize(ar);
-				}
-			};
-
 			struct load_only
 			{
 				template <typename _Ty>
@@ -46,25 +18,43 @@ namespace elastic
 				}
 			};
 
+			struct load_standard
+			{
+				template <typename _Ty>
+				static void invoke(_Archive& ar, _Ty& t)
+				{
+					message<_Ty, _Archive>::template deserialize(ar, t);
+				}
+			};
+			struct load_varint
+			{
+				template <typename _Ty>
+				static void invoke(_Archive& ar, _Ty& t)
+				{
+					varint<_Archive>::template deserialize<_Ty>(ar, t);
+				}
+			};
+
+			struct load_sequence
+			{
+				template <typename _Ty>
+				static void invoke(_Archive& ar, _Ty& t)
+				{
+					sequence<_Ty, _Archive>::template deserialize(ar, t);
+				}
+			};
+
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
 				using typex = std::conditional_t<
 					detail::varint_t<_Ty>, detail::identify_t<load_varint>,
 					std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<load_string>,
+									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<load_sequence>,
 														  detail::identify_t<load_only>>>>;
 
 				typex::invoke(ar, t);
 			}
-		};
-
-		template <typename _Archive>
-		struct load_pointer_type
-		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty t)
-			{}
 		};
 
 		template <typename _Archive>
@@ -73,20 +63,8 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				int value{};
-
-				load_non_pointer_type<_Archive>::load_varint::template invoke<int>(ar, value);
-
-				t = static_cast<_Ty>(value);
+				t = static_cast<_Ty>(ar.template load<int32_t>());
 			}
-		};
-
-		template <typename _Archive>
-		struct load_array_type
-		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty& t)
-			{}
 		};
 
 		template <typename _Archive>
@@ -111,7 +89,7 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				t.value_ = ar.read<typename _Ty::value_type>();
+				t.value_ = ar.load<typename _Ty::value_type>();
 			}
 		};
 
@@ -119,17 +97,13 @@ namespace elastic
 		inline void load(_Archive& ar, _Ty& t)
 		{
 			using typex = std::conditional_t<
-				std::is_pointer_v<_Ty>, detail::identify_t<load_pointer_type<_Archive>>,
-				std::conditional_t<
-					std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
-					std::conditional_t<
-						std::is_array_v<_Ty>, detail::identify_t<load_array_type<_Archive>>,
-						std::conditional_t<optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
-										   std::conditional_t<unsign_t<_Ty> || fixed_t<_Ty>,
-															  detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
-															  detail::identify_t<load_non_pointer_type<_Archive>>>>>>>;
+				std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
+				std::conditional_t<optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
+								   std::conditional_t<unsign_t<_Ty> || fixed_t<_Ty>,
+													  detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
+													  detail::identify_t<load_non_pointer_type<_Archive>>>>>;
 
 			typex::invoke(ar, t);
 		}
-	} // namespace serialize
+	} // namespace archive
 } // namespace elastic

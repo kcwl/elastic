@@ -23,35 +23,35 @@ namespace elastic
 	struct varint
 	{
 		template <detail::single_numric _Ty>
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
-			uint64_t value = ar.read<uint8_t>();
+			uint8_t c{};
+			ar.load<uint8_t>(c);
+			t = static_cast<_Ty>(c);
 
-			if (value > 0x80)
+			if (t > 0x80)
 			{
-				value -= 0x80;
+				t -= 0x80;
 
 				uint8_t bit = 7;
 
-				uint8_t c{};
-				while (((c = ar.read<uint8_t>()) & 0x80) != 0)
+				
+				while (ar.load(c), (c & 0x80) != 0)
 				{
-					value += static_cast<uint64_t>(c) << bit;
-					value -= static_cast<uint64_t>(0x80) << bit;
+					t += static_cast<_Ty>(c) << bit;
+					t -= static_cast<_Ty>(0x80) << bit;
 
 					bit += 7;
 				}
 
-				value += static_cast<uint64_t>(c) << bit;
+				t += static_cast<uint64_t>(c) << bit;
 			}
-
-			return std::move(static_cast<_Ty>(value));
 		}
 
 		template <detail::multi_numric _Ty>
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
-			return ar.read<_Ty>();
+			return ar.load<_Ty>(t);
 		}
 
 		template <detail::single_numric _Ty>
@@ -63,51 +63,37 @@ namespace elastic
 
 			while (result > 0x80)
 			{
-				ar.append(static_cast<uint8_t>(result | 0x80));
+				ar.save(static_cast<uint8_t>(result | 0x80));
 				result >>= 7;
 			}
 
-			ar.append(static_cast<uint8_t>(result));
+			ar.save(static_cast<uint8_t>(result));
 		}
 
 		template <detail::multi_numric _Ty>
 		static void serialize(_Ty&& value, _Archive& ar)
 		{
-			ar.append(std::forward<_Ty>(value));
+			ar.save(std::forward<_Ty>(value));
 		}
 	};
 
 	template <typename _Ty, typename _Archive>
 	struct message
 	{
-		template <std::size_t I, typename _Ty>
-		static auto make_element(_Archive& ar)
-		{
-			auto element = elastic::get<I>(_Ty{});
-
-			ar >> element;
-
-			if (ar.interpret_state())
-				throw std::runtime_error("make element error!\n");
-
-			return element;
-		}
-
-		template <typename _Ty, std::size_t... I>
-		static auto pop_element(_Archive& ar, std::index_sequence<I...>)
-		{
-			return _Ty{ make_element<I, _Ty>(ar)... };
-		}
-
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			constexpr auto N = elastic::tuple_size_v<_Ty>;
 
 			using Indices = std::make_index_sequence<N>;
 
-			_Ty value = pop_element<_Ty>(ar, Indices{});
+			for_each(std::move(t),
+					 [&](auto&& v)
+					 {
+						 ar >> v;
 
-			return value;
+						 if (ar.interrupt())
+							 throw(archive_exception::exception_number::output_stream_error, "make element error!");
+					 });
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)
@@ -119,29 +105,28 @@ namespace elastic
 	template <detail::sequence_t _Ty, typename _Archive>
 	struct sequence
 	{
-		static _Ty deserialize(_Archive& ar)
+		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint16_t bytes = varint<_Archive>::template deserialize<uint16_t>(ar);
 
-			_Ty value{};
+			t.resize(bytes);
 
-			for (uint16_t i = 0; i < bytes; ++i)
+			for (auto& v : t)
 			{
-				value.push_back(message<typename _Ty::value_type, _Archive>::template deserialize(ar));
+				ar >> v;
 			}
 
-			return value;
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)
 		{
 			auto bytes = value.size();
 
-			varint<_Archive>::template serialize(std::move(bytes), ar);
+			ar << bytes;
 
-			for (auto s : std::forward<_Ty>(value))
+			for (auto& s : std::forward<_Ty>(value))
 			{
-				message<typename std::remove_cvref_t<_Ty>::value_type, _Archive>::template serialize(std::move(s), ar);
+				ar << s;
 			}
 		}
 	};

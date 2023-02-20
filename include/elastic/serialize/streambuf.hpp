@@ -8,7 +8,7 @@ namespace elastic
 	constexpr static std::size_t capacity = 4096;
 
 	template <typename _Elem, typename _Traits, typename _Alloc = std::allocator<_Elem>>
-	class serialize_streambuf : public std::basic_streambuf<_Elem, _Traits>
+	class streambuf : public std::basic_streambuf<_Elem, _Traits>
 	{
 		using allocator_type = _Alloc;
 
@@ -26,21 +26,22 @@ namespace elastic
 
 		using off_type = typename base_type::off_type;
 		using pos_type = typename base_type::pos_type;
+		using int_type = typename _Traits::int_type;
 
 	public:
-		serialize_streambuf()
-			: serialize_streambuf(capacity)
+		streambuf()
+			: streambuf(capacity)
 		{}
 
-		serialize_streambuf(size_type number)
+		streambuf(size_type number)
 			: buffer_(number)
 		{
 			reset();
 		}
 
 		template <typename _Iter>
-		serialize_streambuf(_Iter begin, _Iter end)
-			: serialize_streambuf()
+		streambuf(_Iter begin, _Iter end)
+			: streambuf()
 		{
 			buffer_.clear();
 
@@ -48,11 +49,11 @@ namespace elastic
 		}
 
 		template <typename _Ty, std::size_t N, typename = std::is_convertible<_Ty, _Elem>>
-		serialize_streambuf(std::span<_Ty, N> data)
-			: serialize_streambuf()
+		streambuf(std::span<_Ty, N> data)
+			: streambuf()
 		{}
 
-		serialize_streambuf(serialize_streambuf&& other)
+		streambuf(streambuf&& other)
 		{
 			if (this != std::addressof(other))
 			{
@@ -60,8 +61,8 @@ namespace elastic
 			}
 		}
 
-		serialize_streambuf(const serialize_streambuf&) = delete;
-		serialize_streambuf& operator=(const serialize_streambuf&) = delete;
+		streambuf(const streambuf&) = delete;
+		streambuf& operator=(const streambuf&) = delete;
 
 	public:
 		std::size_t active() noexcept
@@ -122,15 +123,6 @@ namespace elastic
 			base_type::gbump(bytes);
 		}
 
-		std::streamsize xsputn(const _Elem* _Ptr, std::streamsize _Count) override
-		{
-			auto res = base_type::xsputn(_Ptr, _Count);
-
-			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
-
-			return res;
-		}
-
 		constexpr iterator begin() noexcept
 		{
 			return buffer_.begin();
@@ -163,13 +155,11 @@ namespace elastic
 			buffer_.resize(bytes);
 		}
 
-		void swap(serialize_streambuf& buf)
+		void swap(streambuf& buf)
 		{
 			base_type::swap(buf);
 
 			buffer_.swap(buf.buffer_);
-
-			transaction_start_ = std::move(buf.transaction_start_);
 		}
 
 		auto erase(const_iterator& where)
@@ -230,6 +220,48 @@ namespace elastic
 		}
 
 	protected:
+		virtual int_type overflow(int_type meta = _Traits::eof()) override
+		{
+			if (_Traits::eq_int_type(meta, _Traits::eof()))
+				return _Traits::not_eof(meta);
+
+			const auto pptr = base_type::pptr();
+			const auto epptr = base_type::epptr();
+
+			if (epptr - pptr < meta)
+				return _Traits::eof();
+
+			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
+
+			return meta;
+		}
+
+		virtual int_type underflow() override
+		{
+			const auto gptr = base_type::gptr();
+
+			if (!gptr)
+				return _Traits::eof();
+
+			if (gptr < base_type::egptr())
+				return _Traits::eof();
+
+			const auto pptr = base_type::pptr();
+
+			if (!pptr)
+				return _Traits::eof();
+
+			if (pptr == base_type::eback())
+				return _Traits::eof();
+
+			if (gptr == pptr)
+				return _Traits::eof();
+
+			base_type::setg(&buffer_[0], base_type::gptr(), base_type::pptr());
+
+			return _Traits::to_int_type(*base_type::gptr());
+		}
+
 		virtual pos_type seekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode) override
 		{
 			// change position by offset, according to way and mode
@@ -335,13 +367,14 @@ namespace elastic
 	private:
 		void reset()
 		{
+			if (buffer_.empty())
+				return;
+
 			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
 			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.size());
 		}
 
 	private:
 		std::vector<_Elem, allocator_type> buffer_;
-
-		pos_type transaction_start_;
 	};
 } // namespace elastic

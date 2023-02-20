@@ -858,7 +858,7 @@ BOOST_AUTO_TEST_CASE(reflect)
 BOOST_AUTO_TEST_CASE(iostream)
 {
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		char a_in = (std::numeric_limits<char>::max)();
@@ -874,7 +874,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		int8_t a_in = (std::numeric_limits<int8_t>::max)();
@@ -890,7 +890,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint8_t a_in = (std::numeric_limits<uint8_t>::max)();
@@ -906,7 +906,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		int16_t a_in = (std::numeric_limits<int16_t>::max)();
@@ -921,7 +921,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 		BOOST_TEST(a_in == a_out);
 	}
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint16_t a_in = (std::numeric_limits<uint16_t>::max)();
@@ -937,7 +937,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		int32_t a_in = (std::numeric_limits<int32_t>::max)();
@@ -953,7 +953,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint32_t a_in = (std::numeric_limits<uint32_t>::max)();
@@ -969,7 +969,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		int64_t a_in = (std::numeric_limits<int64_t>::max)();
@@ -985,7 +985,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint64_t a_in = (std::numeric_limits<uint64_t>::max)();
@@ -1001,7 +1001,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		std::vector<int32_t> a_in = { 1, 2, 3, 4, 5 };
@@ -1017,7 +1017,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		std::string a_in = "hello world!";
@@ -1033,7 +1033,7 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		struct son
@@ -1067,7 +1067,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	{
 		elastic::optional<int> value{ 1 };
 
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -1079,35 +1079,10 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		BOOST_TEST(value.value() == value1.value());
 	}
-
-	{
-		elastic::require<int> value{};
-		value.emplace(2);
-
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
-		elastic::binary_oarchive oa(buf);
-
-		oa << value;
-
-		elastic::require<int> value1{};
-
-		elastic::binary_iarchive ia(buf);
-		ia >> value1;
-
-		BOOST_TEST(value.value() == value1.value());
-	}
-	{
-		elastic::require<int> value{};
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
-		elastic::binary_oarchive oa(buf);
-
-		BOOST_CHECK_THROW(oa << value, std::runtime_error);
-	}
-
 	{
 		elastic::repeated<int> value{ 1, 2, 3 };
 
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -1124,7 +1099,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::fixed32 value{};
 		value = 2;
 
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -1141,7 +1116,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::fixed64 value{};
 		value = 2;
 
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -1155,29 +1130,29 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::unsign<int> value{};
+		elastic::uint32 value{};
 		value = 2;
 
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
 
-		elastic::unsign<int> value1{};
+		elastic::uint32 value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_TEST(value.value_ == value1.value_);
+		BOOST_TEST(value == value1);
 	}
 	{
 		enum class color
 		{
-			red,
-			blue
+			red = 1,
+			blue = 2
 		};
 
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << color::red;
@@ -1215,16 +1190,16 @@ struct part
 BOOST_AUTO_TEST_CASE(serialize_buffer)
 {
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_iarchive ia(buf);
 
 		int a = 1;
 		ia >> a;
-
-		BOOST_TEST(a == 1);
+		// BOOST_CHECK_THROW(ia >> a, elastic::archive_exception);
+		BOOST_CHECK(a == 1);
 	}
 	{
-		elastic::serialize_streambuf<char, std::char_traits<char>> buf;
+		elastic::streambuf<char, std::char_traits<char>> buf;
 		elastic::binary_oarchive oa(buf);
 
 		int a = 0;
@@ -1246,4 +1221,76 @@ BOOST_AUTO_TEST_CASE(serialize_buffer)
 
 		BOOST_CHECK(p.a == p1.a && p.b.a == p1.b.a && p.c == p1.c);
 	}
+
+	{
+		elastic::streambuf<char, std::char_traits<char>> buf(0);
+		elastic::binary_oarchive oa(buf);
+
+		BOOST_CHECK_THROW(oa << 1, elastic::archive_exception);
+	}
+
+	{
+		elastic::streambuf<char, std::char_traits<char>> buf;
+		elastic::binary_oarchive oa(buf);
+
+		oa << 1;
+
+		BOOST_CHECK(buf.size() == 1);
+		BOOST_CHECK(buf.data()[0] == 1);
+		BOOST_CHECK(buf.pubseekoff(0, std::ios::beg, std::ios::in) == 0);
+		BOOST_CHECK(buf.pubseekoff(0, std::ios::end, std::ios::in) == 1);
+		BOOST_CHECK(buf.pubseekoff(0, 3, std::ios::in) == -1);
+	}
+}
+
+struct base
+{
+	int a;
+	int b;
+};
+
+struct deri : base
+{
+	int c;
+	int d;
+
+private:
+	friend class elastic::access;
+	template <typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar& elastic::serialize::base_object<base>(*this);
+		ar& c;
+		ar& d;
+	}
+};
+
+BOOST_AUTO_TEST_CASE(inherit)
+{
+	deri d{};
+	d.a = 1;
+	d.b = 2;
+	d.c = 3;
+	d.d = 4;
+
+	elastic::streambuf<char, std::char_traits<char>> buf;
+	elastic::binary_oarchive oa(buf);
+
+	oa << d;
+
+	deri dd{};
+	elastic::binary_iarchive ia(buf);
+	ia >> dd;
+
+	BOOST_CHECK(d.a == dd.a && d.b == dd.b && d.c == dd.c && d.d == dd.d);
+}
+
+BOOST_AUTO_TEST_CASE(archive_exception_test)
+{
+	elastic::archive_exception exc(elastic::archive_exception::exception_number::input_stream_error, "test", "test");
+	exc.what();
+
+	elastic::archive_exception exc1(exc);
+
+	elastic::archive_exception exc2(elastic::archive_exception::exception_number::output_stream_error, "test", "test");
 }
