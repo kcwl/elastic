@@ -1,6 +1,8 @@
 #pragma once
 #include <elastic/detail/concepts.hpp>
 #include <elastic/serialize/access.hpp>
+#include <elastic/serialize/parser.hpp>
+#include <elastic/types/types.hpp>
 
 namespace elastic
 {
@@ -63,7 +65,7 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				t = static_cast<_Ty>(ar.template load<int32_t>());
+				ar.template load<_Ty>(t);
 			}
 		};
 
@@ -89,7 +91,7 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
-				t.value_ = ar.load<typename _Ty::value_type>();
+				ar.load<typename _Ty::value_type>(t.value_);
 			}
 		};
 
