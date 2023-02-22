@@ -24,7 +24,7 @@ namespace elastic
 		concept tuple = requires() { std::tuple_size<_Ty>(); };
 
 		template <typename _Ty>
-		concept class_cpt = std::is_class_v<_Ty>;
+		concept class_cpt = std::is_class_v<std::remove_reference_t<_Ty>>;
 
 		template <typename _Ty>
 		concept single_signed_numric =

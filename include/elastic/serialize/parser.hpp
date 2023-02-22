@@ -3,17 +3,17 @@
 
 namespace
 {
-	template <typename _Ty, typename Func, std::size_t... I>
-	constexpr void for_each(_Ty&& val, Func func, std::index_sequence<I...>)
+	template <typename _Ty, typename _Func, std::size_t... I>
+	constexpr void for_each(_Ty&& val, _Func&& func, std::index_sequence<I...>)
 	{
-		return (func(elastic::get<I>(std::forward<_Ty>(val))), ...);
+		return (std::forward<_Func>(func)(elastic::get<I>(std::forward<_Ty>(val))), ...);
 	}
 
-	template <typename _Ty, typename Func, std::size_t N = elastic::tuple_size_v<_Ty>,
+	template <typename _Ty, typename _Func, std::size_t N = elastic::tuple_size_v<_Ty>,
 		typename Indices = std::make_index_sequence<N>>
-		constexpr void for_each(_Ty&& val, Func func)
+		constexpr void for_each(_Ty&& val, _Func&& func)
 	{
-		return for_each(std::forward<_Ty>(val), func, Indices{});
+		return for_each(std::forward<_Ty>(val), std::forward<_Func>(func), Indices{});
 	}
 } // namespace
 
@@ -86,7 +86,7 @@ namespace elastic
 
 			using Indices = std::make_index_sequence<N>;
 
-			for_each(std::move(t),
+			for_each(t,
 				[&](auto&& v)
 				{
 					ar >> v;
