@@ -10,8 +10,8 @@ namespace
 	}
 
 	template <typename _Ty, typename Func, std::size_t N = elastic::tuple_size_v<_Ty>,
-			  typename Indices = std::make_index_sequence<N>>
-	constexpr void for_each(_Ty&& val, Func func)
+		typename Indices = std::make_index_sequence<N>>
+		constexpr void for_each(_Ty&& val, Func func)
 	{
 		return for_each(std::forward<_Ty>(val), func, Indices{});
 	}
@@ -35,7 +35,7 @@ namespace elastic
 
 				uint8_t bit = 7;
 
-				
+
 				while (ar.load(c), (c & 0x80) != 0)
 				{
 					t += static_cast<_Ty>(c) << bit;
@@ -87,13 +87,13 @@ namespace elastic
 			using Indices = std::make_index_sequence<N>;
 
 			for_each(std::move(t),
-					 [&](auto&& v)
-					 {
-						 ar >> v;
+				[&](auto&& v)
+				{
+					ar >> v;
 
-						 if (ar.interrupt())
-							 throw(archive_exception::exception_number::output_stream_error, "make element error!");
-					 });
+					if (ar.interrupt())
+						throw(archive_exception::exception_number::output_stream_error, "make element error!");
+				});
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)
@@ -107,7 +107,8 @@ namespace elastic
 	{
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
-			uint16_t bytes = varint<_Archive>::template deserialize<uint16_t>(ar);
+			uint16_t bytes{};
+			varint<_Archive>::template deserialize<uint16_t>(ar, bytes);
 
 			t.resize(bytes);
 
