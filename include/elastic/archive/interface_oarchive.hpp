@@ -28,9 +28,9 @@ namespace elastic
 		}
 
 		template<typename _Ty>
-		_Archive& operator&(const _Ty& t)
+		_Archive& operator&(_Ty&& t)
 		{
-			return *this->_this() << t;
+			return *this->_this() << std::forward<_Ty>(t);
 		}
 	};
 }
