@@ -61,6 +61,14 @@ namespace elastic
 			}
 		}
 
+		streambuf(const void* buffer, std::size_t sz)
+		{
+			if (sz < active())
+			{
+				std::memcpy(wdata(), buffer, sz);
+			}
+		}
+
 		streambuf(const streambuf&) = delete;
 		streambuf& operator=(const streambuf&) = delete;
 
