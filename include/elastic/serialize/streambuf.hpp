@@ -62,10 +62,12 @@ namespace elastic
 		}
 
 		streambuf(const void* buffer, std::size_t sz)
+			: streambuf()
 		{
 			if (sz < active())
 			{
 				std::memcpy(wdata(), buffer, sz);
+				commit(sz);
 			}
 		}
 
