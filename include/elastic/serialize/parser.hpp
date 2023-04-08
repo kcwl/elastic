@@ -29,7 +29,7 @@ namespace elastic
 			ar.load<uint8_t>(c);
 			t = static_cast<_Ty>(c);
 
-			if (t > 0x80)
+			if (t >= 0x80)
 			{
 				t -= 0x80;
 
