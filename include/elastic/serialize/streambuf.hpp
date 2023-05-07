@@ -2,6 +2,8 @@
 #include <span>
 #include <streambuf>
 #include <vector>
+#include <iterator>
+#include <ios>
 
 namespace elastic
 {
