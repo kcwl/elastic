@@ -1,6 +1,6 @@
 #pragma once
-#include <elastic/detail/concepts.hpp>
-#include <elastic/detail/size_t_.hpp>
+#include "concepts.hpp"
+#include "size_t_.hpp"
 
 namespace elastic
 {

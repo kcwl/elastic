@@ -1,5 +1,6 @@
 #pragma once
-#include <elastic/archive/basic_archive.hpp>
+#include "basic_archive.hpp"
+
 #include <memory>
 
 namespace elastic

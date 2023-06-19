@@ -1,5 +1,5 @@
 #pragma once
-#include <elastic/detail/concepts.hpp>
+#include "../detail/concepts.hpp"
 
 namespace elastic
 {
@@ -9,14 +9,12 @@ namespace elastic
 	protected:
 		basic_binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
 			: streambuf_(sb)
-		{
-
-		}
+		{}
 
 		~basic_binary_oprimitive() = default;
 
 	public:
-		template<typename _Ty>
+		template <typename _Ty>
 		void save(_Ty&& t)
 		{
 			save_binary(std::addressof(t), sizeof(_Ty));

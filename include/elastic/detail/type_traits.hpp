@@ -1,5 +1,6 @@
 #pragma once
-#include <elastic/detail/config.hpp>
+#include "config.hpp"
+
 #include <forward_list>
 #include <list>
 #include <string>

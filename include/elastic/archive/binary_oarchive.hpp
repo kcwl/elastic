@@ -1,5 +1,6 @@
 #pragma once
-#include <elastic/archive/binary_oarchive_impl.hpp>
+#include "binary_oarchive_impl.hpp"
+
 #include <ostream>
 
 namespace elastic

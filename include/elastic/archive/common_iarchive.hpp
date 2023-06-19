@@ -1,11 +1,11 @@
 #pragma once
-#include <elastic/archive/interface_iarchive.hpp>
-#include <elastic/archive/basic_iarchive.hpp>
-#include <elastic/archive/iserialize.hpp>
+#include "basic_iarchive.hpp"
+#include "interface_iarchive.hpp"
+#include "iserialize.hpp"
 
 namespace elastic
 {
-	template<typename _Archive>
+	template <typename _Archive>
 	class common_iarchive : public basic_iarchive, public interface_iarchive<_Archive>
 	{
 	protected:
@@ -16,7 +16,7 @@ namespace elastic
 		{}
 
 	protected:
-		template<typename _Ty>
+		template <typename _Ty>
 		void load_override(_Ty& t)
 		{
 			vload();
@@ -25,13 +25,9 @@ namespace elastic
 		}
 
 		void load_start()
-		{
+		{}
 
-		}
-		
 		void laod_end()
-		{
-
-		}
+		{}
 	};
-}
+} // namespace elastic

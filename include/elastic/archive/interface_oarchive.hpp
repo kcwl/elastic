@@ -1,11 +1,10 @@
 #pragma once
-#include <elastic/detail/concepts.hpp>
-#include <elastic/detail/singleton.hpp>
-
+#include "../detail/concepts.hpp"
+#include "../detail/singleton.hpp"
 
 namespace elastic
 {
-	template<typename _Archive>
+	template <typename _Archive>
 	class interface_oarchive
 	{
 	protected:
@@ -20,17 +19,17 @@ namespace elastic
 			return static_cast<_Archive*>(this);
 		}
 
-		template<typename _Ty>
+		template <typename _Ty>
 		_Archive& operator<<(_Ty&& t)
 		{
 			this->_this()->save_override(std::forward<_Ty>(t));
 			return *this->_this();
 		}
 
-		template<typename _Ty>
+		template <typename _Ty>
 		_Archive& operator&(_Ty&& t)
 		{
 			return *this->_this() << std::forward<_Ty>(t);
 		}
 	};
-}
+} // namespace elastic

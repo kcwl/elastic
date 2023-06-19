@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace elastic
 {
 	namespace detail
@@ -29,7 +28,7 @@ namespace elastic
 		public:
 			singleton_wrapper()
 			{
-				//BOOST_ASSERT(!is_destroyed());
+				// BOOST_ASSERT(!is_destroyed());
 			}
 			~singleton_wrapper()
 			{
@@ -53,7 +52,7 @@ namespace elastic
 		{}
 		static T& get_instance()
 		{
-			//BOOST_ASSERT(!is_destroyed());
+			// BOOST_ASSERT(!is_destroyed());
 
 			// use a wrapper so that types T with protected constructors can be used
 			// Using a static function member avoids LNK1179
@@ -82,7 +81,7 @@ namespace elastic
 	public:
 		static T& get_mutable_instance()
 		{
-			//BOOST_ASSERT(!get_singleton_module().is_locked());
+			// BOOST_ASSERT(!get_singleton_module().is_locked());
 			return get_instance();
 		}
 		static const T& get_const_instance()
@@ -101,4 +100,4 @@ namespace elastic
 	template <class T>
 	T* singleton<T>::m_instance = &singleton<T>::get_instance();
 
-}
+} // namespace elastic

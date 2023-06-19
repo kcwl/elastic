@@ -1,5 +1,5 @@
 #pragma once
-#include <elastic/reflect.hpp>
+#include "../reflect.hpp"
 
 namespace
 {
@@ -10,8 +10,8 @@ namespace
 	}
 
 	template <typename _Ty, typename _Func, std::size_t N = elastic::tuple_size_v<_Ty>,
-		typename Indices = std::make_index_sequence<N>>
-		constexpr void for_each(_Ty&& val, _Func&& func)
+			  typename Indices = std::make_index_sequence<N>>
+	constexpr void for_each(_Ty&& val, _Func&& func)
 	{
 		return for_each(std::forward<_Ty>(val), std::forward<_Func>(func), Indices{});
 	}
@@ -34,7 +34,6 @@ namespace elastic
 				t -= 0x80;
 
 				uint8_t bit = 7;
-
 
 				while (ar.load(c), (c & 0x80) != 0)
 				{
@@ -87,13 +86,13 @@ namespace elastic
 			using Indices = std::make_index_sequence<N>;
 
 			for_each(t,
-				[&](auto&& v)
-				{
-					ar >> v;
+					 [&](auto&& v)
+					 {
+						 ar >> v;
 
-					if (ar.interrupt())
-						throw(archive_exception::exception_number::output_stream_error, "make element error!");
-				});
+						 if (ar.interrupt())
+							 throw(archive_exception::exception_number::output_stream_error, "make element error!");
+					 });
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)
@@ -116,7 +115,6 @@ namespace elastic
 			{
 				ar >> v;
 			}
-
 		}
 
 		static void serialize(_Ty&& value, _Archive& ar)

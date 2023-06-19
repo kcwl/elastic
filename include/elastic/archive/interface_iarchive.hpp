@@ -2,7 +2,7 @@
 
 namespace elastic
 {
-	template<typename _Archive>
+	template <typename _Archive>
 	class interface_iarchive
 	{
 	protected:
@@ -14,7 +14,7 @@ namespace elastic
 			return static_cast<_Archive*>(this);
 		}
 
-		template<typename _Ty>
+		template <typename _Ty>
 		_Archive& operator>>(_Ty& t)
 		{
 			this->_this()->load_override(t);
@@ -22,10 +22,10 @@ namespace elastic
 			return *this->_this();
 		}
 
-		template<typename _Ty>
+		template <typename _Ty>
 		_Archive& operator&(_Ty& t)
 		{
 			return *(this->_this()) >> t;
 		}
 	};
-}
+} // namespace elastic

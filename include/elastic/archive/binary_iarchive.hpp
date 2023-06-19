@@ -1,7 +1,8 @@
 #pragma once
-#include <elastic/serialize/streambuf.hpp>
+#include "../serialize/streambuf.hpp"
+#include "binary_iarchive_impl.hpp"
+
 #include <istream>
-#include <elastic/archive/binary_iarchive_impl.hpp>
 
 namespace elastic
 {

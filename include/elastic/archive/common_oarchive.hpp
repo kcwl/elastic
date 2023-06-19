@@ -1,7 +1,7 @@
 #pragma once
-#include <elastic/archive/basic_oarchive.hpp>
-#include <elastic/archive/interface_oarchive.hpp>
-#include <elastic/archive/oserialize.hpp>
+#include "basic_oarchive.hpp"
+#include "interface_oarchive.hpp"
+#include "oserialize.hpp"
 
 namespace elastic
 {
