@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(reflect)
 
 	static_assert(elastic::get<0>(t3) == 1, "get value error!");
 	static_assert(elastic::get<1>(t3) == 'a', "get value error!");
-	static_assert(elastic::name<person>() == "person", "get name error!");
+	static_assert(elastic::name<person>() == "person"sv, "get name error!");
 }
 
 

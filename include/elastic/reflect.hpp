@@ -15,7 +15,22 @@ namespace elastic
 
 		constexpr std::string_view name = __FUNCSIG__ ""sv;
 
-		return name.substr(95, name.size() - 102);
+		constexpr auto left_bracket = name.find_last_of("<");
+
+		constexpr auto end_bracket = name.find_last_of(">");
+
+		constexpr auto temp_name = name.substr(left_bracket + 1, end_bracket - left_bracket - 1); 
+
+		constexpr auto start = name.find_last_of(":");
+
+		if constexpr (temp_name.find_last_of(":") == std::string_view::npos)
+		{
+			return temp_name;
+		}
+		else
+		{
+			return name.substr(start + 1, end_bracket - start - 1);
+		}
 	}
 
 	template <std::size_t N, typename _Ty>
