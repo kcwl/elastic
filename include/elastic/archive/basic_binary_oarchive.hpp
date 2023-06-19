@@ -1,9 +1,9 @@
 #pragma once
-#include <elastic/archive/common_oarchive.hpp>
+#include "common_oarchive.hpp"
 
 namespace elastic
 {
-	template<typename _Archive>
+	template <typename _Archive>
 	class basic_binary_oarchive : public common_oarchive<_Archive>
 	{
 	protected:
@@ -12,7 +12,7 @@ namespace elastic
 		{}
 
 	protected:
-		template<typename _Ty>
+		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
 			this->common_oarchive<_Archive>::save_override(std::forward<_Ty>(t));
@@ -24,4 +24,4 @@ namespace elastic
 			*this->This() << file_signature;
 		}
 	};
-}
+} // namespace elastic

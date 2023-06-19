@@ -1,5 +1,6 @@
 #pragma once
-#include <elastic/detail/type_traits.hpp>
+#include "type_traits.hpp"
+
 #include <utility>
 
 namespace elastic
@@ -44,7 +45,8 @@ namespace elastic
 			std::is_same_v<std::remove_cvref_t<_Ty>, double> || std::is_same_v<std::remove_cvref_t<_Ty>, float>;
 
 		template <typename _Ty>
-		concept varint_t = single_signed_numric<std::remove_cvref_t<_Ty>> || single_unsigned_numric<std::remove_cvref_t<_Ty>> || multi_numric<std::remove_cvref_t<_Ty>>;
+		concept varint_t = single_signed_numric<std::remove_cvref_t<_Ty>> ||
+						   single_unsigned_numric<std::remove_cvref_t<_Ty>> || multi_numric<std::remove_cvref_t<_Ty>>;
 
 		template <typename _Ty>
 		concept pod =
@@ -83,7 +85,7 @@ namespace elastic
 			std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>> &&
 			std::is_class_v<std::remove_cvref_t<_Ty>>;
 
-		template<typename _Ty>
+		template <typename _Ty>
 		concept string_t = std::is_same_v<_Ty, std::string>;
 	} // namespace detail
 } // namespace elastic

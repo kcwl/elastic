@@ -1,5 +1,5 @@
 #pragma once
-#include <elastic/detail/config.hpp>
+#include "config.hpp"
 
 namespace elastic
 {

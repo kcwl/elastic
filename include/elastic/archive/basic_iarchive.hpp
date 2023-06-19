@@ -1,7 +1,8 @@
 #pragma once
+#include "../detail/nocopyable.hpp"
+#include "basic_archive.hpp"
+
 #include <cstdint>
-#include <elastic/detail/nocopyable.hpp>
-#include <elastic/archive/basic_archive.hpp>
 
 namespace elastic
 {
@@ -14,4 +15,4 @@ namespace elastic
 	public:
 		virtual void vload() const = 0;
 	};
-}
+} // namespace elastic

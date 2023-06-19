@@ -1,6 +1,7 @@
 #pragma once
-#include <elastic/detail/generate.hpp>
-#include <elastic/tuple_size.hpp>
+#include "detail/generate.hpp"
+#include "tuple_size.hpp"
+
 #include <string_view>
 
 namespace elastic
@@ -21,13 +22,13 @@ namespace elastic
 		return std::get<N>(detail::template make_tuple(val, detail::template size_t_<elastic::tuple_size_v<_Ty>>{}));
 	}
 
-	template<std::size_t I, typename _Tuple>
+	template <std::size_t I, typename _Tuple>
 	struct tuple_element
 	{
 		using type = decltype(elastic::get<I>(std::declval<_Tuple>()));
 	};
 
-	template<std::size_t I, typename _Tuple>
-	using tuple_element_t = typename tuple_element<I,_Tuple>::type;
+	template <std::size_t I, typename _Tuple>
+	using tuple_element_t = typename tuple_element<I, _Tuple>::type;
 
 } // namespace elastic

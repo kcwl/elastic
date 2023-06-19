@@ -1,12 +1,14 @@
 #pragma once
-#include <elastic/archive/basic_binary_iprimitive.hpp>
-#include <elastic/archive/basic_binary_iarchive.hpp>
+#include "basic_binary_iarchive.hpp"
+#include "basic_binary_iprimitive.hpp"
+
 #include <istream>
 
 namespace elastic
 {
-	template<typename _Archive,typename _Elem, typename _Traits>
-	class binary_iarchive_impl : public basic_binary_iprimitive<_Archive, _Elem, _Traits>, public basic_binary_iarchive<_Archive>
+	template <typename _Archive, typename _Elem, typename _Traits>
+	class binary_iarchive_impl : public basic_binary_iprimitive<_Archive, _Elem, _Traits>,
+								 public basic_binary_iarchive<_Archive>
 	{
 	protected:
 		binary_iarchive_impl(std::basic_streambuf<_Elem, _Traits>& bsb)
@@ -19,7 +21,7 @@ namespace elastic
 		{}
 
 	public:
-		template<typename _Ty>
+		template <typename _Ty>
 		void load_override(_Ty& t)
 		{
 			try
@@ -40,4 +42,4 @@ namespace elastic
 			this->basic_binary_iprimitive<_Archive, _Elem, _Traits>::init();
 		}
 	};
-}
+} // namespace elastic

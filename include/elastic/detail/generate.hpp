@@ -1,6 +1,7 @@
 #pragma once
-#include <elastic/detail/concepts.hpp>
-#include <elastic/detail/size_t_.hpp>
+#include "concepts.hpp"
+#include "size_t_.hpp"
+
 #include <tuple>
 
 namespace elastic
@@ -206,38 +207,40 @@ namespace elastic
 		constexpr auto make_tuple(_Ty&& val, size_t_<27>) noexcept
 		{
 			auto&& [a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C] = val;
-			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C);
+			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B,
+										 C);
 		}
 
 		template <typename _Ty>
 		constexpr auto make_tuple(_Ty&& val, size_t_<28>) noexcept
 		{
 			auto&& [a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D] = val;
-			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D);
+			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B,
+										 C, D);
 		}
 
 		template <typename _Ty>
 		constexpr auto make_tuple(_Ty&& val, size_t_<29>) noexcept
 		{
 			auto&& [a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E] = val;
-			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D,
-								   E);
+			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B,
+										 C, D, E);
 		}
 
 		template <typename _Ty>
 		constexpr auto make_tuple(_Ty&& val, size_t_<30>) noexcept
 		{
 			auto&& [a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E, F] = val;
-			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D,
-								   E, F);
+			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B,
+										 C, D, E, F);
 		}
 
 		template <typename _Ty>
 		constexpr auto make_tuple(_Ty&& val, size_t_<31>) noexcept
 		{
 			auto&& [a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E, F, G] = val;
-			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D,
-								   E, F, G);
+			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B,
+										 C, D, E, F, G);
 		}
 
 		template <typename _Ty>
@@ -245,8 +248,8 @@ namespace elastic
 		{
 			auto&& [a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E, F, G, H] =
 				val;
-			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D,
-								   E, F, G, H);
+			return std::forward_as_tuple(a, b, c, d, e, f, g, h, j, k, l, m, n, p, q, r, s, t, u, v, w, x, y, z, A, B,
+										 C, D, E, F, G, H);
 		}
 	} // namespace detail
 } // namespace elastic

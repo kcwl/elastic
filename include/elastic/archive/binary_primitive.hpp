@@ -1,5 +1,6 @@
 #pragma once
-#include <elastic/detail/concepts.hpp>
+#include "../detail/concepts.hpp"
+
 #include <iterator>
 #include <streambuf>
 
