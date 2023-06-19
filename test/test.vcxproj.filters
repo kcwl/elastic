@@ -95,19 +95,10 @@
     <ClInclude Include="..\include\elastic\archive\interface_oarchive.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\iserialize.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\oserialize.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\serialize\access.hpp">
       <Filter>elastic\serialize</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\serialize\parser.hpp">
-      <Filter>elastic\serialize</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\serialize\streambuf.hpp">
       <Filter>elastic\serialize</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\detail\concepts.hpp">
@@ -154,6 +145,12 @@
     </ClInclude>
     <ClInclude Include="exception.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\serialize\iserialize.hpp">
+      <Filter>elastic\serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\serialize\oserialize.hpp">
+      <Filter>elastic\serialize</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

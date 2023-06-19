@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(inherit)
 	d.c = 3;
 	d.d = 4;
 
-	elastic::streambuf<char, std::char_traits<char>> buf;
+	std::stringstream buf;
 	elastic::binary_oarchive oa(buf);
 
 	oa << d;

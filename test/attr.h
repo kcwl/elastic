@@ -1,5 +1,7 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
+#include <sstream>
+#include "../include/elastic/types/types.hpp"
 #include "../include/elastic/archive/binary_iarchive.hpp"
 #include "../include/elastic/archive/binary_oarchive.hpp"
 
@@ -10,7 +12,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	{
 		elastic::optional<int> value{ 1 };
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -25,7 +27,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	{
 		elastic::repeated<int> value{ 1, 2, 3 };
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -42,7 +44,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::fixed32 value{};
 		value = 2;
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -59,7 +61,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::fixed64 value{};
 		value = 2;
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -76,7 +78,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::uint32 value{};
 		value = 2;
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -95,7 +97,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 			blue = 2
 		};
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << color::red;

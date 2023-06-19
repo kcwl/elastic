@@ -1,5 +1,4 @@
 #pragma once
-#include "../serialize/streambuf.hpp"
 #include "binary_iarchive_impl.hpp"
 
 #include <istream>
