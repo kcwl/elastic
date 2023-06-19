@@ -1,6 +1,6 @@
 #pragma once
 #include "basic_archive.hpp"
-#include "interface_oarchive.hpp"
+#include "interface_archive.hpp"
 #include "oserialize.hpp"
 
 namespace elastic

@@ -145,8 +145,7 @@
     <ClInclude Include="..\include\elastic\archive\binary_primitive.hpp" />
     <ClInclude Include="..\include\elastic\archive\common_iarchive.hpp" />
     <ClInclude Include="..\include\elastic\archive\common_oarchive.hpp" />
-    <ClInclude Include="..\include\elastic\archive\interface_iarchive.hpp" />
-    <ClInclude Include="..\include\elastic\archive\interface_oarchive.hpp" />
+    <ClInclude Include="..\include\elastic\archive\interface_archive.hpp" />
     <ClInclude Include="..\include\elastic\detail\concepts.hpp" />
     <ClInclude Include="..\include\elastic\detail\config.hpp" />
     <ClInclude Include="..\include\elastic\detail\eval_if.hpp" />
