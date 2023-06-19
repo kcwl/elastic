@@ -68,10 +68,7 @@
     <ClInclude Include="..\include\elastic\archive\binary_oarchive_impl.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\common_iarchive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\common_oarchive.hpp">
+    <ClInclude Include="..\include\elastic\archive\common_archive.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\archive\interface_archive.hpp">

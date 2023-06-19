@@ -1,7 +1,6 @@
 #pragma once
 #include "archive_exception.hpp"
-#include "common_iarchive.hpp"
-#include "common_oarchive.hpp"
+#include "common_archive.hpp"
 
 namespace elastic
 {
