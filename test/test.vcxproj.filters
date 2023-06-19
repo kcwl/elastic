@@ -47,12 +47,6 @@
     <ClInclude Include="..\include\elastic\archive\archive_exception.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_archive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_binary_archive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\archive\basic_primitive.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
@@ -60,9 +54,6 @@
       <Filter>elastic\archive</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\archive\binary_oarchive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\common_archive.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\archive\interface_archive.hpp">
@@ -119,13 +110,16 @@
     <ClInclude Include="exception.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\serialize\iserialize.hpp">
-      <Filter>elastic\serialize</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\serialize\oserialize.hpp">
-      <Filter>elastic\serialize</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\archive\binary_primitive.hpp">
+      <Filter>elastic\archive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\archive\iserialize.hpp">
+      <Filter>elastic\archive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\archive\oserialize.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
   </ItemGroup>

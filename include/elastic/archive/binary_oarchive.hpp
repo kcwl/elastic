@@ -1,48 +1,31 @@
 #pragma once
-#include "basic_binary_archive.hpp"
 #include "binary_primitive.hpp"
+#include "interface_archive.hpp"
+#include "oserialize.hpp"
 
 #include <ostream>
 
 namespace elastic
 {
-	namespace impl
-	{
-		template <typename _Archive, typename _Elem, typename _Traits>
-		class binary_oarchive_impl : public binary_oprimitive<_Archive, _Elem, _Traits>,
-									 public basic_binary_oarchive<_Archive>
-		{
-		protected:
-			binary_oarchive_impl(std::basic_streambuf<_Elem, _Traits>& os)
-				: binary_oprimitive<_Archive, _Elem, _Traits>(os)
-				, basic_binary_oarchive<_Archive>()
-			{}
-
-			binary_oarchive_impl(std::basic_ostream<_Elem, _Traits>& os)
-				: binary_oprimitive<_Archive, _Elem, _Traits>(*os.rdbuf())
-				, basic_binary_oarchive<_Archive>()
-			{}
-
-		public:
-			template <typename _Ty>
-			void save_override(_Ty&& t)
-			{
-				this->basic_binary_oarchive<_Archive>::save_override(std::forward<_Ty>(t));
-			}
-		};
-	} // namespace impl
-
-	class binary_oarchive
-		: public impl::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>
+	class binary_oarchive : public binary_oprimitive<binary_oarchive, char, std::char_traits<char>>,
+							public interface_oarchive<binary_oarchive>
 	{
 	public:
-		explicit binary_oarchive(std::ostream& os)
-			: impl::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>(os)
+		template <typename _StreamBuffer>
+		requires(std::is_convertible_v<_StreamBuffer, std::streambuf>)
+		explicit binary_oarchive(_StreamBuffer& bsb)
+			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(bsb)
 		{}
 
-		explicit binary_oarchive(std::streambuf& bsb)
-			: impl::binary_oarchive_impl<binary_oarchive, std::ostream::char_type, std::ostream::traits_type>(bsb)
+		binary_oarchive(std::ostream& os)
+			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(*os.rdbuf())
 		{}
+
+	public:
+		template <typename _Ty>
+		void save_override(_Ty&& t)
+		{
+			archive::save(*this, std::forward<_Ty>(t));
+		}
 	};
-
 } // namespace elastic
