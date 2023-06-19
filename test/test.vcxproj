@@ -137,9 +137,8 @@
     <ClInclude Include="..\include\elastic\archive\archive_exception.hpp" />
     <ClInclude Include="..\include\elastic\archive\basic_archive.hpp" />
     <ClInclude Include="..\include\elastic\archive\basic_binary_iarchive.hpp" />
-    <ClInclude Include="..\include\elastic\archive\basic_binary_iprimitive.hpp" />
     <ClInclude Include="..\include\elastic\archive\basic_binary_oarchive.hpp" />
-    <ClInclude Include="..\include\elastic\archive\basic_binary_oprimitive.hpp" />
+    <ClInclude Include="..\include\elastic\archive\basic_primitive.hpp" />
     <ClInclude Include="..\include\elastic\archive\basic_iarchive.hpp" />
     <ClInclude Include="..\include\elastic\archive\basic_oarchive.hpp" />
     <ClInclude Include="..\include\elastic\archive\binary_iarchive.hpp" />

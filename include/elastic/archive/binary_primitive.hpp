@@ -1,91 +1,90 @@
 #pragma once
-#include "../detail/concepts.hpp"
-
-#include <iterator>
-#include <streambuf>
+#include "basic_primitive.hpp"
 
 namespace elastic
 {
-	template <typename _Elem, typename _Traits>
-	class basic_binary_primitive
-	{
-	public:
-		explicit basic_binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: streambuf_(sb)
-		{}
-
-	public:
-		std::basic_streambuf<_Elem, _Traits>& streambuf_;
-	};
-
 	template <typename _Archive, typename _Elem, typename _Traits>
-	class binary_primitive : public basic_binary_primitive<_Elem, _Traits>
+	class binary_iprimitive : public basic_primitive<_Elem, _Traits>
 	{
-	public:
-		explicit binary_primitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: basic_binary_primitive<_Elem, _Traits>(sb)
-		{}
-
-		_Archive* archive()
-		{
-			return static_cast<_Archive*>(this);
-		}
-	};
-
-	template <typename _Archive, typename _Elem, typename _Traits>
-	class binary_oprimitive : public binary_primitive<_Archive, _Elem, _Traits>
-	{
-	public:
-		explicit binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: binary_primitive<_Archive, _Elem, _Traits>(sb)
-		{}
-
-		~binary_oprimitive() = default;
-
-	public:
-		template <typename _Ty>
-		void append(const _Ty& value)
-		{
-			constexpr auto bytes = sizeof(_Ty);
-
-			this->append((_Elem*)&value, bytes);
-		}
-
-		void append(_Elem* value, std::size_t bytes)
-		{
-			this->streambuf_.sputn(value, bytes);
-		}
-	};
-
-	template <typename _Archive, typename _Elem, typename _Traits>
-	class binary_iprimitive : public binary_primitive<_Archive, _Elem, _Traits>
-	{
-	public:
-		explicit binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: binary_primitive<_Archive, _Elem, _Traits>(sb)
+	protected:
+		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+			: basic_primitive<_Elem, _Traits>(bs)
 			, trans_pos_(0)
-			, interpret_(false)
+			, interrupt_(false)
 		{}
 
-		~binary_iprimitive() = default;
+		~binary_iprimitive()
+		{}
 
 	public:
-		void read(_Elem* address, std::size_t bytes)
+		template <typename _Ty>
+		void load(_Ty& t)
 		{
-			auto scount = this->streambuf_.sgetn(address, bytes);
-
-			if (scount != static_cast<int>(bytes))
-				throw std::runtime_error("memory is not enough!");
+			load_binary(&t, sizeof(_Ty));
 		}
 
-		template <typename _Ty>
-		_Ty read()
+		template <>
+		void load(std::string& s)
 		{
-			_Ty value{};
+			std::size_t l = this->_this()->load<std::size_t>();
 
-			this->read((_Elem*)&value, sizeof(_Ty));
+			s.resize(l);
 
-			return value;
+			if (0 < l)
+				load_binary(&(*s.begin()), l);
+		}
+
+		template <>
+		void load(std::wstring& ws)
+		{
+			std::size_t l{};
+
+			this->_this()->load(l);
+
+			ws.resize(l);
+
+			load_binary(const_cast<wchar_t*>(ws.data()), l * sizeof(wchar_t) / sizeof(char));
+		}
+
+		void load_binary(void* address, std::size_t count)
+		{
+			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
+			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
+			if (scount == 0)
+				throw(archive_exception(archive_exception::exception_number::input_stream_error));
+		}
+
+		void init()
+		{
+			unsigned char size{};
+
+			this->_this()->load(size);
+			if (size != sizeof(int))
+			{
+				throw(
+					archive_exception(archive_exception::exception_number::incompatible_native_format, "size of int"));
+			}
+
+			this->_this()->load(size);
+			if (size != sizeof(long))
+			{
+				throw(
+					archive_exception(archive_exception::exception_number::incompatible_native_format, "size of long"));
+			}
+
+			this->_this()->load(size);
+			if (size != sizeof(float))
+			{
+				throw(archive_exception(archive_exception::exception_number::incompatible_native_format,
+										"size of float"));
+			}
+
+			this->_this()->load(size);
+			if (size != sizeof(double))
+			{
+				throw(archive_exception(archive_exception::exception_number::incompatible_native_format,
+										"size of double"));
+			}
 		}
 
 		void start()
@@ -93,7 +92,7 @@ namespace elastic
 			if (trans_pos_ != 0)
 				return;
 
-			trans_pos_ = static_cast<int>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+			trans_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
 		}
 
 		void roll_back()
@@ -102,22 +101,79 @@ namespace elastic
 
 			trans_pos_ = 0;
 
-			interpret();
+			interrupt(true);
 		}
 
-		void interpret(bool f = true)
+		void interrupt(bool f)
 		{
-			interpret_ != f ? interpret_ = f : 0;
+			interrupt_ = f;
 		}
 
-		bool interpret_state()
+		bool interrupt()
 		{
-			return interpret_;
+			return interrupt_;
 		}
 
-	private:
-		int trans_pos_;
+	protected:
+		_Archive* _this()
+		{
+			return static_cast<_Archive*>(this);
+		}
 
-		bool interpret_;
+	protected:
+		int32_t trans_pos_;
+
+		bool interrupt_;
+	};
+
+	template <typename _Archive, typename _Elem, typename _Traits>
+	class binary_oprimitive : public basic_primitive<_Elem, _Traits>
+	{
+	protected:
+		binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+			: basic_primitive<_Elem, _Traits>(bs)
+		{}
+
+		~binary_oprimitive() = default;
+
+	public:
+		template <typename _Ty>
+		void save(_Ty&& t)
+		{
+			save_binary(std::addressof(t), sizeof(_Ty));
+		}
+
+		void save(const std::string& s)
+		{
+			auto l = s.size();
+
+			save(l);
+
+			save_binary(s.data(), l);
+		}
+
+		void save(const std::wstring& s)
+		{
+			auto l = s.size();
+
+			save(l);
+
+			save_binary(s.data(), sizeof(wchar_t) / sizeof(char) * l);
+		}
+
+		void save_binary(const void* address, std::size_t count)
+		{
+			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
+			std::streamsize scount =
+				this->streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
+			if (static_cast<std::size_t>(scount) == 0)
+				throw(archive_exception(archive_exception::exception_number::output_stream_error));
+		}
+
+	protected:
+		_Archive* _this()
+		{
+			return static_cast<_Archive*>(this);
+		}
 	};
 } // namespace elastic
