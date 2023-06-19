@@ -1,6 +1,7 @@
 #pragma once
 #include "archive_exception.hpp"
 #include "common_iarchive.hpp"
+#include "common_oarchive.hpp"
 
 namespace elastic
 {
@@ -18,15 +19,21 @@ namespace elastic
 		{
 			this->common_iarchive<_Archive>::load_override(t);
 		}
+	};
 
-		void init()
+	template <typename _Archive>
+	class basic_binary_oarchive : public common_oarchive<_Archive>
+	{
+	protected:
+		basic_binary_oarchive()
+			: common_oarchive<_Archive>()
+		{}
+
+	protected:
+		template <typename _Ty>
+		void save_override(_Ty&& t)
 		{
-			std::string file_signature;
-
-			*this->_this() >> file_signature;
-
-			if (file_signature != archive_signature())
-				throw(archive_exception(archive_exception::exception_number::invalid_signature));
+			this->common_oarchive<_Archive>::save_override(std::forward<_Ty>(t));
 		}
 	};
 } // namespace elastic

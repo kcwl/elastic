@@ -1,5 +1,5 @@
 #pragma once
-#include "basic_binary_iarchive.hpp"
+#include "basic_binary_archive.hpp"
 #include "binary_primitive.hpp"
 
 #include <istream>
