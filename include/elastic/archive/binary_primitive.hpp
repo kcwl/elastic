@@ -54,39 +54,6 @@ namespace elastic
 				throw(archive_exception(archive_exception::exception_number::input_stream_error));
 		}
 
-		void init()
-		{
-			unsigned char size{};
-
-			this->_this()->load(size);
-			if (size != sizeof(int))
-			{
-				throw(
-					archive_exception(archive_exception::exception_number::incompatible_native_format, "size of int"));
-			}
-
-			this->_this()->load(size);
-			if (size != sizeof(long))
-			{
-				throw(
-					archive_exception(archive_exception::exception_number::incompatible_native_format, "size of long"));
-			}
-
-			this->_this()->load(size);
-			if (size != sizeof(float))
-			{
-				throw(archive_exception(archive_exception::exception_number::incompatible_native_format,
-										"size of float"));
-			}
-
-			this->_this()->load(size);
-			if (size != sizeof(double))
-			{
-				throw(archive_exception(archive_exception::exception_number::incompatible_native_format,
-										"size of double"));
-			}
-		}
-
 		void start()
 		{
 			if (trans_pos_ != 0)

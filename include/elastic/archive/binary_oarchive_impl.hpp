@@ -25,11 +25,5 @@ namespace elastic
 		{
 			this->basic_binary_oarchive<_Archive>::save_override(std::forward<_Ty>(t));
 		}
-
-		void init()
-		{
-			this->basic_binary_oarchive<_Archive>::init();
-			this->binary_oprimitive<_Archive, _Elem, _Traits>::init();
-		}
 	};
 } // namespace elastic
