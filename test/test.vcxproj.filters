@@ -56,12 +56,6 @@
     <ClInclude Include="..\include\elastic\archive\basic_primitive.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_iarchive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_oarchive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\archive\binary_iarchive.hpp">
       <Filter>elastic\archive</Filter>
     </ClInclude>
