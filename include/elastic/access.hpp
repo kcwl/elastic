@@ -24,12 +24,9 @@ namespace elastic
 		}
 	};
 
-	namespace serialize
+	template <typename _Base, typename _Derived>
+	std::conditional_t<std::is_const_v<_Derived>, const _Base, _Base>& base_object(_Derived& d)
 	{
-		template <typename _Base, typename _Derived>
-		std::conditional_t<std::is_const_v<_Derived>, const _Base, _Base>& base_object(_Derived& d)
-		{
-			return access::cast_reference<_Base, _Derived>(d);
-		}
-	} // namespace serialize
+		return access::cast_reference<_Base, _Derived>(d);
+	}
 } // namespace elastic

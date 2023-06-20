@@ -19,7 +19,7 @@ namespace elastic
 
 		constexpr auto end_bracket = name.find_last_of(">");
 
-		constexpr auto temp_name = name.substr(left_bracket + 1, end_bracket - left_bracket - 1); 
+		constexpr auto temp_name = name.substr(left_bracket + 1, end_bracket - left_bracket - 1);
 
 		constexpr auto start = name.find_last_of(":");
 

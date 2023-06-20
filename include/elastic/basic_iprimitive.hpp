@@ -1,22 +1,20 @@
 #pragma once
-#include "../detail/concepts.hpp"
 #include "archive_exception.hpp"
-
-#include <streambuf>
+#include "basic_primitive.hpp"
 
 namespace elastic
 {
 	template <typename _Archive, typename _Elem, typename _Traits>
-	class basic_binary_iprimitive
+	class basic_iprimitive : public basic_primitive<_Elem, _Traits>
 	{
 	protected:
-		basic_binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& sb)
-			: buffer_(sb)
+		basic_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+			: basic_primitive<_Elem, _Traits>(bs)
 			, trans_pos_(0)
 			, interrupt_(false)
 		{}
 
-		~basic_binary_iprimitive()
+		~basic_iprimitive()
 		{}
 
 	public:
@@ -52,42 +50,9 @@ namespace elastic
 		void load_binary(void* address, std::size_t count)
 		{
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
-			std::streamsize scount = buffer_.sgetn(static_cast<_Elem*>(address), s);
+			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
 			if (scount == 0)
 				throw(archive_exception(archive_exception::exception_number::input_stream_error));
-		}
-
-		void init()
-		{
-			unsigned char size{};
-
-			this->_this()->load(size);
-			if (size != sizeof(int))
-			{
-				throw(
-					archive_exception(archive_exception::exception_number::incompatible_native_format, "size of int"));
-			}
-
-			this->_this()->load(size);
-			if (size != sizeof(long))
-			{
-				throw(
-					archive_exception(archive_exception::exception_number::incompatible_native_format, "size of long"));
-			}
-
-			this->_this()->load(size);
-			if (size != sizeof(float))
-			{
-				throw(archive_exception(archive_exception::exception_number::incompatible_native_format,
-										"size of float"));
-			}
-
-			this->_this()->load(size);
-			if (size != sizeof(double))
-			{
-				throw(archive_exception(archive_exception::exception_number::incompatible_native_format,
-										"size of double"));
-			}
 		}
 
 		void start()
@@ -95,12 +60,12 @@ namespace elastic
 			if (trans_pos_ != 0)
 				return;
 
-			trans_pos_ = static_cast<int32_t>(buffer_.pubseekoff(0, std::ios::cur, std::ios::in));
+			trans_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
 		}
 
 		void roll_back()
 		{
-			buffer_.pubseekpos(trans_pos_, std::ios::in);
+			this->streambuf_.pubseekpos(trans_pos_, std::ios::in);
 
 			trans_pos_ = 0;
 
@@ -124,8 +89,6 @@ namespace elastic
 		}
 
 	protected:
-		std::basic_streambuf<_Elem, _Traits>& buffer_;
-
 		int32_t trans_pos_;
 
 		bool interrupt_;

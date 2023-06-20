@@ -1,7 +1,6 @@
 #pragma once
-#include "../serialize/access.hpp"
-#include "../serialize/parser.hpp"
-#include "../types/types.hpp"
+#include "access.hpp"
+#include "archive_type.hpp"
 
 namespace elastic
 {
@@ -75,7 +74,7 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
+				if constexpr (detail::optional_t<std::remove_cvref_t<_Ty>>)
 				{
 					ar << *t;
 				}
@@ -87,13 +86,13 @@ namespace elastic
 		};
 
 		template <typename _Archive, typename _Ty>
-		inline void save(_Archive& ar, _Ty&& t)
+		inline void binary_save(_Archive& ar, _Ty&& t)
 		{
 			using type = std::remove_reference_t<_Ty>;
 
 			using typex = std::conditional_t<
 				std::is_enum_v<type>, detail::identify_t<save_enum_type<_Archive>>,
-				std::conditional_t<attribute_t<type>, detail::identify_t<save_optional_type<_Archive>>,
+				std::conditional_t<detail::attribute_t<type>, detail::identify_t<save_optional_type<_Archive>>,
 								   detail::identify_t<save_non_pointer_type<_Archive>>>>;
 
 			typex::invoke(ar, std::forward<_Ty>(t));

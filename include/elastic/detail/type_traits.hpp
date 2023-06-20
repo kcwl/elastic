@@ -1,9 +1,8 @@
 #pragma once
-#include "config.hpp"
-
 #include <forward_list>
 #include <list>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace elastic
@@ -101,6 +100,14 @@ namespace elastic
 		{
 			using type = uint64_t;
 		};
+
+		template <typename _Ty>
+		struct is_fixed : std::false_type
+		{};
+
+		template <typename _Ty>
+		struct is_fixed<fixed<_Ty>> : std::true_type
+		{};
 
 	} // namespace detail
 } // namespace elastic

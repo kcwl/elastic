@@ -1,7 +1,10 @@
 #pragma once
+#include "../include/elastic/archive_type.hpp"
+#include "../include/elastic/binary_iarchive.hpp"
+#include "../include/elastic/binary_oarchive.hpp"
+
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/archive/binary_iarchive.hpp"
-#include "../include/elastic/archive/binary_oarchive.hpp"
+#include <sstream>
 
 BOOST_AUTO_TEST_SUITE(attr)
 
@@ -10,7 +13,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	{
 		elastic::optional<int> value{ 1 };
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -25,7 +28,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	{
 		elastic::repeated<int> value{ 1, 2, 3 };
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -42,7 +45,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::fixed32 value{};
 		value = 2;
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -59,7 +62,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::fixed64 value{};
 		value = 2;
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -69,25 +72,9 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_TEST(value.value_ == value1.value_);
+		BOOST_CHECK_EQUAL(value.value_, value1.value_);
 	}
 
-	{
-		elastic::uint32 value{};
-		value = 2;
-
-		elastic::streambuf<char, std::char_traits<char>> buf;
-		elastic::binary_oarchive oa(buf);
-
-		oa << value;
-
-		elastic::uint32 value1{};
-
-		elastic::binary_iarchive ia(buf);
-		ia >> value1;
-
-		BOOST_TEST(value == value1);
-	}
 	{
 		enum class color
 		{
@@ -95,7 +82,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 			blue = 2
 		};
 
-		elastic::streambuf<char, std::char_traits<char>> buf;
+		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << color::red;

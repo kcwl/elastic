@@ -1,8 +1,8 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/serialize/access.hpp"
-#include "../include/elastic/archive/binary_iarchive.hpp"
-#include "../include/elastic/archive/binary_oarchive.hpp"
+#include "../include/elastic/access.hpp"
+#include "../include/elastic/binary_iarchive.hpp"
+#include "../include/elastic/binary_oarchive.hpp"
 
 BOOST_AUTO_TEST_SUITE(inherit)
 
@@ -22,7 +22,7 @@ private:
 	template <typename _Archive>
 	void serialize(_Archive& ar)
 	{
-		ar& elastic::serialize::base_object<base>(*this);
+		ar& elastic::base_object<base>(*this);
 		ar& c;
 		ar& d;
 	}
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(inherit)
 	d.c = 3;
 	d.d = 4;
 
-	elastic::streambuf<char, std::char_traits<char>> buf;
+	std::stringstream buf;
 	elastic::binary_oarchive oa(buf);
 
 	oa << d;

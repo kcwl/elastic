@@ -1,8 +1,7 @@
 #pragma once
-#include "../detail/concepts.hpp"
-#include "../serialize/access.hpp"
-#include "../serialize/parser.hpp"
-#include "../types/types.hpp"
+#include "access.hpp"
+#include "archive_type.hpp"
+#include "detail/concepts.hpp"
 
 namespace elastic
 {
@@ -96,14 +95,14 @@ namespace elastic
 		};
 
 		template <typename _Archive, typename _Ty>
-		inline void load(_Archive& ar, _Ty& t)
+		inline void binary_load(_Archive& ar, _Ty& t)
 		{
 			using typex = std::conditional_t<
 				std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
-				std::conditional_t<optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
-								   std::conditional_t<unsign_t<_Ty> || fixed_t<_Ty>,
-													  detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
-													  detail::identify_t<load_non_pointer_type<_Archive>>>>>;
+				std::conditional_t<
+					detail::optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
+					std::conditional_t<detail::fixed_t<_Ty>, detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
+									   detail::identify_t<load_non_pointer_type<_Archive>>>>>;
 
 			typex::invoke(ar, t);
 		}
