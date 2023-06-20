@@ -41,9 +41,6 @@
     <ClInclude Include="..\include\elastic\detail\concepts.hpp">
       <Filter>elastic\detail</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\eval_if.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\detail\filed_count.hpp">
       <Filter>elastic\detail</Filter>
     </ClInclude>
