@@ -34,6 +34,10 @@ namespace elastic
 			catch (...)
 			{
 				this->roll_back();
+
+				_Ty error{};
+
+				std::swap(t, error);
 			}
 		}
 	};
