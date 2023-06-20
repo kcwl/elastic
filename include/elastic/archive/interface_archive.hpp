@@ -9,11 +9,6 @@ namespace elastic
 		interface_iarchive() = default;
 
 	public:
-		_Archive* _this()
-		{
-			return static_cast<_Archive*>(this);
-		}
-
 		template <typename _Ty>
 		_Archive& operator>>(_Ty& t)
 		{
@@ -27,6 +22,12 @@ namespace elastic
 		{
 			return *(this->_this()) >> t;
 		}
+
+	private:
+		_Archive* _this()
+		{
+			return static_cast<_Archive*>(this);
+		}
 	};
 
 	template <typename _Archive>
@@ -36,14 +37,6 @@ namespace elastic
 		interface_oarchive() = default;
 
 	public:
-		using is_loading = std::false_type;
-		using is_saving = std::true_type;
-
-		_Archive* _this()
-		{
-			return static_cast<_Archive*>(this);
-		}
-
 		template <typename _Ty>
 		_Archive& operator<<(_Ty&& t)
 		{
@@ -55,6 +48,12 @@ namespace elastic
 		_Archive& operator&(_Ty&& t)
 		{
 			return *this->_this() << std::forward<_Ty>(t);
+		}
+
+	private:
+		_Archive* _this()
+		{
+			return static_cast<_Archive*>(this);
 		}
 	};
 } // namespace elastic
