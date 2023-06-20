@@ -90,14 +90,6 @@ namespace elastic
 		concept string_t = std::is_same_v<_Ty, std::string>;
 
 		template <typename _Ty>
-		struct is_fixed : std::false_type
-		{};
-
-		template <typename _Ty>
-		struct is_fixed<fixed<_Ty>> : std::true_type
-		{};
-
-		template <typename _Ty>
 		concept fixed_t = is_fixed<_Ty>::value;
 
 		template <typename _Ty>
