@@ -1,6 +1,6 @@
 #pragma once
-#include "../reflect.hpp"
 #include "../archive_exception.hpp"
+#include "../reflect.hpp"
 
 namespace
 {
@@ -16,7 +16,7 @@ namespace
 	{
 		return for_each(std::forward<_Ty>(val), std::forward<_Func>(func), Indices{});
 	}
-}
+} // namespace
 
 namespace elastic
 {
@@ -44,4 +44,4 @@ namespace elastic
 			for_each(std::forward<_Ty>(value), [&](auto&& v) { ar << v; });
 		}
 	};
-}
+} // namespace elastic

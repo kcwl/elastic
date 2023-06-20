@@ -1,6 +1,6 @@
 #pragma once
-#include <exception>
 #include <algorithm>
+#include <exception>
 
 namespace elastic
 {
@@ -69,12 +69,11 @@ namespace elastic
 		{
 			return buffer_;
 		}
-		
 
 	protected:
 		uint32_t append(uint32_t l, const char* a)
 		{
-			while(l < (sizeof(buffer_) - 1))
+			while (l < (sizeof(buffer_) - 1))
 			{
 				char c = *a++;
 				if ('\0' == c)
@@ -91,4 +90,4 @@ namespace elastic
 	private:
 		char buffer_[128];
 	};
-}
+} // namespace elastic

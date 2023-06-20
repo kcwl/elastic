@@ -18,7 +18,7 @@ namespace elastic
 
 		value_type value_;
 
-		template<typename _U>
+		template <typename _U>
 		bool operator==(const fixed<_U>& other) const
 		{
 			return value_ == other.value_;
@@ -27,4 +27,4 @@ namespace elastic
 
 	using fixed32 = fixed<uint32_t>;
 	using fixed64 = fixed<uint64_t>;
-}
+} // namespace elastic

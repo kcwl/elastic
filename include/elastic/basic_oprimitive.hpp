@@ -53,4 +53,4 @@ namespace elastic
 			return static_cast<_Archive*>(this);
 		}
 	};
-}
+} // namespace elastic

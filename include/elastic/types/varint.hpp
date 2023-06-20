@@ -59,5 +59,4 @@ namespace elastic
 			ar.save(std::forward<_Ty>(value));
 		}
 	};
-
 } // namespace elastic

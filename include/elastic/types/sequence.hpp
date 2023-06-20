@@ -32,4 +32,4 @@ namespace elastic
 			}
 		}
 	};
-}
+} // namespace elastic

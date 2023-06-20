@@ -1,7 +1,7 @@
 #pragma once
 #include "basic_oprimitive.hpp"
-#include "interface_archive.hpp"
 #include "binary_oserialize.hpp"
+#include "interface_archive.hpp"
 
 #include <ostream>
 
