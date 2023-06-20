@@ -1,7 +1,8 @@
 #pragma once
-#include <boost/test/unit_test_suite.hpp>
 #include "../include/elastic/binary_iarchive.hpp"
 #include "../include/elastic/binary_oarchive.hpp"
+
+#include <boost/test/unit_test_suite.hpp>
 
 BOOST_AUTO_TEST_SUITE(io)
 
@@ -212,7 +213,6 @@ BOOST_AUTO_TEST_CASE(iostream)
 	}
 
 	{
-
 		struct son
 		{
 			int b_;
