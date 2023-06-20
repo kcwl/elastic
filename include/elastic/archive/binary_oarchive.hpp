@@ -1,5 +1,5 @@
 #pragma once
-#include "binary_primitive.hpp"
+#include "basic_oprimitive.hpp"
 #include "interface_archive.hpp"
 #include "oserialize.hpp"
 
@@ -7,18 +7,18 @@
 
 namespace elastic
 {
-	class binary_oarchive : public binary_oprimitive<binary_oarchive, char, std::char_traits<char>>,
+	class binary_oarchive : public basic_oprimitive<binary_oarchive, char, std::char_traits<char>>,
 							public interface_oarchive<binary_oarchive>
 	{
 	public:
 		template <typename _StreamBuffer>
 		requires(std::is_convertible_v<_StreamBuffer, std::streambuf>)
 		explicit binary_oarchive(_StreamBuffer& bsb)
-			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(bsb)
+			: basic_oprimitive<binary_oarchive, char, std::char_traits<char>>(bsb)
 		{}
 
 		binary_oarchive(std::ostream& os)
-			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(*os.rdbuf())
+			: basic_oprimitive<binary_oarchive, char, std::char_traits<char>>(*os.rdbuf())
 		{}
 
 	public:

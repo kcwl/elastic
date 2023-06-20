@@ -1,24 +1,24 @@
 #pragma once
 #include "interface_archive.hpp"
-#include "binary_primitive.hpp"
+#include "basic_iprimitive.hpp"
 #include "iserialize.hpp"
 
 #include <istream>
 
 namespace elastic
 {
-	class binary_iarchive : public binary_iprimitive<binary_iarchive, char, std::char_traits<char>>,
+	class binary_iarchive : public basic_iprimitive<binary_iarchive, char, std::char_traits<char>>,
 							public interface_iarchive<binary_iarchive>
 	{
 	public:
 		template <typename _StreamBuffer>
 		requires(std::is_convertible_v<_StreamBuffer, std::streambuf>)
 		explicit binary_iarchive(_StreamBuffer& bs)
-			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
+			: basic_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
 		{}
 
 		binary_iarchive(std::istream& is)
-			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(*is.rdbuf())
+			: basic_iprimitive<binary_iarchive, char, std::char_traits<char>>(*is.rdbuf())
 		{}
 
 	public:
