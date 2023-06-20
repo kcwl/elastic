@@ -60,4 +60,4 @@ namespace elastic
 		}
 	};
 
-}
+} // namespace elastic

@@ -1,9 +1,10 @@
 #pragma once
-#include <boost/test/unit_test_suite.hpp>
-#include <sstream>
 #include "../include/elastic/archive_type.hpp"
 #include "../include/elastic/binary_iarchive.hpp"
 #include "../include/elastic/binary_oarchive.hpp"
+
+#include <boost/test/unit_test_suite.hpp>
+#include <sstream>
 
 BOOST_AUTO_TEST_SUITE(attr)
 
@@ -71,25 +72,9 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_TEST(value.value_ == value1.value_);
+		BOOST_CHECK_EQUAL(value.value_, value1.value_);
 	}
 
-	{
-		elastic::uint32 value{};
-		value = 2;
-
-		std::stringstream buf;
-		elastic::binary_oarchive oa(buf);
-
-		oa << value;
-
-		elastic::uint32 value1{};
-
-		elastic::binary_iarchive ia(buf);
-		ia >> value1;
-
-		BOOST_TEST(value == value1);
-	}
 	{
 		enum class color
 		{

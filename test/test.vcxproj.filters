@@ -65,9 +65,6 @@
     <ClInclude Include="..\include\elastic\detail\type_traits.hpp">
       <Filter>elastic\detail</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\types\types.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
     <ClInclude Include="generate.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -127,6 +124,21 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\archive_type.hpp">
       <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\types\fixed.hpp">
+      <Filter>elastic\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\types\bytes.hpp">
+      <Filter>elastic\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\types\repeated.hpp">
+      <Filter>elastic\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\types\optional.hpp">
+      <Filter>elastic\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\types\string.hpp">
+      <Filter>elastic\types</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

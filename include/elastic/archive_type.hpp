@@ -1,4 +1,9 @@
 #pragma once
+#include "types/bytes.hpp"
+#include "types/fixed.hpp"
 #include "types/message.hpp"
+#include "types/optional.hpp"
+#include "types/repeated.hpp"
 #include "types/sequence.hpp"
-#include "types/types.hpp"
+#include "types/string.hpp"
+#include "types/varint.hpp"
