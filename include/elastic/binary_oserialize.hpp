@@ -1,7 +1,7 @@
 #pragma once
-#include "../serialize/access.hpp"
-#include "../serialize/parser.hpp"
-#include "../types/types.hpp"
+#include "access.hpp"
+#include "parser.hpp"
+#include "types/types.hpp"
 
 namespace elastic
 {
@@ -87,7 +87,7 @@ namespace elastic
 		};
 
 		template <typename _Archive, typename _Ty>
-		inline void save(_Archive& ar, _Ty&& t)
+		inline void binary_save(_Archive& ar, _Ty&& t)
 		{
 			using type = std::remove_reference_t<_Ty>;
 

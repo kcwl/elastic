@@ -1,7 +1,7 @@
 #pragma once
 #include "interface_archive.hpp"
 #include "basic_iprimitive.hpp"
-#include "iserialize.hpp"
+#include "binary_iserialize.hpp"
 
 #include <istream>
 
@@ -29,7 +29,7 @@ namespace elastic
 			{
 				this->start();
 
-				archive::load(*this, t);
+				archive::binary_load(*this, t);
 			}
 			catch (...)
 			{

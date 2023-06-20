@@ -1,7 +1,7 @@
 #pragma once
 #include "basic_oprimitive.hpp"
 #include "interface_archive.hpp"
-#include "oserialize.hpp"
+#include "binary_oserialize.hpp"
 
 #include <ostream>
 
@@ -25,7 +25,7 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			archive::save(*this, std::forward<_Ty>(t));
+			archive::binary_save(*this, std::forward<_Ty>(t));
 		}
 	};
 } // namespace elastic

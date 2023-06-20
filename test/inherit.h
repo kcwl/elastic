@@ -1,8 +1,8 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/serialize/access.hpp"
-#include "../include/elastic/archive/binary_iarchive.hpp"
-#include "../include/elastic/archive/binary_oarchive.hpp"
+#include "../include/elastic/access.hpp"
+#include "../include/elastic/binary_iarchive.hpp"
+#include "../include/elastic/binary_oarchive.hpp"
 
 BOOST_AUTO_TEST_SUITE(inherit)
 

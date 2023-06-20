@@ -2,8 +2,8 @@
 #include <boost/test/unit_test_suite.hpp>
 #include <sstream>
 #include "../include/elastic/types/types.hpp"
-#include "../include/elastic/archive/binary_iarchive.hpp"
-#include "../include/elastic/archive/binary_oarchive.hpp"
+#include "../include/elastic/binary_iarchive.hpp"
+#include "../include/elastic/binary_oarchive.hpp"
 
 BOOST_AUTO_TEST_SUITE(attr)
 

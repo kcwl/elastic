@@ -16,12 +16,6 @@
     <Filter Include="elastic">
       <UniqueIdentifier>{6f2c6d90-e814-439f-978a-72990861fbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="elastic\archive">
-      <UniqueIdentifier>{ce4bdb90-dbee-4614-b280-86371c4b629f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="elastic\serialize">
-      <UniqueIdentifier>{4b3b0a5d-6e6b-437b-84ba-e3a62bec9e4b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="elastic\detail">
       <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
     </Filter>
@@ -43,27 +37,6 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\tuple_size.hpp">
       <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\archive_exception.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_primitive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\binary_iarchive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\binary_oarchive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\interface_archive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\serialize\access.hpp">
-      <Filter>elastic\serialize</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\serialize\parser.hpp">
-      <Filter>elastic\serialize</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\detail\concepts.hpp">
       <Filter>elastic\detail</Filter>
@@ -110,20 +83,41 @@
     <ClInclude Include="exception.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_iprimitive.hpp">
-      <Filter>elastic\archive</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\iserialize.hpp">
-      <Filter>elastic\archive</Filter>
+    <ClInclude Include="..\include\elastic\access.hpp">
+      <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\oserialize.hpp">
-      <Filter>elastic\archive</Filter>
+    <ClInclude Include="..\include\elastic\basic_iprimitive.hpp">
+      <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive\basic_oprimitive.hpp">
-      <Filter>elastic\archive</Filter>
+    <ClInclude Include="..\include\elastic\basic_oprimitive.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\binary_iarchive.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\binary_iserialize.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\binary_oarchive.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\binary_oserialize.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\interface_archive.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\parser.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\archive_exception.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\basic_primitive.hpp">
+      <Filter>elastic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
