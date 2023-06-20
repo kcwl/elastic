@@ -22,7 +22,7 @@ private:
 	template <typename _Archive>
 	void serialize(_Archive& ar)
 	{
-		ar& elastic::serialize::base_object<base>(*this);
+		ar& elastic::base_object<base>(*this);
 		ar& c;
 		ar& d;
 	}
