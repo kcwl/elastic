@@ -4,7 +4,7 @@
 #include "elastic/binary_oarchive.hpp"
 #include "elastic/reflect.hpp"
 #include "elastic/tuple_size.hpp"
-#include "elastic/types/types.hpp"
+#include "elastic/archive_type.hpp"
 #include "elastic/archive_exception.hpp"
 
 namespace elastic

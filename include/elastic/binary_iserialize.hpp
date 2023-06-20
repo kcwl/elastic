@@ -1,8 +1,7 @@
 #pragma once
-#include "detail/concepts.hpp"
 #include "access.hpp"
-#include "parser.hpp"
-#include "types/types.hpp"
+#include "archive_type.hpp"
+#include "detail/concepts.hpp"
 
 namespace elastic
 {
