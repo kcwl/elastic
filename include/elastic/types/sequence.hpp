@@ -10,7 +10,7 @@ namespace elastic
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint16_t bytes{};
-			varint<_Archive>::template deserialize<uint16_t>(ar, bytes);
+			varint::template deserialize(ar, bytes);
 
 			t.resize(bytes);
 

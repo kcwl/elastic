@@ -23,7 +23,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					varint<_Archive>::serialize(std::forward<_Ty>(t), ar);
+					varint::template serialize(ar, std::forward<_Ty>(t));
 				}
 			};
 

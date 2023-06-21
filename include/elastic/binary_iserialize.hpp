@@ -32,7 +32,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					varint<_Archive>::template deserialize<_Ty>(ar, t);
+					varint::template deserialize(ar, t);
 				}
 			};
 

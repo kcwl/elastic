@@ -3,10 +3,9 @@
 
 namespace elastic
 {
-	template <typename _Archive>
 	struct varint
 	{
-		template <detail::single_numric _Ty>
+		template <typename _Archive, detail::single_numric _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint8_t c{};
@@ -31,8 +30,8 @@ namespace elastic
 			}
 		}
 
-		template <detail::single_numric _Ty>
-		static void serialize(_Ty&& value, _Archive& ar)
+		template <typename _Archive, detail::single_numric _Ty>
+		static void serialize(_Archive& ar, _Ty&& value)
 		{
 			using type = detail::relative<_Ty>::type;
 
