@@ -4,9 +4,9 @@
 
 namespace elastic
 {
-	template <detail::sequence_t _Ty, typename _Archive>
 	struct sequence
 	{
+		template <typename _Archive, detail::sequence_t _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint16_t bytes{};
@@ -20,7 +20,8 @@ namespace elastic
 			}
 		}
 
-		static void serialize(_Ty&& value, _Archive& ar)
+		template <typename _Archive, detail::sequence_t _Ty>
+		static void serialize(_Archive& ar, _Ty&& value)
 		{
 			auto bytes = value.size();
 

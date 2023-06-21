@@ -41,7 +41,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					sequence<_Ty, _Archive>::template deserialize(ar, t);
+					sequence::template deserialize(ar, t);
 				}
 			};
 

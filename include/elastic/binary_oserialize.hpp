@@ -32,7 +32,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					sequence<_Ty, _Archive>::serialize(std::forward<_Ty>(t), ar);
+					sequence::template serialize(ar, std::forward<_Ty>(t));
 				}
 			};
 
