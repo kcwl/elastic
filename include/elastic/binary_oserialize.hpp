@@ -14,7 +14,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty&& t)
 				{
-					message<_Ty, _Archive>::serialize(std::forward<_Ty>(t), ar);
+					message::template serialize(ar, std::forward<_Ty>(t));
 				}
 			};
 

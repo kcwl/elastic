@@ -24,7 +24,7 @@ namespace elastic
 				template <typename _Ty>
 				static void invoke(_Archive& ar, _Ty& t)
 				{
-					message<_Ty, _Archive>::template deserialize(ar, t);
+					message::template deserialize(ar, t);
 				}
 			};
 			struct load_varint
