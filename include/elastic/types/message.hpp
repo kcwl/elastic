@@ -20,9 +20,10 @@ namespace
 
 namespace elastic
 {
-	template <typename _Ty, typename _Archive>
+	
 	struct message
 	{
+		template <typename _Archive, typename _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			constexpr auto N = elastic::tuple_size_v<_Ty>;
@@ -39,7 +40,8 @@ namespace elastic
 					 });
 		}
 
-		static void serialize(_Ty&& value, _Archive& ar)
+		template <typename _Archive, typename _Ty>
+		static void serialize(_Archive& ar, _Ty&& value)
 		{
 			for_each(std::forward<_Ty>(value), [&](auto&& v) { ar << v; });
 		}
