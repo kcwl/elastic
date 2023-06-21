@@ -31,12 +31,6 @@ namespace elastic
 			}
 		}
 
-		template <detail::multi_numric _Ty>
-		static void deserialize(_Archive& ar, _Ty& t)
-		{
-			return ar.load<_Ty>(t);
-		}
-
 		template <detail::single_numric _Ty>
 		static void serialize(_Ty&& value, _Archive& ar)
 		{
@@ -51,12 +45,6 @@ namespace elastic
 			}
 
 			ar.save(static_cast<uint8_t>(result));
-		}
-
-		template <detail::multi_numric _Ty>
-		static void serialize(_Ty&& value, _Archive& ar)
-		{
-			ar.save(std::forward<_Ty>(value));
 		}
 	};
 } // namespace elastic
