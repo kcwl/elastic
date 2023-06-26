@@ -12,7 +12,7 @@ namespace elastic
 	{
 	public:
 		template <typename _StreamBuffer>
-		requires(std::is_convertible_v<_StreamBuffer, std::streambuf>)
+		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_iarchive(_StreamBuffer& bs)
 			: basic_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
 		{}
