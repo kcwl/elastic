@@ -134,5 +134,8 @@
     <ClInclude Include="..\include\elastic\types\string.hpp">
       <Filter>elastic\types</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\elastic\types\float.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
