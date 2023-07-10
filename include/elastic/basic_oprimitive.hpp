@@ -20,7 +20,7 @@ namespace elastic
 			save_binary(std::addressof(t), sizeof(_Ty));
 		}
 
-		void save(const std::string& s)
+		void save_string(const std::string& s)
 		{
 			auto l = s.size();
 
@@ -29,7 +29,18 @@ namespace elastic
 			save_binary(s.data(), l);
 		}
 
-		void save(const std::wstring& s)
+		template<typename _Ty>
+		void save_string(const std::vector<_Ty>& s)
+		{
+			auto l = s.size();
+
+			save(l);
+
+			save_binary(s.data(), l);
+		}
+
+
+		void save_wstring(const std::wstring& s)
 		{
 			auto l = s.size();
 

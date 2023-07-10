@@ -35,10 +35,6 @@ namespace elastic
 		{};
 
 		template <typename _Ty>
-		struct is_sequence<std::vector<_Ty>> : std::true_type
-		{};
-
-		template <typename _Ty>
 		struct is_sequence<std::list<_Ty>> : std::true_type
 		{};
 
@@ -46,21 +42,11 @@ namespace elastic
 		struct is_sequence<std::forward_list<_Ty>> : std::true_type
 		{};
 
-		template <typename _Ty>
-		struct is_sequence<std::basic_string<_Ty>> : std::true_type
-		{};
+		//template <typename _Ty>
+		//struct is_sequence<std::basic_string<_Ty>> : std::true_type
+		//{};
 
-		template <typename _Ty, std::size_t N>
-		struct is_sequence<std::array<_Ty, N>> : std::true_type
-		{};
-
-		template <typename _Ty, std::size_t N>
-		struct is_sequence<_Ty[N]> : std::true_type
-		{};
-
-		template <typename _Ty>
-		struct is_sequence<_Ty[]> : std::true_type
-		{};
+		
 
 		template <typename _Ty>
 		struct identify
@@ -108,6 +94,32 @@ namespace elastic
 		template <typename _Ty>
 		struct is_fixed<fixed<_Ty>> : std::true_type
 		{};
+
+		template<typename _Ty>
+		struct is_string : std::false_type
+		{};
+
+		template<>
+		struct is_string<std::string> : std::true_type{};
+
+		template <typename _Ty, std::size_t N>
+		struct is_string<std::array<_Ty, N>> : std::true_type
+		{};
+
+		template <typename _Ty, std::size_t N>
+		struct is_string<_Ty[N]> : std::true_type
+		{};
+
+		template <typename _Ty>
+		struct is_string<_Ty[]> : std::true_type
+		{};
+
+		template <typename _Ty>
+		struct is_string<std::vector<_Ty>> : std::true_type
+		{};
+
+		template<typename _Ty>
+		constexpr static bool is_string_v = is_string<_Ty>::value;
 
 	} // namespace detail
 } // namespace elastic

@@ -45,14 +45,25 @@ namespace elastic
 				}
 			};
 
+			struct load_string
+			{
+				template <typename _Ty>
+				static void invoke(_Archive& ar, _Ty& t)
+				{
+					ar.load(t);
+				}
+			};
+
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty& t)
 			{
 				using typex = std::conditional_t<
 					detail::varint_t<_Ty>, detail::identify_t<load_varint>,
 					std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<load_sequence>,
-														  detail::identify_t<load_only>>>>;
+									   std::conditional_t<detail::is_string_v<_Ty>, detail::identify_t<load_string>,
+														  std::conditional_t<detail::sequence_t<_Ty>,
+																			 detail::identify_t<load_sequence>,
+																			 detail::identify_t<load_only>>>>>;
 
 				typex::invoke(ar, t);
 			}

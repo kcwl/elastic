@@ -27,7 +27,9 @@ namespace elastic
 		template <>
 		void load(std::string& s)
 		{
-			std::size_t l = this->_this()->load<std::size_t>();
+			std::size_t l;
+			
+			load<std::size_t>(l);
 
 			s.resize(l);
 
@@ -45,6 +47,19 @@ namespace elastic
 			ws.resize(l);
 
 			load_binary(const_cast<wchar_t*>(ws.data()), l * sizeof(wchar_t) / sizeof(char));
+		}
+
+		template<typename _Ty>
+		void load(std::vector<_Ty>& v)
+		{
+			std::size_t l;
+
+			this->template load<std::size_t>(l);
+
+			v.resize(l);
+
+			if (0 < l)
+				load_binary(&(*v.begin()), l);
 		}
 
 		void load_binary(void* address, std::size_t count)
