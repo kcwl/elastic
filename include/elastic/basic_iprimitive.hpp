@@ -24,7 +24,6 @@ namespace elastic
 			load_binary(&t, sizeof(_Ty));
 		}
 
-		template <>
 		void load(std::string& s)
 		{
 			std::size_t l;
@@ -37,7 +36,6 @@ namespace elastic
 				load_binary(&(*s.begin()), l);
 		}
 
-		template <>
 		void load(std::wstring& ws)
 		{
 			std::size_t l{};

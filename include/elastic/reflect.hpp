@@ -13,7 +13,11 @@ namespace elastic
 	{
 		using namespace std::string_view_literals;
 
+#ifndef __linux
 		constexpr std::string_view name = __FUNCSIG__ ""sv;
+#else
+		constexpr std::string_view name = __PRETTY_FUNCTION__;
+#endif
 
 		constexpr auto left_bracket = name.find_last_of("<");
 

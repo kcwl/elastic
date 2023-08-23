@@ -75,7 +75,7 @@ namespace elastic
 		concept integer_like = std::convertible_to<_Ty, uint64_t>;
 
 		template <typename _Ty>
-		concept signed_integer = std::_Is_any_of_v<_Ty, int8_t, int16_t, int32_t, int64_t>;
+		concept signed_integer = is_any_of_v<_Ty, int8_t, int16_t, int32_t, int64_t>;
 
 		template <typename _Ty>
 		concept char_t =
