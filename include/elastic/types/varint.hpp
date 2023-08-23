@@ -9,7 +9,7 @@ namespace elastic
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint8_t c{};
-			ar.load<uint8_t>(c);
+			ar.template load<uint8_t>(c);
 			t = static_cast<_Ty>(c);
 
 			if (t >= 0x80)

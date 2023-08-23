@@ -121,5 +121,8 @@ namespace elastic
 		template<typename _Ty>
 		constexpr static bool is_string_v = is_string<_Ty>::value;
 
+		template<typename _Ty, typename... _Args>
+		constexpr static bool is_any_of_v = std::disjunction_v<std::is_same_v<_Ty, _Args>...>;
+
 	} // namespace detail
 } // namespace elastic
