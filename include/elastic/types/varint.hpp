@@ -37,7 +37,7 @@ namespace elastic
 
 			uint64_t result = static_cast<type>(std::forward<_Ty>(value));
 
-			while (result > 0x80)
+			while (result >= 0x80)
 			{
 				ar.save(static_cast<uint8_t>(result | 0x80));
 				result >>= 7;
