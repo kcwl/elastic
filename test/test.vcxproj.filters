@@ -53,9 +53,6 @@
     <ClInclude Include="..\include\elastic\detail\nocopyable.hpp">
       <Filter>elastic\detail</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\singleton.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\detail\size_t_.hpp">
       <Filter>elastic\detail</Filter>
     </ClInclude>

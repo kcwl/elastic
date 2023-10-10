@@ -149,7 +149,6 @@
     <ClInclude Include="..\include\elastic\detail\filed_count.hpp" />
     <ClInclude Include="..\include\elastic\detail\generate.hpp" />
     <ClInclude Include="..\include\elastic\detail\nocopyable.hpp" />
-    <ClInclude Include="..\include\elastic\detail\singleton.hpp" />
     <ClInclude Include="..\include\elastic\detail\size_t_.hpp" />
     <ClInclude Include="..\include\elastic\detail\type_traits.hpp" />
     <ClInclude Include="..\include\elastic\interface_archive.hpp" />
