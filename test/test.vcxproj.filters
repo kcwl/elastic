@@ -22,6 +22,9 @@
     <Filter Include="elastic\types">
       <UniqueIdentifier>{7f6220c2-a907-43d2-b9e7-27cfc317d292}</UniqueIdentifier>
     </Filter>
+    <Filter Include="elastic\property">
+      <UniqueIdentifier>{b63767e0-cabf-43b8-9f76-0ed7d0245ee3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -119,16 +122,7 @@
     <ClInclude Include="..\include\elastic\archive_type.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\types\fixed.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\types\bytes.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\repeated.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\optional.hpp">
       <Filter>elastic\types</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\types\string.hpp">
@@ -136,6 +130,15 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\types\float.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\property\fixed.hpp">
+      <Filter>elastic\property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\property\optional.hpp">
+      <Filter>elastic\property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\property\repeated.hpp">
+      <Filter>elastic\property</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
