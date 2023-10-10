@@ -1,9 +1,7 @@
 #pragma once
 #include "binary_primitive.hpp"
-#include "binary_iserialize.hpp"
+#include "binary_serialize.hpp"
 #include "interface_archive.hpp"
-#include "basic_oprimitive.hpp"
-#include "binary_oserialize.hpp"
 #include "interface_archive.hpp"
 
 #include <istream>
@@ -17,7 +15,7 @@ namespace elastic
 		template <typename _StreamBuffer>
 		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_iarchive(_StreamBuffer& bs)
-			: basic_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
+			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
 		{}
 
 		binary_iarchive(std::istream& is)

@@ -1,7 +1,6 @@
 #pragma once
 #include "../include/elastic/type.hpp"
-#include "../include/elastic/binary_iarchive.hpp"
-#include "../include/elastic/binary_oarchive.hpp"
+#include "../include/elastic/binary_archive.hpp"
 
 #include <boost/test/unit_test_suite.hpp>
 #include <sstream>

@@ -53,10 +53,10 @@
     <ClInclude Include="..\include\elastic\binary_primitive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_iarchive.hpp">
+    <ClInclude Include="..\include\elastic\binary_archive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_iserialize.hpp">
+    <ClInclude Include="..\include\elastic\binary_serialize.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\interface_archive.hpp">
