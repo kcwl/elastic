@@ -58,12 +58,12 @@ namespace elastic
 			static void invoke(_Archive& ar, _Ty& t)
 			{
 				using typex = std::conditional_t<
-					detail::varint_t<_Ty>, detail::identify_t<load_varint>,
-					std::conditional_t<detail::pod<_Ty>, detail::identify_t<load_standard>,
-									   std::conditional_t<detail::is_string_v<_Ty>, detail::identify_t<load_string>,
-														  std::conditional_t<detail::sequence_t<_Ty>,
-																			 detail::identify_t<load_sequence>,
-																			 detail::identify_t<load_only>>>>>;
+					varint_t<_Ty>, identify_t<load_varint>,
+					std::conditional_t<pod<_Ty>, identify_t<load_standard>,
+									   std::conditional_t<is_string_v<_Ty>, identify_t<load_string>,
+														  std::conditional_t<sequence_t<_Ty>,
+																			 identify_t<load_sequence>,
+																			 identify_t<load_only>>>>>;
 
 				typex::invoke(ar, t);
 			}
@@ -109,11 +109,11 @@ namespace elastic
 		inline void binary_load(_Archive& ar, _Ty& t)
 		{
 			using typex = std::conditional_t<
-				std::is_enum_v<_Ty>, detail::identify_t<load_enum_type<_Archive>>,
+				std::is_enum_v<_Ty>, identify_t<load_enum_type<_Archive>>,
 				std::conditional_t<
-					detail::optional_t<_Ty>, detail::identify_t<laod_optional_type<_Archive>>,
-					std::conditional_t<detail::fixed_t<_Ty>, detail::identify_t<load_unsign_or_fixed_type<_Archive>>,
-									   detail::identify_t<load_non_pointer_type<_Archive>>>>>;
+					optional_t<_Ty>, identify_t<laod_optional_type<_Archive>>,
+					std::conditional_t<fixed_t<_Ty>, identify_t<load_unsign_or_fixed_type<_Archive>>,
+									   identify_t<load_non_pointer_type<_Archive>>>>>;
 
 			typex::invoke(ar, t);
 		}
@@ -161,10 +161,10 @@ namespace elastic
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
 				using typex = std::conditional_t<
-					detail::varint_t<_Ty>, detail::identify_t<save_varint>,
-					std::conditional_t<detail::pod<_Ty>, detail::identify_t<save_standard>,
-									   std::conditional_t<detail::sequence_t<_Ty>, detail::identify_t<save_sequence>,
-														  detail::identify_t<save_only>>>>;
+					varint_t<_Ty>, identify_t<save_varint>,
+					std::conditional_t<pod<_Ty>, identify_t<save_standard>,
+									   std::conditional_t<sequence_t<_Ty>, identify_t<save_sequence>,
+														  identify_t<save_only>>>>;
 
 				typex::invoke(ar, std::forward<_Ty>(t));
 			}
@@ -186,7 +186,7 @@ namespace elastic
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				if constexpr (detail::optional_t<std::remove_cvref_t<_Ty>>)
+				if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
 				{
 					ar << *t;
 				}
@@ -213,13 +213,13 @@ namespace elastic
 			using type = std::remove_reference_t<_Ty>;
 
 			using typex = std::conditional_t<
-				std::is_enum_v<type>, detail::identify_t<save_enum_type<_Archive>>,
+				std::is_enum_v<type>, identify_t<save_enum_type<_Archive>>,
 				std::conditional_t<
-					std::is_enum_v<type>, detail::identify_t<save_enum_type<_Archive>>,
+					std::is_enum_v<type>, identify_t<save_enum_type<_Archive>>,
 					std::conditional_t<
-						detail::attribute_t<type>, detail::identify_t<save_optional_type<_Archive>>,
-						std::conditional_t<detail::is_string_v<type>, detail::identify_t<save_string_type<_Archive>>,
-										   detail::identify_t<save_non_pointer_type<_Archive>>>>>>;
+						attribute_t<type>, identify_t<save_optional_type<_Archive>>,
+						std::conditional_t<is_string_v<type>, identify_t<save_string_type<_Archive>>,
+										   identify_t<save_non_pointer_type<_Archive>>>>>>;
 
 			typex::invoke(ar, std::forward<_Ty>(t));
 		}

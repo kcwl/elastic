@@ -29,7 +29,7 @@ namespace elastic
 
 	struct varint
 	{
-		template <typename _Archive, detail::single_numric _Ty>
+		template <typename _Archive, single_numric _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint8_t c{};
@@ -54,10 +54,10 @@ namespace elastic
 			}
 		}
 
-		template <typename _Archive, detail::single_numric _Ty>
+		template <typename _Archive, single_numric _Ty>
 		static void serialize(_Archive& ar, _Ty&& value)
 		{
-			using type = detail::relative<_Ty>::type;
+			using type = relative<_Ty>::type;
 
 			uint64_t result = static_cast<type>(std::forward<_Ty>(value));
 
@@ -99,7 +99,7 @@ namespace elastic
 
 	struct sequence
 	{
-		template <typename _Archive, detail::sequence_t _Ty>
+		template <typename _Archive, sequence_t _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint16_t bytes{};
@@ -113,7 +113,7 @@ namespace elastic
 			}
 		}
 
-		template <typename _Archive, detail::sequence_t _Ty>
+		template <typename _Archive, sequence_t _Ty>
 		static void serialize(_Archive& ar, _Ty&& value)
 		{
 			auto bytes = value.size();

@@ -1,5 +1,6 @@
 #pragma once
 #include <string_view>
+#include "concepts.hpp"
 
 using namespace std::string_view_literals;
 
@@ -21,7 +22,7 @@ namespace elastic
 		{
 			static_assert(Start == End, "It is not a correct way with binary search!");
 
-			if constexpr (detail::aggregate_inialize<_Ty, Start>)
+			if constexpr (aggregate_inialize<_Ty, Start>)
 			{
 				return Start;
 			}
@@ -57,7 +58,7 @@ namespace elastic
 			return detail::template detect_fields_greey<_Ty, 0, N>(multi_range{});
 		}
 
-		template <detail::tuple _Ty>
+		template <tuple_t _Ty>
 		constexpr std::size_t fields_count()
 		{
 			using type = std::remove_cv_t<_Ty>;
