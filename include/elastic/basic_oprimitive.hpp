@@ -4,14 +4,14 @@
 namespace elastic
 {
 	template <typename _Archive, typename _Elem, typename _Traits>
-	class basic_oprimitive : public basic_primitive<_Elem, _Traits>
+	class binary_oprimitive : public basic_primitive<_Elem, _Traits>
 	{
 	protected:
-		basic_oprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+		binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
 			: basic_primitive<_Elem, _Traits>(bs)
 		{}
 
-		~basic_oprimitive() = default;
+		~binary_oprimitive() = default;
 
 	public:
 		template <typename _Ty>
