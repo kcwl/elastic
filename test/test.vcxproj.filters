@@ -16,14 +16,14 @@
     <Filter Include="elastic">
       <UniqueIdentifier>{6f2c6d90-e814-439f-978a-72990861fbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="elastic\detail">
-      <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
-    </Filter>
     <Filter Include="elastic\types">
       <UniqueIdentifier>{7f6220c2-a907-43d2-b9e7-27cfc317d292}</UniqueIdentifier>
     </Filter>
     <Filter Include="elastic\property">
       <UniqueIdentifier>{b63767e0-cabf-43b8-9f76-0ed7d0245ee3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="elastic\reflect">
+      <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -40,24 +40,6 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\tuple_size.hpp">
       <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\concepts.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\filed_count.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\generate.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\nocopyable.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\size_t_.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\type_traits.hpp">
-      <Filter>elastic\detail</Filter>
     </ClInclude>
     <ClInclude Include="generate.h">
       <Filter>头文件</Filter>
@@ -136,6 +118,24 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\property\repeated.hpp">
       <Filter>elastic\property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\reflect\filed_count.hpp">
+      <Filter>elastic\reflect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\reflect\generate.hpp">
+      <Filter>elastic\reflect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\reflect\nocopyable.hpp">
+      <Filter>elastic\reflect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\reflect\size_t_.hpp">
+      <Filter>elastic\reflect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\concepts.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\type_traits.hpp">
+      <Filter>elastic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

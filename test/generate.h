@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/detail/generate.hpp"
+#include "../include/elastic/reflect/generate.hpp"
 
 BOOST_AUTO_TEST_SUITE(generator)
 

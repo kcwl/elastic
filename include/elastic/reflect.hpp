@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/generate.hpp"
+#include "reflect/generate.hpp"
 #include "tuple_size.hpp"
 
 #include <string_view>

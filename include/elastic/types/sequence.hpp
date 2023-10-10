@@ -1,5 +1,5 @@
 #pragma once
-#include "../detail/concepts.hpp"
+#include "../concepts.hpp"
 #include "varint.hpp"
 
 namespace elastic

@@ -1,5 +1,5 @@
 #pragma once
-#include "../types/fixed.hpp"
+#include "property/fixed.hpp"
 #include "type_traits.hpp"
 
 #include <utility>
@@ -17,10 +17,9 @@ namespace elastic
 						  std::is_move_constructible_v<std::remove_all_extents_t<_Ty>>;
 
 		template <typename _Ty>
-		concept reflection =
-			requires {
-				copable<_Ty> && !std::is_polymorphic_v<_Ty> && (std::is_aggregate_v<_Ty> || std::is_scalar_v<_Ty>);
-			};
+		concept reflection = requires {
+			copable<_Ty> && !std::is_polymorphic_v<_Ty> && (std::is_aggregate_v<_Ty> || std::is_scalar_v<_Ty>);
+		};
 
 		template <typename _Ty>
 		concept tuple = requires() { std::tuple_size<_Ty>(); };
@@ -55,21 +54,21 @@ namespace elastic
 
 		template <typename _Ty>
 		concept positive_integar = requires(_Ty value) {
-									   value >= 0;
-									   !multi_numric<_Ty>;
-								   };
+			value >= 0;
+			!multi_numric<_Ty>;
+		};
 
 		template <typename _Ty>
 		concept negative_integar = requires { !positive_integar<_Ty>&& single_signed_numric<_Ty>; };
 
 		template <typename _Ty>
 		concept sequence_t = requires(_Ty value) {
-								 is_sequence<std::remove_cvref_t<_Ty>>::value;
-								 value.size();
-								 std::begin(value);
-								 std::end(value);
-								 typename std::remove_cvref_t<_Ty>::value_type;
-							 };
+			is_sequence<std::remove_cvref_t<_Ty>>::value;
+			value.size();
+			std::begin(value);
+			std::end(value);
+			typename std::remove_cvref_t<_Ty>::value_type;
+		};
 
 		template <typename _Ty>
 		concept integer_like = std::convertible_to<_Ty, uint64_t>;
@@ -94,11 +93,21 @@ namespace elastic
 
 		template <typename _Ty>
 		concept optional_t = requires(_Ty value) {
-								 value.has_value();
-								 *value;
-							 };
+			value.has_value();
+			*value;
+		};
 
 		template <typename _Ty>
 		concept attribute_t = optional_t<std::remove_cvref_t<_Ty>> || fixed_t<std::remove_cvref_t<_Ty>>;
+
+		template <typename _Ty>
+		concept length_body_parse_t = string_t<_Ty> || sequence_t<_Ty>;
+
+		template <typename _Ty>
+		concept fix_parse_t = std::is_integral_v<_Ty>;
+
+		template <typename _Ty>
+		concept varint_prase_t = varint_t<_Ty>;
+
 	} // namespace detail
 } // namespace elastic

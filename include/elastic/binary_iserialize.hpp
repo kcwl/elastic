@@ -1,7 +1,7 @@
 #pragma once
 #include "access.hpp"
 #include "archive_type.hpp"
-#include "detail/concepts.hpp"
+#include "concepts.hpp"
 
 namespace elastic
 {
