@@ -147,9 +147,7 @@
     <ClInclude Include="..\include\elastic\binary_oserialize.hpp" />
     <ClInclude Include="..\include\elastic\concepts.hpp" />
     <ClInclude Include="..\include\elastic\interface_archive.hpp" />
-    <ClInclude Include="..\include\elastic\property\fixed.hpp" />
-    <ClInclude Include="..\include\elastic\property\optional.hpp" />
-    <ClInclude Include="..\include\elastic\property\repeated.hpp" />
+    <ClInclude Include="..\include\elastic\property.hpp" />
     <ClInclude Include="..\include\elastic\reflect.hpp" />
     <ClInclude Include="..\include\elastic\reflect\filed_count.hpp" />
     <ClInclude Include="..\include\elastic\reflect\generate.hpp" />

@@ -19,9 +19,6 @@
     <Filter Include="elastic\types">
       <UniqueIdentifier>{7f6220c2-a907-43d2-b9e7-27cfc317d292}</UniqueIdentifier>
     </Filter>
-    <Filter Include="elastic\property">
-      <UniqueIdentifier>{b63767e0-cabf-43b8-9f76-0ed7d0245ee3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="elastic\reflect">
       <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
     </Filter>
@@ -110,15 +107,6 @@
     <ClInclude Include="..\include\elastic\types\float.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\property\fixed.hpp">
-      <Filter>elastic\property</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\property\optional.hpp">
-      <Filter>elastic\property</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\property\repeated.hpp">
-      <Filter>elastic\property</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\reflect\filed_count.hpp">
       <Filter>elastic\reflect</Filter>
     </ClInclude>
@@ -135,6 +123,9 @@
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\type_traits.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\property.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
   </ItemGroup>

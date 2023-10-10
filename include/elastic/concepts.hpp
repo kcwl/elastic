@@ -1,5 +1,5 @@
 #pragma once
-#include "property/fixed.hpp"
+#include "property.hpp"
 #include "type_traits.hpp"
 
 #include <utility>
