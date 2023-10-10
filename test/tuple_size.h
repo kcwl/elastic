@@ -1,6 +1,5 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/tuple_size.hpp"
 #include "../include/elastic/reflect.hpp"
 
 BOOST_AUTO_TEST_SUITE(tuple_size)

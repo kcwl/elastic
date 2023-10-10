@@ -16,9 +16,6 @@
     <Filter Include="elastic">
       <UniqueIdentifier>{6f2c6d90-e814-439f-978a-72990861fbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="elastic\reflect">
-      <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -30,9 +27,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\reflect.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\tuple_size.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="generate.h">
@@ -88,18 +82,6 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\types\float.hpp">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\reflect\filed_count.hpp">
-      <Filter>elastic\reflect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\reflect\generate.hpp">
-      <Filter>elastic\reflect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\reflect\nocopyable.hpp">
-      <Filter>elastic\reflect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\reflect\size_t_.hpp">
-      <Filter>elastic\reflect</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\concepts.hpp">
       <Filter>elastic</Filter>

@@ -149,11 +149,6 @@
     <ClInclude Include="..\include\elastic\interface_archive.hpp" />
     <ClInclude Include="..\include\elastic\property.hpp" />
     <ClInclude Include="..\include\elastic\reflect.hpp" />
-    <ClInclude Include="..\include\elastic\reflect\filed_count.hpp" />
-    <ClInclude Include="..\include\elastic\reflect\generate.hpp" />
-    <ClInclude Include="..\include\elastic\reflect\nocopyable.hpp" />
-    <ClInclude Include="..\include\elastic\reflect\size_t_.hpp" />
-    <ClInclude Include="..\include\elastic\tuple_size.hpp" />
     <ClInclude Include="..\include\elastic\type.hpp" />
     <ClInclude Include="..\include\elastic\types\float.hpp" />
     <ClInclude Include="..\include\elastic\type_traits.hpp" />
