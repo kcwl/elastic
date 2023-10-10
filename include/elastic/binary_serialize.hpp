@@ -1,7 +1,7 @@
 #pragma once
 #include "access.hpp"
-#include "type.hpp"
 #include "concepts.hpp"
+#include "type.hpp"
 
 namespace elastic
 {
@@ -10,80 +10,40 @@ namespace elastic
 		template <typename _Archive>
 		struct load_non_pointer_type
 		{
-			struct load_only
+			template <typename _Ty>
+			static void invoke(_Archive& ar, _Ty& t)
 			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					access::serialize(ar, t);
-				}
-			};
-
-			struct load_standard
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
-				{
-					message::template deserialize(ar, t);
-				}
-			};
-			struct load_varint
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
+				if constexpr (varint_t<_Ty>)
 				{
 					varint::template deserialize(ar, t);
 				}
-			};
-
-			struct load_sequence
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
+				else if constexpr (pod<_Ty>)
 				{
-					sequence::template deserialize(ar, t);
+					message::template deserialize(ar, t);
 				}
-			};
-
-			struct load_string
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty& t)
+				else if constexpr (is_string_v<_Ty>)
 				{
 					ar.load(t);
 				}
-			};
-
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty& t)
-			{
-				using typex = std::conditional_t<
-					varint_t<_Ty>, identify_t<load_varint>,
-					std::conditional_t<pod<_Ty>, identify_t<load_standard>,
-									   std::conditional_t<is_string_v<_Ty>, identify_t<load_string>,
-														  std::conditional_t<sequence_t<_Ty>,
-																			 identify_t<load_sequence>,
-																			 identify_t<load_only>>>>>;
-
-				typex::invoke(ar, t);
+				else if constexpr (sequence_t<_Ty>)
+				{
+					sequence::template deserialize(ar, t);
+				}
+				else
+				{
+					access::template serialize(ar, t);
+				}
 			}
 		};
 
-		template <typename _Archive>
-		struct load_enum_type
+		template <typename _Archive, typename _Ty>
+		inline void binary_load(_Archive& ar, _Ty& t)
 		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty& t)
+			if constexpr (std::is_enum_v<_Ty>)
 			{
 				ar.template load<_Ty>(t);
 			}
-		};
-
-		template <typename _Archive>
-		struct laod_optional_type
-		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty& t)
+			else if constexpr (optional_t<_Ty>)
 			{
 				using type = typename _Ty::value_type;
 
@@ -93,80 +53,38 @@ namespace elastic
 
 				t.emplace(val);
 			}
-		};
-
-		template <typename _Archive>
-		struct load_unsign_or_fixed_type
-		{
-			template <typename _Ty>
-			static void invoke(_Archive& ar, _Ty& t)
+			else if constexpr (fixed_t<_Ty>)
 			{
 				ar.template load<typename _Ty::value_type>(t.value_);
 			}
-		};
-
-		template <typename _Archive, typename _Ty>
-		inline void binary_load(_Archive& ar, _Ty& t)
-		{
-			using typex = std::conditional_t<
-				std::is_enum_v<_Ty>, identify_t<load_enum_type<_Archive>>,
-				std::conditional_t<
-					optional_t<_Ty>, identify_t<laod_optional_type<_Archive>>,
-					std::conditional_t<fixed_t<_Ty>, identify_t<load_unsign_or_fixed_type<_Archive>>,
-									   identify_t<load_non_pointer_type<_Archive>>>>>;
-
-			typex::invoke(ar, t);
+			else
+			{
+				load_non_pointer_type<_Archive>::invoke(ar, t);
+			}
 		}
 
 		template <typename _Archive>
 		struct save_non_pointer_type
 		{
-			struct save_standard
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty&& t)
-				{
-					message::template serialize(ar, std::forward<_Ty>(t));
-				}
-			};
-
-			struct save_varint
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty&& t)
-				{
-					varint::template serialize(ar, std::forward<_Ty>(t));
-				}
-			};
-
-			struct save_sequence
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty&& t)
-				{
-					sequence::template serialize(ar, std::forward<_Ty>(t));
-				}
-			};
-
-			struct save_only
-			{
-				template <typename _Ty>
-				static void invoke(_Archive& ar, _Ty&& t)
-				{
-					access::serialize(ar, std::forward<_Ty>(t));
-				}
-			};
-
 			template <typename _Ty>
 			static void invoke(_Archive& ar, _Ty&& t)
 			{
-				using typex = std::conditional_t<
-					varint_t<_Ty>, identify_t<save_varint>,
-					std::conditional_t<pod<_Ty>, identify_t<save_standard>,
-									   std::conditional_t<sequence_t<_Ty>, identify_t<save_sequence>,
-														  identify_t<save_only>>>>;
-
-				typex::invoke(ar, std::forward<_Ty>(t));
+				if constexpr (varint_t<_Ty>)
+				{
+					varint::template serialize(ar, std::forward<_Ty>(t));
+				}
+				else if constexpr (pod<_Ty>)
+				{
+					message::template serialize(ar, std::forward<_Ty>(t));
+				}
+				else if constexpr (sequence_t<_Ty>)
+				{
+					sequence::template serialize(ar, std::forward<_Ty>(t));
+				}
+				else
+				{
+					access::serialize(ar, std::forward<_Ty>(t));
+				}
 			}
 		};
 
@@ -212,16 +130,29 @@ namespace elastic
 		{
 			using type = std::remove_reference_t<_Ty>;
 
-			using typex = std::conditional_t<
-				std::is_enum_v<type>, identify_t<save_enum_type<_Archive>>,
-				std::conditional_t<
-					std::is_enum_v<type>, identify_t<save_enum_type<_Archive>>,
-					std::conditional_t<
-						attribute_t<type>, identify_t<save_optional_type<_Archive>>,
-						std::conditional_t<is_string_v<type>, identify_t<save_string_type<_Archive>>,
-										   identify_t<save_non_pointer_type<_Archive>>>>>>;
-
-			typex::invoke(ar, std::forward<_Ty>(t));
+			if constexpr (std::is_enum_v<type>)
+			{
+				ar << static_cast<int32_t>(std::forward<_Ty>(t));
+			}
+			else if constexpr (attribute_t<type>)
+			{
+				if constexpr (optional_t<std::remove_cvref_t<_Ty>>)
+				{
+					ar << *t;
+				}
+				else
+				{
+					ar.save(std::forward<_Ty>(t).value_);
+				}
+			}
+			else if constexpr (is_string_v<type>)
+			{
+				ar.save_string(t);
+			}
+			else
+			{
+				save_non_pointer_type<_Archive>::invoke(ar, std::forward<_Ty>(t));
+			}
 		}
 
 	} // namespace archive
