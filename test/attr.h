@@ -1,5 +1,5 @@
 #pragma once
-#include "../include/elastic/archive_type.hpp"
+#include "../include/elastic/type.hpp"
 #include "../include/elastic/binary_iarchive.hpp"
 #include "../include/elastic/binary_oarchive.hpp"
 

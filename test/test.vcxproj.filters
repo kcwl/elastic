@@ -16,9 +16,6 @@
     <Filter Include="elastic">
       <UniqueIdentifier>{6f2c6d90-e814-439f-978a-72990861fbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="elastic\types">
-      <UniqueIdentifier>{7f6220c2-a907-43d2-b9e7-27cfc317d292}</UniqueIdentifier>
-    </Filter>
     <Filter Include="elastic\reflect">
       <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
     </Filter>
@@ -86,23 +83,8 @@
     <ClInclude Include="..\include\elastic\basic_primitive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\types\varint.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\sequence.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\message.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive_type.hpp">
+    <ClInclude Include="..\include\elastic\type.hpp">
       <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\bytes.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\string.hpp">
-      <Filter>elastic\types</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\types\float.hpp">
       <Filter>头文件</Filter>
@@ -126,6 +108,9 @@
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\property.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\type.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
   </ItemGroup>
