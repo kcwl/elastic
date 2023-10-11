@@ -5,7 +5,7 @@
 
 BOOST_AUTO_TEST_SUITE(io)
 
-BOOST_AUTO_TEST_CASE(iostream)
+BOOST_AUTO_TEST_CASE(elastic_type)
 {
 	{
 		std::stringstream buf;

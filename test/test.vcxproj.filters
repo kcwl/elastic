@@ -32,7 +32,7 @@
     <ClInclude Include="generate.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="io.h">
+    <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="attr.h">
@@ -85,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\include\elastic\type.hpp">
       <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="type.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
