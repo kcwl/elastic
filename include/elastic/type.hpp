@@ -27,6 +27,12 @@ namespace elastic
 
 	using string = std::string;
 
+	template <typename _Ty>
+	using repeated = std::vector<_Ty>;
+
+	template<typename _Ty, std::size_t N>
+	using repeate = std::array<_Ty,N>;
+
 	struct varint
 	{
 		template <typename _Archive, single_numric _Ty>

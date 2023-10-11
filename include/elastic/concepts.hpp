@@ -47,7 +47,7 @@ namespace elastic
 					   single_unsigned_numric<std::remove_cvref_t<_Ty>> || multi_numric<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
-	concept pod = std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
+	concept pod_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
 	concept positive_integar = requires(_Ty value) {
@@ -78,11 +78,6 @@ namespace elastic
 		std::is_same_v<std::remove_cvref_t<_Ty>, char> || std::is_same_v<std::remove_cvref_t<_Ty>, wchar_t>;
 
 	template <typename _Ty>
-	concept pod_class_t =
-		std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>> &&
-		std::is_class_v<std::remove_cvref_t<_Ty>>;
-
-	template <typename _Ty>
 	concept string_t = std::is_same_v<_Ty, std::string>;
 
 	template <typename _Ty>
@@ -93,9 +88,6 @@ namespace elastic
 		value.has_value();
 		*value;
 	};
-
-	template <typename _Ty>
-	concept attribute_t = optional_t<std::remove_cvref_t<_Ty>> || fixed_t<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
 	concept length_body_parse_t = string_t<_Ty> || sequence_t<_Ty>;

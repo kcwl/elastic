@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::fixed32 value{};
+		elastic::fixed<uint32_t> value{};
 		value = 2;
 
 		std::stringstream buf;
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::fixed32 value1{};
+		elastic::fixed<uint32_t> value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::fixed64 value{};
+		elastic::fixed<uint64_t> value{};
 		value = 2;
 
 		std::stringstream buf;
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::fixed64 value1{};
+		elastic::fixed<uint64_t> value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;

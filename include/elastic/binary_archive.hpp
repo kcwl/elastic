@@ -30,7 +30,7 @@ namespace elastic
 			{
 				this->start();
 
-				archive::binary_load(*this, t);
+				binary_load(*this, t);
 			}
 			catch (...)
 			{
@@ -61,7 +61,7 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			archive::binary_save(*this, std::forward<_Ty>(t));
+			binary_save(*this, std::forward<_Ty>(t));
 		}
 	};
 
