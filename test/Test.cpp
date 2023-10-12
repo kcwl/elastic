@@ -3,6 +3,6 @@
 #include "attr.h"
 //#include "exception.h"
 #include "generate.h"
-//#include "inherit.h"
+#include "inherit.h"
 #include "type.h"
-//#include "tuple_size.h"
+#include "tuple_size.h"
