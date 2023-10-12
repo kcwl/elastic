@@ -35,30 +35,45 @@ namespace elastic
 
 	struct varint
 	{
-		static constexpr int32_t bit = 8;
+		static constexpr int32_t bit = 7;
 
 		template <typename _Archive, single_numric _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint8_t c{};
-			
+
+			uint64_t result{};
+
 			ar.template load<uint8_t>(c);
 
-			t = static_cast<_Ty>(c);
+			result = c;
 
-			int32_t temp_bit = bit;
-
-			while (ar.load(c), (c & 0xff) != 0)
+			if (result >= 0x80)
 			{
-				t += static_cast<_Ty>(c) << temp_bit;
+				result -= 0x80;
 
-				t -= static_cast<_Ty>(0xff) << temp_bit;
+				int8_t temp_bit = bit;
 
-				temp_bit += bit;
+				while (ar.load(c), (c & 0x80) != 0)
+				{
+					result += static_cast<uint64_t>(c) << temp_bit;
+					result -= static_cast<uint64_t>(0x80) << temp_bit;
+
+					temp_bit += bit;
+				}
+
+				result += static_cast<uint64_t>(c) << temp_bit;
 			}
 
-			t += static_cast<_Ty>(c) << temp_bit;
+			t = static_cast<_Ty>(result);
 		}
+
+		template <typename _Archive, multi_numric _Ty>
+		static void deserialize(_Archive& ar, _Ty& t)
+		{
+			ar.load(t);
+		}
+
 
 		template <typename _Archive, single_numric _Ty>
 		static void serialize(_Archive& ar, _Ty&& value)
@@ -67,18 +82,19 @@ namespace elastic
 
 			uint64_t result = static_cast<uint64_t>(std::forward<_Ty>(value));
 
-			static_cast<int64_t>(result) >= 0 ? ar.save(static_cast<uint8_t>(result | 0x80)) : ar.save(static_cast<uint8_t>(result | 0xff));
-
-			result >>= bit;
-
-			while (result >= 0xff)
+			while (result >= 0x80)
 			{
-				ar.save(static_cast<uint8_t>(result | 0xff));
-
+				ar.save(static_cast<uint8_t>(result | 0x80));
 				result >>= bit;
 			}
 
 			ar.save(static_cast<uint8_t>(result));
+		}
+
+		template <typename _Archive, multi_numric _Ty>
+		static void serialize(_Archive& ar, _Ty&& value)
+		{
+			ar.save(std::forward<_Ty>(value));
 		}
 	};
 

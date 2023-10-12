@@ -28,7 +28,7 @@ namespace elastic
 	template <typename _Ty>
 	concept single_signed_numric =
 		std::is_same_v<_Ty, char> || std::is_same_v<_Ty, int8_t> || std::is_same_v<_Ty, int16_t> ||
-		std::is_same_v<_Ty, int32_t> || std::is_same_v<_Ty, int64_t>;
+		std::is_same_v<_Ty, int32_t> || std::is_same_v<_Ty, int64_t> || std::is_enum_v<_Ty> || std::same_as<_Ty, bool>;
 
 	template <typename _Ty>
 	concept single_unsigned_numric = std::is_same_v<_Ty, uint8_t> || std::is_same_v<_Ty, uint16_t> ||
@@ -90,10 +90,10 @@ namespace elastic
 	};
 
 	template <typename _Ty>
-	concept length_body_parse_t = string_t<_Ty> || sequence_t<_Ty>;
+	concept length_body_parse_t = string_t<std::remove_cvref<_Ty>> || sequence_t<_Ty>;
 
 	template <typename _Ty>
-	concept fix_parse_t = std::is_integral_v<_Ty>;
+	concept fix_parse_t = std::convertible_to<std::remove_cvref<_Ty>, uint64_t>;
 
 	template <typename _Ty>
 	concept varint_prase_t = varint_t<_Ty>;

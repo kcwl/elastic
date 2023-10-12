@@ -149,23 +149,25 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		BOOST_TEST(a_in == a_out);
 	}
-
 	{
+		enum class color
+		{
+			red = 1,
+			blue = 2
+		};
+
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
-		std::vector<int32_t> a_in = { 1, 2, 3, 4, 5 };
+		oa << color::red;
 
-		oa << a_in;
-
-		std::vector<int32_t> a_out{};
+		color cr{};
 
 		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		ia >> cr;
 
-		BOOST_TEST(a_in == a_out);
+		BOOST_CHECK(cr == color::red);
 	}
-
 	{
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
@@ -181,7 +183,71 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		BOOST_TEST(a_in == a_out);
 	}
+	{
+		std::stringstream buf;
+		elastic::binary_oarchive oa(buf);
 
+		bool a_in = false;
+
+		oa << a_in;
+
+		bool a_out = true;
+
+		elastic::binary_iarchive ia(buf);
+
+		ia >> a_out;
+
+		BOOST_TEST(a_in == a_out);
+	}
+	{
+		std::stringstream buf;
+		elastic::binary_oarchive oa(buf);
+
+		std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
+										std::byte('5') };
+
+		oa << a_in;
+
+		std::vector<std::byte> a_out{};
+
+		elastic::binary_iarchive ia(buf);
+		ia >> a_out;
+
+		BOOST_TEST(a_in == a_out);
+	}
+	{
+		std::stringstream buf;
+		elastic::binary_oarchive oa(buf);
+
+		double a_in = 1.2;
+
+		oa << a_in;
+
+		double a_out;
+
+		elastic::binary_iarchive ia(buf);
+
+		ia >> a_out;
+
+		BOOST_TEST(a_in == a_out);
+	}
+	{
+		std::stringstream buf;
+		elastic::binary_oarchive oa(buf);
+
+		float a_in = 2.4f;
+
+		oa << a_in;
+
+		float a_out;
+
+		elastic::binary_iarchive ia(buf);
+
+		ia >> a_out;
+
+		BOOST_TEST(a_in == a_out);
+	}
+	
 	{
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);

@@ -27,8 +27,6 @@
 + uint16
 + uint32
 + uint64
-+ v_int
-+ v_uint
 + enum
 + string
 + bool
