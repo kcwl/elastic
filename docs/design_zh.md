@@ -62,7 +62,7 @@
 ```
 [[alignas(N)]] message name = [[message_number]]
 {
-    [[property]] field_type : field_name  = filed_number;
+    [[property]] field_type : field_name;
 };
 ```
 由"[[]]"包含的字段均为可选字段，字段含义如下：
@@ -72,13 +72,17 @@
 + message_number 结构序列号，作为数字唯一标识
 + property 参考上述[属性](#成员属性)
 
-当一个message被编码时，首先会将message编号进行编码，然后再对每个键值对进行编码，每个键值对都被转换为由字段号和有效负载组成的记录。
+当一个message被编码时，首先会将message编号进行编码，然后再对每个键值对进行编码，每个键值对都被转换为由有效负载组成的记录。
 
-#### Tag
-message的每个成员类型前都会有一个`tag(msb,filed_number,wiretype)`,每个tag均采用varint编码方式：
-+ MSB标记符号位,1:有符号,0:无符号,占1位
-+ filed_number为字段编号,占5位
-+ wiretype为解析类型,占2位,目前只有3种解析方式，参考[3种解析类别](#3种解析类别)
+#### varint
+可变整形内存布局如下：
+```
+message Test1 = 1
+{
+  v_int number;
+};
+```
+首字节的第一位为符号位： 0为有符号， 1为无符号，后续位为真实数据
 
 
 #### Length-Delimited Records

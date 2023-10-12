@@ -30,34 +30,34 @@ namespace elastic
 	template <typename _Ty>
 	using repeated = std::vector<_Ty>;
 
-	template<typename _Ty, std::size_t N>
-	using repeate = std::array<_Ty,N>;
+	template <typename _Ty, std::size_t N>
+	using repeate = std::array<_Ty, N>;
 
 	struct varint
 	{
+		static constexpr int32_t bit = 8;
+
 		template <typename _Archive, single_numric _Ty>
 		static void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint8_t c{};
+			
 			ar.template load<uint8_t>(c);
+
 			t = static_cast<_Ty>(c);
 
-			if (t >= 0x80)
+			int32_t temp_bit = bit;
+
+			while (ar.load(c), (c & 0xff) != 0)
 			{
-				t -= 0x80;
+				t += static_cast<_Ty>(c) << temp_bit;
 
-				uint8_t bit = 7;
+				t -= static_cast<_Ty>(0xff) << temp_bit;
 
-				while (ar.load(c), (c & 0x80) != 0)
-				{
-					t += static_cast<_Ty>(c) << bit;
-					t -= static_cast<_Ty>(0x80) << bit;
-
-					bit += 7;
-				}
-
-				t += static_cast<uint64_t>(c) << bit;
+				temp_bit += bit;
 			}
+
+			t += static_cast<_Ty>(c) << temp_bit;
 		}
 
 		template <typename _Archive, single_numric _Ty>
@@ -65,12 +65,17 @@ namespace elastic
 		{
 			using type = relative<_Ty>::type;
 
-			uint64_t result = static_cast<type>(std::forward<_Ty>(value));
+			uint64_t result = static_cast<uint64_t>(std::forward<_Ty>(value));
 
-			while (result >= 0x80)
+			static_cast<int64_t>(result) >= 0 ? ar.save(static_cast<uint8_t>(result | 0x80)) : ar.save(static_cast<uint8_t>(result | 0xff));
+
+			result >>= bit;
+
+			while (result >= 0xff)
 			{
-				ar.save(static_cast<uint8_t>(result | 0x80));
-				result >>= 7;
+				ar.save(static_cast<uint8_t>(result | 0xff));
+
+				result >>= bit;
 			}
 
 			ar.save(static_cast<uint8_t>(result));
