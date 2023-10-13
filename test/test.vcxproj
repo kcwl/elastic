@@ -153,7 +153,6 @@
     <ClInclude Include="type.h" />
     <ClInclude Include="inherit.h" />
     <ClInclude Include="tuple_size.h" />
-    <ClInclude Include="type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
