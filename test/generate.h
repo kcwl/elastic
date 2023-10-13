@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/detail/generate.hpp"
+#include "../include/elastic/reflect.hpp"
 
 BOOST_AUTO_TEST_SUITE(generator)
 
@@ -666,156 +666,156 @@ struct test32
 BOOST_AUTO_TEST_CASE(generate)
 {
 	test t{};
-	static_assert(elastic::detail::make_tuple(t, elastic::detail::size_t_<0>{}) == std::tuple<>());
+	static_assert(elastic::detail::make_tuple(t, elastic::size_t_<0>{}) == std::tuple<>());
 
 	constexpr test1 t1{ 1 };
-	// static_assert(elastic::detail::make_tuple(t1, elastic::detail::size_t_<1>{}) == std::tuple<int>(1));
+	// static_assert(elastic::detail::make_tuple(t1, elastic::size_t_<1>{}) == std::tuple<int>(1));
 
 	constexpr test2 t2{ 1, 1 };
-	static_assert(elastic::detail::make_tuple(t2, elastic::detail::size_t_<2>{}) == std::tuple<int, int>(1, 1));
+	static_assert(elastic::detail::make_tuple(t2, elastic::size_t_<2>{}) == std::tuple<int, int>(1, 1));
 
 	constexpr test3 t3{ 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t3, elastic::detail::size_t_<3>{}) == std::tuple<int, int, int>(1, 1, 1));
+	static_assert(elastic::detail::make_tuple(t3, elastic::size_t_<3>{}) == std::tuple<int, int, int>(1, 1, 1));
 
 	constexpr test4 t4{ 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t4, elastic::detail::size_t_<4>{}) ==
+	static_assert(elastic::detail::make_tuple(t4, elastic::size_t_<4>{}) ==
 				  std::tuple<int, int, int, int>(1, 1, 1, 1));
 
 	constexpr test5 t5{ 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t5, elastic::detail::size_t_<5>{}) ==
+	static_assert(elastic::detail::make_tuple(t5, elastic::size_t_<5>{}) ==
 				  std::tuple<int, int, int, int, int>(1, 1, 1, 1, 1));
 
 	constexpr test6 t6{ 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t6, elastic::detail::size_t_<6>{}) ==
+	static_assert(elastic::detail::make_tuple(t6, elastic::size_t_<6>{}) ==
 				  std::tuple<int, int, int, int, int, int>(1, 1, 1, 1, 1, 1));
 
 	constexpr test7 t7{ 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t7, elastic::detail::size_t_<7>{}) ==
+	static_assert(elastic::detail::make_tuple(t7, elastic::size_t_<7>{}) ==
 				  std::tuple<int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test8 t8{ 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t8, elastic::detail::size_t_<8>{}) ==
+	static_assert(elastic::detail::make_tuple(t8, elastic::size_t_<8>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test9 t9{ 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t9, elastic::detail::size_t_<9>{}) ==
+	static_assert(elastic::detail::make_tuple(t9, elastic::size_t_<9>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test10 t10{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t10, elastic::detail::size_t_<10>{}) ==
+	static_assert(elastic::detail::make_tuple(t10, elastic::size_t_<10>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test11 t11{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t11, elastic::detail::size_t_<11>{}) ==
+	static_assert(elastic::detail::make_tuple(t11, elastic::size_t_<11>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test12 t12{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	static_assert(
-		elastic::detail::make_tuple(t12, elastic::detail::size_t_<12>{}) ==
+		elastic::detail::make_tuple(t12, elastic::size_t_<12>{}) ==
 		std::tuple<int, int, int, int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test13 t13{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t13, elastic::detail::size_t_<13>{}) ==
+	static_assert(elastic::detail::make_tuple(t13, elastic::size_t_<13>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1,
 																							  1, 1, 1, 1));
 
 	constexpr test14 t14{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t14, elastic::detail::size_t_<14>{}) ==
+	static_assert(elastic::detail::make_tuple(t14, elastic::size_t_<14>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test15 t15{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t15, elastic::detail::size_t_<15>{}) ==
+	static_assert(elastic::detail::make_tuple(t15, elastic::size_t_<15>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test16 t16{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t16, elastic::detail::size_t_<16>{}) ==
+	static_assert(elastic::detail::make_tuple(t16, elastic::size_t_<16>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test17 t17{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t17, elastic::detail::size_t_<17>{}) ==
+	static_assert(elastic::detail::make_tuple(t17, elastic::size_t_<17>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test18 t18{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t18, elastic::detail::size_t_<18>{}) ==
+	static_assert(elastic::detail::make_tuple(t18, elastic::size_t_<18>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test19 t19{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	static_assert(
-		elastic::detail::make_tuple(t19, elastic::detail::size_t_<19>{}) ==
+		elastic::detail::make_tuple(t19, elastic::size_t_<19>{}) ==
 		std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test20 t20{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	static_assert(
-		elastic::detail::make_tuple(t20, elastic::detail::size_t_<20>{}) ==
+		elastic::detail::make_tuple(t20, elastic::size_t_<20>{}) ==
 		std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test21 t21{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t21, elastic::detail::size_t_<21>{}) ==
+	static_assert(elastic::detail::make_tuple(t21, elastic::size_t_<21>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test22 t22{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t22, elastic::detail::size_t_<22>{}) ==
+	static_assert(elastic::detail::make_tuple(t22, elastic::size_t_<22>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test23 t23{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	static_assert(
-		elastic::detail::make_tuple(t23, elastic::detail::size_t_<23>{}) ==
+		elastic::detail::make_tuple(t23, elastic::size_t_<23>{}) ==
 		std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 				   int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test24 t24{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	static_assert(
-		elastic::detail::make_tuple(t24, elastic::detail::size_t_<24>{}) ==
+		elastic::detail::make_tuple(t24, elastic::size_t_<24>{}) ==
 		std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 				   int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test25 t25{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	static_assert(
-		elastic::detail::make_tuple(t25, elastic::detail::size_t_<25>{}) ==
+		elastic::detail::make_tuple(t25, elastic::size_t_<25>{}) ==
 		std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 				   int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test26 t26{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t26, elastic::detail::size_t_<26>{}) ==
+	static_assert(elastic::detail::make_tuple(t26, elastic::size_t_<26>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 																	 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test27 t27{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t27, elastic::detail::size_t_<27>{}) ==
+	static_assert(elastic::detail::make_tuple(t27, elastic::size_t_<27>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int, int>(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 																		  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test28 t28{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t28, elastic::detail::size_t_<28>{}) ==
+	static_assert(elastic::detail::make_tuple(t28, elastic::size_t_<28>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test29 t29{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t29, elastic::detail::size_t_<29>{}) ==
+	static_assert(elastic::detail::make_tuple(t29, elastic::size_t_<29>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test30 t30{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t30, elastic::detail::size_t_<30>{}) ==
+	static_assert(elastic::detail::make_tuple(t30, elastic::size_t_<30>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
 
 	constexpr test31 t31{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t31, elastic::detail::size_t_<31>{}) ==
+	static_assert(elastic::detail::make_tuple(t31, elastic::size_t_<31>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
@@ -823,7 +823,7 @@ BOOST_AUTO_TEST_CASE(generate)
 	constexpr test32 t32{
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 	};
-	static_assert(elastic::detail::make_tuple(t32, elastic::detail::size_t_<32>{}) ==
+	static_assert(elastic::detail::make_tuple(t32, elastic::size_t_<32>{}) ==
 				  std::tuple<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
 							 int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));

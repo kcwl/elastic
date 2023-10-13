@@ -1,14 +1,13 @@
 #pragma once
-#include "../include/elastic/archive_type.hpp"
-#include "../include/elastic/binary_iarchive.hpp"
-#include "../include/elastic/binary_oarchive.hpp"
+#include "../include/elastic/type.hpp"
+#include "../include/elastic/binary_archive.hpp"
 
 #include <boost/test/unit_test_suite.hpp>
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(attr)
+BOOST_AUTO_TEST_SUITE(prop)
 
-BOOST_AUTO_TEST_CASE(attr_to_iostream)
+BOOST_AUTO_TEST_CASE(elastic_property)
 {
 	{
 		elastic::optional<int> value{ 1 };
@@ -26,23 +25,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 		BOOST_TEST(value.value() == value1.value());
 	}
 	{
-		elastic::repeated<int> value{ 1, 2, 3 };
-
-		std::stringstream buf;
-		elastic::binary_oarchive oa(buf);
-
-		oa << value;
-
-		elastic::repeated<int> value1{};
-
-		elastic::binary_iarchive ia(buf);
-		ia >> value1;
-
-		BOOST_TEST(value == value1);
-	}
-
-	{
-		elastic::fixed32 value{};
+		elastic::fixed<uint32_t> value{};
 		value = 2;
 
 		std::stringstream buf;
@@ -50,7 +33,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::fixed32 value1{};
+		elastic::fixed<uint32_t> value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -59,7 +42,7 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 	}
 
 	{
-		elastic::fixed64 value{};
+		elastic::fixed<uint64_t> value{};
 		value = 2;
 
 		std::stringstream buf;
@@ -67,32 +50,27 @@ BOOST_AUTO_TEST_CASE(attr_to_iostream)
 
 		oa << value;
 
-		elastic::fixed64 value1{};
+		elastic::fixed<uint64_t> value1{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
 		BOOST_CHECK_EQUAL(value.value_, value1.value_);
 	}
-
 	{
-		enum class color
-		{
-			red = 1,
-			blue = 2
-		};
-
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
-		oa << color::red;
+		std::vector<int32_t> a_in = { 1, 2, 3, 4, 5 };
 
-		color cr{};
+		oa << a_in;
+
+		std::vector<int32_t> a_out{};
 
 		elastic::binary_iarchive ia(buf);
-		ia >> cr;
+		ia >> a_out;
 
-		BOOST_CHECK(cr == color::red);
+		BOOST_TEST(a_in == a_out);
 	}
 }
 

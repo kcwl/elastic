@@ -4,5 +4,5 @@
 #include "exception.h"
 #include "generate.h"
 #include "inherit.h"
-#include "io.h"
+#include "type.h"
 #include "tuple_size.h"

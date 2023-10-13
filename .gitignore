@@ -34,3 +34,6 @@
 # vs
 *.vs/
 */x64/*
+
+#linux
+build/

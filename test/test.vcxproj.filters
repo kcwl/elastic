@@ -16,12 +16,6 @@
     <Filter Include="elastic">
       <UniqueIdentifier>{6f2c6d90-e814-439f-978a-72990861fbf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="elastic\detail">
-      <UniqueIdentifier>{0a3d0647-708d-4e16-9756-ab3f36a6c558}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="elastic\types">
-      <UniqueIdentifier>{7f6220c2-a907-43d2-b9e7-27cfc317d292}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
@@ -35,34 +29,10 @@
     <ClInclude Include="..\include\elastic\reflect.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\tuple_size.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\concepts.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\filed_count.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\generate.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\nocopyable.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\singleton.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\size_t_.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\detail\type_traits.hpp">
-      <Filter>elastic\detail</Filter>
-    </ClInclude>
     <ClInclude Include="generate.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="io.h">
+    <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="attr.h">
@@ -80,22 +50,13 @@
     <ClInclude Include="..\include\elastic\access.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\basic_iprimitive.hpp">
+    <ClInclude Include="..\include\elastic\binary_primitive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\basic_oprimitive.hpp">
+    <ClInclude Include="..\include\elastic\binary_archive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_iarchive.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_iserialize.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_oarchive.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_oserialize.hpp">
+    <ClInclude Include="..\include\elastic\binary_serialize.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\interface_archive.hpp">
@@ -107,34 +68,25 @@
     <ClInclude Include="..\include\elastic\basic_primitive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\types\varint.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\sequence.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\message.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\archive_type.hpp">
+    <ClInclude Include="..\include\elastic\type.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\types\fixed.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\bytes.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\repeated.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\optional.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\types\string.hpp">
-      <Filter>elastic\types</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\types\float.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\concepts.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\type_traits.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\property.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\type.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
