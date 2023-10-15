@@ -1,11 +1,9 @@
 #pragma once
 #include "elastic/access.hpp"
 #include "elastic/archive_exception.hpp"
-#include "elastic/archive_type.hpp"
-#include "elastic/binary_iarchive.hpp"
-#include "elastic/binary_oarchive.hpp"
+#include "elastic/type.hpp"
+#include "elastic/binary_archive.hpp"
 #include "elastic/reflect.hpp"
-#include "elastic/tuple_size.hpp"
 
 namespace elastic
 {
