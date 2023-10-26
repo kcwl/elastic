@@ -1,13 +1,20 @@
 #pragma once
-#include <vector>
 #include <array>
 #include <optional>
+#include <vector>
 
 namespace elastic
 {
 	template <typename _Ty>
-	struct fixed
+	class fixed
 	{
+	public:
+		fixed()
+			: value_()
+			, has_value_(false)
+		{}
+
+	public:
 		using value_type = _Ty;
 
 		template <typename _Integer>
@@ -18,20 +25,32 @@ namespace elastic
 			return *this;
 		}
 
-		value_type value_;
-
 		template <typename _U>
 		bool operator==(const fixed<_U>& other) const
 		{
 			return value_ == other.value_;
 		}
 
-		fixed& operator*()
+		void emplace(value_type&& value)
+		{
+			value_ = value;
+
+			has_value_ = true;
+		}
+
+		bool has_value()
+		{
+			return has_value_;
+		}
+
+		constexpr const value_type& operator*()
 		{
 			return value_;
 		}
-	};
 
-	template<typename _Ty>
-	using optional = std::optional<_Ty>;
-}
+	private:
+		value_type value_;
+
+		bool has_value_;
+	};
+} // namespace elastic

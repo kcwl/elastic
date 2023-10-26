@@ -30,22 +30,6 @@ namespace elastic
 	{};
 
 	template <typename _Ty>
-	struct is_sequence : std::false_type
-	{};
-
-	template <typename _Ty>
-	struct is_sequence<std::list<_Ty>> : std::true_type
-	{};
-
-	template <typename _Ty>
-	struct is_sequence<std::forward_list<_Ty>> : std::true_type
-	{};
-
-	// template <typename _Ty>
-	// struct is_sequence<std::basic_string<_Ty>> : std::true_type
-	//{};
-
-	template <typename _Ty>
 	struct identify
 	{
 		using type = _Ty;
@@ -117,8 +101,31 @@ namespace elastic
 	{};
 
 	template <typename _Ty>
-	constexpr static bool is_string_v = is_string<_Ty>::value;
+	inline constexpr bool is_string_v = is_string<_Ty>::value;
 
 	template <typename _Ty, typename... _Args>
-	constexpr static bool is_any_of_v = std::disjunction_v<std::is_same_v<_Ty, _Args>...>;
+	inline constexpr bool is_any_of_v = std::disjunction_v<std::is_same<std::remove_cvref_t<_Ty>, _Args>...>;
+
+	template<typename _Ty>
+	struct zig_zag
+	{
+		using type = _Ty;
+	};
+
+	template<>
+	struct zig_zag<int32_t>
+	{
+		using type = uint32_t;
+	};
+
+	template<>
+	struct zig_zag<int64_t>
+	{
+		using type = uint64_t;
+	};
+
+	template<typename _Ty>
+	using zig_zag_t = zig_zag<std::remove_cvref_t<_Ty>>::type;
+
+
 } // namespace elastic

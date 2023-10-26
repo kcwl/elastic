@@ -89,9 +89,6 @@
     <ClInclude Include="..\include\elastic\int128.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\type.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

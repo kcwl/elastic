@@ -1,5 +1,4 @@
 #pragma once
-#include "../include/elastic/type.hpp"
 #include "../include/elastic/archive.hpp"
 
 #include <boost/test/unit_test_suite.hpp>
@@ -10,14 +9,14 @@ BOOST_AUTO_TEST_SUITE(prop)
 BOOST_AUTO_TEST_CASE(elastic_property)
 {
 	{
-		elastic::optional<int> value{ 1 };
+		std::optional<int> value{ 1 };
 
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
 
-		elastic::optional<int> value1;
+		std::optional<int> value1;
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -38,7 +37,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_TEST(value.value_ == value1.value_);
+		BOOST_TEST(*value == *value1);
 	}
 
 	{
@@ -55,7 +54,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_CHECK_EQUAL(value.value_, value1.value_);
+		BOOST_CHECK_EQUAL(*value, *value1);
 	}
 	{
 		std::stringstream buf;

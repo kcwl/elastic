@@ -85,7 +85,7 @@ namespace elastic
 			return std::forward_as_tuple();
 		}
 
-		template <class_cpt _Ty>
+		template <class_t _Ty>
 		constexpr auto make_tuple(_Ty&& val, size_t_<1>) noexcept
 		{
 			auto&& [a] = val;
