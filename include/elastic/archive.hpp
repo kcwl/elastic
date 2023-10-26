@@ -1,8 +1,7 @@
 #pragma once
-#include "binary_primitive.hpp"
-#include "binary_serialize.hpp"
-#include "interface_archive.hpp"
-#include "interface_archive.hpp"
+#include "primitive.hpp"
+#include "serialize.hpp"
+#include "interface.hpp"
 
 #include <istream>
 

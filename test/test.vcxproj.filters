@@ -50,25 +50,22 @@
     <ClInclude Include="..\include\elastic\access.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_primitive.hpp">
+    <ClInclude Include="..\include\elastic\primitive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_archive.hpp">
+    <ClInclude Include="..\include\elastic\archive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\binary_serialize.hpp">
+    <ClInclude Include="..\include\elastic\serialize.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\interface_archive.hpp">
+    <ClInclude Include="..\include\elastic\interface.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive_exception.hpp">
+    <ClInclude Include="..\include\elastic\exception.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\basic_primitive.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\type.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\types\float.hpp">
@@ -89,5 +86,14 @@
     <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\elastic\int128.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\type.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
 </Project>

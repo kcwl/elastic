@@ -1,5 +1,5 @@
 #pragma once
-#include "../include/elastic/binary_archive.hpp"
+#include "../include/elastic/archive.hpp"
 
 #include <boost/test/unit_test_suite.hpp>
 

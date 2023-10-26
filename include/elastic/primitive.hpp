@@ -1,5 +1,5 @@
 #pragma once
-#include "archive_exception.hpp"
+#include "exception.hpp"
 #include "basic_primitive.hpp"
 
 namespace elastic

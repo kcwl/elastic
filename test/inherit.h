@@ -1,7 +1,7 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
 #include "../include/elastic/access.hpp"
-#include "../include/elastic/binary_archive.hpp"
+#include "../include/elastic/archive.hpp"
 
 BOOST_AUTO_TEST_SUITE(inherit)
 
