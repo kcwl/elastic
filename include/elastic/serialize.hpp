@@ -235,37 +235,40 @@ namespace elastic
 
 	} // namespace impl
 
-	template <typename _Archive, typename _Ty>
-	inline void binary_load(_Archive& ar, _Ty& t)
+	namespace binary
 	{
-		if constexpr (non_inherit_t<_Ty>)
+		template <typename _Archive, typename _Ty>
+		inline void deserialize(_Archive& ar, _Ty& t)
 		{
-			impl::template deserialize(ar, t);
+			if constexpr (non_inherit_t<_Ty>)
+			{
+				impl::template deserialize(ar, t);
+			}
+			else if constexpr (std::is_pointer_v<_Ty>)
+			{
+			}
+			else
+			{
+				access::template serialize(ar, t);
+			}
 		}
-		else if constexpr (std::is_pointer_v<_Ty>)
-		{
-		}
-		else
-		{
-			access::template serialize(ar, t);
-		}
-	}
 
-	template <typename _Archive, typename _Ty>
-	inline void binary_save(_Archive& ar, _Ty&& t)
-	{
-		using type = std::remove_reference_t<_Ty>;
+		template <typename _Archive, typename _Ty>
+		inline void serialize(_Archive& ar, _Ty&& t)
+		{
+			using type = std::remove_reference_t<_Ty>;
 
-		if constexpr (non_inherit_t<type>)
-		{
-			impl::template serialize(ar, std::forward<_Ty>(t));
-		}
-		else if constexpr (std::is_pointer_v<_Ty>)
-		{
-		}
-		else
-		{
-			access::template serialize(ar, std::forward<_Ty>(t));
+			if constexpr (non_inherit_t<type>)
+			{
+				impl::template serialize(ar, std::forward<_Ty>(t));
+			}
+			else if constexpr (std::is_pointer_v<_Ty>)
+			{
+			}
+			else
+			{
+				access::template serialize(ar, std::forward<_Ty>(t));
+			}
 		}
 	}
 } // namespace elastic
