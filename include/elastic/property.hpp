@@ -9,10 +9,7 @@ namespace elastic
 	class fixed
 	{
 	public:
-		fixed()
-			: value_()
-			, has_value_(false)
-		{}
+		fixed() = default;
 
 	public:
 		using value_type = _Ty;
@@ -31,26 +28,12 @@ namespace elastic
 			return value_ == other.value_;
 		}
 
-		void emplace(value_type&& value)
-		{
-			value_ = value;
-
-			has_value_ = true;
-		}
-
-		bool has_value()
-		{
-			return has_value_;
-		}
-
-		constexpr const value_type& operator*()
+		value_type& operator*()
 		{
 			return value_;
 		}
 
 	private:
 		value_type value_;
-
-		bool has_value_;
 	};
 } // namespace elastic

@@ -1,10 +1,11 @@
 #pragma once
+#include "property.hpp"
+
 #include <forward_list>
 #include <list>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include "property.hpp"
 
 namespace elastic
 {
@@ -37,36 +38,6 @@ namespace elastic
 
 	template <typename _Ty>
 	using identify_t = typename identify<std::remove_cvref_t<_Ty>>::type;
-
-	template <typename _Ty>
-	struct relative
-	{
-		using type = _Ty;
-	};
-
-	template <>
-	struct relative<int8_t>
-	{
-		using type = uint8_t;
-	};
-
-	template <>
-	struct relative<int16_t>
-	{
-		using type = uint16_t;
-	};
-
-	template <>
-	struct relative<int32_t>
-	{
-		using type = uint32_t;
-	};
-
-	template <>
-	struct relative<int64_t>
-	{
-		using type = uint64_t;
-	};
 
 	template <typename _Ty>
 	struct is_fixed : std::false_type
@@ -106,26 +77,60 @@ namespace elastic
 	template <typename _Ty, typename... _Args>
 	inline constexpr bool is_any_of_v = std::disjunction_v<std::is_same<std::remove_cvref_t<_Ty>, _Args>...>;
 
-	template<typename _Ty>
+	template <typename _Ty>
 	struct zig_zag
 	{
 		using type = _Ty;
 	};
 
-	template<>
+	template <>
+	struct zig_zag<int8_t>
+	{
+		using type = uint8_t;
+	};
+	template <>
+
+	struct zig_zag<uint8_t>
+	{
+		using type = int8_t;
+	};
+
+	template <>
+	struct zig_zag<int16_t>
+	{
+		using type = uint16_t;
+	};
+
+	template <>
+	struct zig_zag<uint16_t>
+	{
+		using type = int16_t;
+	};
+
+	template <>
 	struct zig_zag<int32_t>
 	{
 		using type = uint32_t;
 	};
+	template <>
+	struct zig_zag<uint32_t>
+	{
+		using type = int32_t;
+	};
 
-	template<>
+	template <>
 	struct zig_zag<int64_t>
 	{
 		using type = uint64_t;
 	};
 
-	template<typename _Ty>
-	using zig_zag_t = zig_zag<std::remove_cvref_t<_Ty>>::type;
+	template <>
+	struct zig_zag<uint64_t>
+	{
+		using type = int64_t;
+	};
 
+	template <typename _Ty>
+	using zig_zag_t = zig_zag<std::remove_cvref_t<_Ty>>::type;
 
 } // namespace elastic

@@ -60,11 +60,11 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
-		std::vector<int32_t> a_in = { 1, 2, 3, 4, 5 };
+		std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
 
 		oa << a_in;
 
-		std::vector<int32_t> a_out{};
+		std::vector<std::byte> a_out{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> a_out;
