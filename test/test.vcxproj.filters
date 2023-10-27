@@ -68,9 +68,6 @@
     <ClInclude Include="..\include\elastic\basic_primitive.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\concepts.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\type_traits.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
