@@ -1,6 +1,5 @@
 #pragma once
-#include "../include/elastic/type.hpp"
-#include "../include/elastic/binary_archive.hpp"
+#include "../include/elastic/archive.hpp"
 
 #include <boost/test/unit_test_suite.hpp>
 #include <sstream>
@@ -10,14 +9,14 @@ BOOST_AUTO_TEST_SUITE(prop)
 BOOST_AUTO_TEST_CASE(elastic_property)
 {
 	{
-		elastic::optional<int> value{ 1 };
+		std::optional<int> value{ 1 };
 
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
 
-		elastic::optional<int> value1;
+		std::optional<int> value1;
 
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
@@ -38,7 +37,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_TEST(value.value_ == value1.value_);
+		BOOST_TEST(*value == *value1);
 	}
 
 	{
@@ -55,17 +54,17 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		elastic::binary_iarchive ia(buf);
 		ia >> value1;
 
-		BOOST_CHECK_EQUAL(value.value_, value1.value_);
+		BOOST_CHECK_EQUAL(*value, *value1);
 	}
 	{
 		std::stringstream buf;
 		elastic::binary_oarchive oa(buf);
 
-		std::vector<int32_t> a_in = { 1, 2, 3, 4, 5 };
+		std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
 
 		oa << a_in;
 
-		std::vector<int32_t> a_out{};
+		std::vector<std::byte> a_out{};
 
 		elastic::binary_iarchive ia(buf);
 		ia >> a_out;
