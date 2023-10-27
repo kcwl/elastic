@@ -1,15 +1,29 @@
 #pragma once
 #include "exception.hpp"
-#include "basic_primitive.hpp"
 
 namespace elastic
 {
+	namespace impl
+	{
+		template <typename _Elem, typename _Traits>
+		class basic_primitive
+		{
+		public:
+			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
+				: streambuf_(bs)
+			{}
+
+		protected:
+			std::basic_streambuf<_Elem, _Traits>& streambuf_;
+		};
+	}
+
 	template <typename _Archive, typename _Elem, typename _Traits>
-	class binary_iprimitive : public basic_primitive<_Elem, _Traits>
+	class binary_iprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
 	protected:
 		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
-			: basic_primitive<_Elem, _Traits>(bs)
+			: impl::basic_primitive<_Elem, _Traits>(bs)
 			, trans_pos_(0)
 			, interrupt_(false)
 		{}
@@ -22,50 +36,6 @@ namespace elastic
 		void load(_Ty& t)
 		{
 			load_binary(&t, sizeof(_Ty));
-		}
-
-		void load(std::string& s)
-		{
-			std::size_t l;
-			
-			load<std::size_t>(l);
-
-			s.resize(l);
-
-			if (0 < l)
-				load_binary(&(*s.begin()), l);
-		}
-
-		void load(std::wstring& ws)
-		{
-			std::size_t l{};
-
-			this->_this()->load(l);
-
-			ws.resize(l);
-
-			load_binary(const_cast<wchar_t*>(ws.data()), l * sizeof(wchar_t) / sizeof(char));
-		}
-
-		template<typename _Ty>
-		void load(std::vector<_Ty>& v)
-		{
-			std::size_t l;
-
-			this->template load<std::size_t>(l);
-
-			v.resize(l);
-
-			if (0 < l)
-				load_binary(&(*v.begin()), l);
-		}
-
-		void load_binary(void* address, std::size_t count)
-		{
-			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
-			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
-			if (scount == 0)
-				throw(archive_exception(archive_exception::exception_number::input_stream_error));
 		}
 
 		void start()
@@ -101,6 +71,15 @@ namespace elastic
 			return static_cast<_Archive*>(this);
 		}
 
+	private:
+		void load_binary(void* address, std::size_t count)
+		{
+			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
+			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
+			if (scount == 0)
+				throw(archive_exception(archive_exception::exception_number::input_stream_error));
+		}
+
 	protected:
 		int32_t trans_pos_;
 
@@ -108,11 +87,11 @@ namespace elastic
 	};
 
 	template <typename _Archive, typename _Elem, typename _Traits>
-	class binary_oprimitive : public basic_primitive<_Elem, _Traits>
+	class binary_oprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
 	protected:
 		binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
-			: basic_primitive<_Elem, _Traits>(bs)
+			: impl::basic_primitive<_Elem, _Traits>(bs)
 		{}
 
 		~binary_oprimitive() = default;
@@ -124,45 +103,18 @@ namespace elastic
 			save_binary(std::addressof(t), sizeof(_Ty));
 		}
 
-		void save_string(const std::string& s)
+	protected:
+		_Archive* _this()
 		{
-			auto l = s.size();
-
-			save(l);
-
-			save_binary(s.data(), l);
+			return static_cast<_Archive*>(this);
 		}
 
-		template <typename _Ty>
-		void save_string(const std::vector<_Ty>& s)
-		{
-			auto l = s.size();
-
-			save(l);
-
-			save_binary(s.data(), l);
-		}
-
-		void save_wstring(const std::wstring& s)
-		{
-			auto l = s.size();
-
-			save(l);
-
-			save_binary(s.data(), sizeof(wchar_t) / sizeof(char) * l);
-		}
-
+	private:
 		void save_binary(const void* address, std::size_t count)
 		{
 			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
 
 			this->streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
-		}
-
-	protected:
-		_Archive* _this()
-		{
-			return static_cast<_Archive*>(this);
 		}
 	};
 } // namespace elastic
