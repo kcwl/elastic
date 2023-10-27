@@ -74,7 +74,7 @@
     <ClInclude Include="..\include\elastic\type_traits.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\property.hpp">
+    <ClInclude Include="..\include\elastic\fixed.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\type.hpp">

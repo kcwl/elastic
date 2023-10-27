@@ -143,7 +143,7 @@
     <ClInclude Include="..\include\elastic\serialize.hpp" />
     <ClInclude Include="..\include\elastic\concepts.hpp" />
     <ClInclude Include="..\include\elastic\interface.hpp" />
-    <ClInclude Include="..\include\elastic\property.hpp" />
+    <ClInclude Include="..\include\elastic\fixed.hpp" />
     <ClInclude Include="..\include\elastic\reflect.hpp" />
     <ClInclude Include="..\include\elastic\type_traits.hpp" />
     <ClInclude Include="attr.h" />

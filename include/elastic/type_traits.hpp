@@ -1,5 +1,5 @@
 #pragma once
-#include "property.hpp"
+#include "fixed.hpp"
 
 #include <forward_list>
 #include <list>
