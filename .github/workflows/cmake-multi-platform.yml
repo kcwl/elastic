@@ -57,7 +57,7 @@ jobs:
     - name: install 3rd libs
       shell: bash
       run: |
-        chmod +x shell/install_3rd.sh
+        sudo chmod +x shell/install_3rd.sh
         ./shell/install_3rd.sh
 
     - name: Configure CMake
