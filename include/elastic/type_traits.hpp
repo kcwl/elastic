@@ -14,7 +14,10 @@ namespace elastic
 		std::size_t ignore_;
 
 		template <typename _Ty>
-		constexpr operator _Ty() const noexcept {};
+		constexpr operator _Ty() const noexcept
+		{
+			return _Ty{};
+		};
 	};
 
 	template <typename _Ty, typename Indices, typename = void>
