@@ -134,7 +134,7 @@ namespace elastic
 	};
 
 	template <typename _Ty>
-	using zig_zag_t = zig_zag<std::remove_cvref_t<_Ty>>::type;
+	using zig_zag_t = typename zig_zag<std::remove_cvref_t<_Ty>>::type;
 
 	template <typename _Ty, std::size_t N>
 	concept aggregate_inialize = is_aggregate_initialize<_Ty, N>::value;
