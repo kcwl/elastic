@@ -1,4 +1,4 @@
-find_package(Boost 1.74)
+find_package(Boost 1.74 REQUIRED unit_test)
 
 add_library(boost INTERFACE)
 
