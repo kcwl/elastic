@@ -1,3 +1,3 @@
 #!/bin/bash
 
-apt-get install boost -y
+apt-get install libboost-dev -y
