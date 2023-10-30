@@ -13,8 +13,13 @@ message("elastic include: ${ELASTIC_INCLUDE}")
 
 include_directories(${ELASTIC_INCLUDE})
 
+set(SRC_LIST 
+benchmark.cpp
+data.pb.cc
+)
 
-add_executable(benchmark benchmark.cpp)
+
+add_executable(benchmark ${SRC_LIST})
 
 target_link_libraries(benchmark libprotobuf)
 

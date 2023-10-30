@@ -90,7 +90,7 @@ public:
 	template <parse_type Value>
 	void deseriliaze()
 	{
-		std::cout << std::format("[{}] protobuf deserialize:\n", parse_type_str[Value]);
+		std::cout << std::format("[{}] protobuf deserialize:\n", parse_type_str[static_cast<int>(Value)]);
 
 		if constexpr (Value == parse_type::vec3)
 		{

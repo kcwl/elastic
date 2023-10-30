@@ -119,7 +119,7 @@ public:
 	template <parse_type Value>
 	void deserialize()
 	{
-		std::cout << std::format("[{}] elc deserialize:\n", parse_type_str[Value]);
+		std::cout << std::format("[{}] elc deserialize:\n", parse_type_str[static_cast<int>(Value)]);
 
 		std::stringstream ss{};
 		elastic::binary_oarchive oa(ss);

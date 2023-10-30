@@ -1,5 +1,6 @@
 #pragma once
 #include <string_view>
+#include <climits>
 #include "type_traits.hpp"
 
 using namespace std::string_view_literals;
