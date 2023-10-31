@@ -18,15 +18,18 @@ public:
 	void serialize()
 	{
 		std::cout << std::format("[{}] els serialize:\n", parse_type_str[static_cast<int>(Value)]);
+
+		std::stringstream ss{};
+		// elastic::to_binary(ev3, ss);
+		elastic::binary_oarchive oa(ss);
+
 		if constexpr (Value == parse_type::vec3)
 		{
 			scoped_timer("vec3");
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
+
 				oa << ev3_;
 			}
 		}
@@ -36,9 +39,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << w2_;
 			}
 		}
@@ -48,9 +48,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << m_;
 			}
 		}
@@ -60,9 +57,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << ms_;
 			}
 		}
@@ -72,9 +66,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << rc32_;
 			}
 		}
@@ -84,9 +75,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << rc32s_;
 			}
 		}
@@ -96,9 +84,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << pp_;
 			}
 		}
@@ -108,9 +93,6 @@ public:
 
 			for (int i = 0; i < PARSE_TIMES; ++i)
 			{
-				std::stringstream ss{};
-				// elastic::to_binary(ev3, ss);
-				elastic::binary_oarchive oa(ss);
 				oa << pps_;
 			}
 		}

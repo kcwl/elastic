@@ -6,7 +6,7 @@
 #include <iostream>
 
 template <parse_type Value>
-void serialize(elc e, protobuf p)
+void serialize(elc& e, protobuf& p)
 {
 	std::cout << "=====================================================\n";
 
@@ -17,7 +17,7 @@ void serialize(elc e, protobuf p)
 }
 
 template <parse_type Value>
-void deserialize(elc e, protobuf p)
+void deserialize(elc& e, protobuf& p)
 {
 	std::cout << "=====================================================\n";
 
@@ -44,7 +44,7 @@ int main()
 	serialize<parse_type::person>(els, proto);
 	serialize<parse_type::persons>(els, proto);
 
-	std::cout << "\n\n\n\n";
+	//std::cout << "\n\n\n\n";
 
 	deserialize<parse_type::vec3>(els, proto);
 	deserialize<parse_type::weapon>(els, proto);
@@ -56,6 +56,8 @@ int main()
 	deserialize<parse_type::persons>(els, proto);
 
 	std::cout << "those are the benchmark results\n";
+
+	std::cin.get();
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
