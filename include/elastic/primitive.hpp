@@ -1,5 +1,6 @@
 #pragma once
 #include "exception.hpp"
+#include <iostream>
 
 namespace elastic
 {

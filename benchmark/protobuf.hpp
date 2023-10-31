@@ -3,6 +3,7 @@
 #include "scope_timer.hpp"
 
 #include <format>
+#include <string>
 
 class protobuf
 {
@@ -180,16 +181,19 @@ private:
 		vec3_.set_z(3.0f);
 
 		w1_.set_damage(1);
-		w1_.set_name("weapon");
+		std::string weapon_name = "ÎäÆ÷";
+		w1_.set_name(weapon_name);
 
 		auto* pos = m1_.mutable_pos();
 		pos->set_x(1);
 		pos->set_y(2);
 		pos->set_z(3);
 
+		std::string monster_name = "¹ÖÎï";
+
 		m1_.set_mana(11);
 		m1_.set_hp(111);
-		m1_.set_name("monster");
+		m1_.set_name(monster_name);
 		auto* vec = m1_.mutable_inventory();
 		vec->push_back('h');
 		vec->push_back('e');
@@ -200,11 +204,11 @@ private:
 		m1_.set_color(mygame::Monster_Color_Red);
 		auto* vec1 = m1_.mutable_weapons();
 		auto vec1_add = vec1->Add();
-		vec1_add->set_name("weapon");
+		vec1_add->set_name(weapon_name);
 		vec1_add->set_damage(1);
 
 		auto* weapon = m1_.mutable_equipped();
-		weapon->set_name("weapon");
+		weapon->set_name(monster_name);
 		weapon->set_damage(1);
 
 		auto* path = m1_.mutable_path()->Add();

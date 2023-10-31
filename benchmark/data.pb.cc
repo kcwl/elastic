@@ -247,9 +247,9 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_data_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\ndata.proto\022\006mygame\"\'\n\004Vec3\022\t\n\001x\030\001 \001(\002\022"
   "\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"&\n\006Weapon\022\014\n\004name\030"
-  "\001 \001(\t\022\016\n\006damage\030\002 \001(\005\"\213\002\n\007Monster\022\031\n\003pos"
+  "\001 \001(\014\022\016\n\006damage\030\002 \001(\005\"\213\002\n\007Monster\022\031\n\003pos"
   "\030\001 \001(\0132\014.mygame.Vec3\022\014\n\004mana\030\002 \001(\005\022\n\n\002hp"
-  "\030\003 \001(\005\022\014\n\004name\030\004 \001(\t\022\021\n\tinventory\030\005 \001(\014\022"
+  "\030\003 \001(\005\022\014\n\004name\030\004 \001(\014\022\021\n\tinventory\030\005 \001(\014\022"
   "$\n\005color\030\006 \001(\0162\025.mygame.Monster.Color\022\037\n"
   "\007weapons\030\007 \003(\0132\016.mygame.Weapon\022 \n\010equipp"
   "ed\030\010 \001(\0132\016.mygame.Weapon\022\032\n\004path\030\t \003(\0132\014"
@@ -259,7 +259,7 @@ const char descriptor_table_protodef_data_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "\t\n\001y\030\002 \001(\005\022\r\n\005width\030\003 \001(\005\022\016\n\006height\030\004 \001("
   "\005\".\n\007rect32s\022#\n\013rect32_list\030\001 \003(\0132\016.myga"
   "me.rect32\"\?\n\006person\022\n\n\002id\030\001 \001(\005\022\014\n\004name\030"
-  "\002 \001(\t\022\013\n\003age\030\003 \001(\005\022\016\n\006salary\030\004 \001(\001\".\n\007pe"
+  "\002 \001(\014\022\013\n\003age\030\003 \001(\005\022\016\n\006salary\030\004 \001(\001\".\n\007pe"
   "rsons\022#\n\013person_list\030\001 \003(\0132\016.mygame.pers"
   "onB\005H\001\370\001\001b\006proto3"
   ;
@@ -657,13 +657,12 @@ const char* Weapon::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // string name = 1;
+      // bytes name = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_name();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "mygame.Weapon.name"));
         } else
           goto handle_unusual;
         continue;
@@ -704,13 +703,9 @@ uint8_t* Weapon::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string name = 1;
+  // bytes name = 1;
   if (!this->_internal_name().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "mygame.Weapon.name");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_name(), target);
   }
 
@@ -736,10 +731,10 @@ size_t Weapon::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string name = 1;
+  // bytes name = 1;
   if (!this->_internal_name().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_name());
   }
 
@@ -973,13 +968,12 @@ const char* Monster::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string name = 4;
+      // bytes name = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_name();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "mygame.Monster.name"));
         } else
           goto handle_unusual;
         continue;
@@ -1083,13 +1077,9 @@ uint8_t* Monster::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_hp(), target);
   }
 
-  // string name = 4;
+  // bytes name = 4;
   if (!this->_internal_name().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "mygame.Monster.name");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         4, this->_internal_name(), target);
   }
 
@@ -1159,10 +1149,10 @@ size_t Monster::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string name = 4;
+  // bytes name = 4;
   if (!this->_internal_name().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_name());
   }
 
@@ -2017,13 +2007,12 @@ const char* person::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
         } else
           goto handle_unusual;
         continue;
-      // string name = 2;
+      // bytes name = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_name();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "mygame.person.name"));
         } else
           goto handle_unusual;
         continue;
@@ -2078,13 +2067,9 @@ uint8_t* person::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_id(), target);
   }
 
-  // string name = 2;
+  // bytes name = 2;
   if (!this->_internal_name().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "mygame.person.name");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_name(), target);
   }
 
@@ -2120,10 +2105,10 @@ size_t person::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string name = 2;
+  // bytes name = 2;
   if (!this->_internal_name().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_name());
   }
 

@@ -405,7 +405,7 @@ class Weapon final :
     kNameFieldNumber = 1,
     kDamageFieldNumber = 2,
   };
-  // string name = 1;
+  // bytes name = 1;
   void clear_name();
   const std::string& name() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -644,7 +644,7 @@ class Monster final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::mygame::Vec3 >&
       path() const;
 
-  // string name = 4;
+  // bytes name = 4;
   void clear_name();
   const std::string& name() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1380,7 +1380,7 @@ class person final :
     kAgeFieldNumber = 3,
     kSalaryFieldNumber = 4,
   };
-  // string name = 2;
+  // bytes name = 2;
   void clear_name();
   const std::string& name() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1670,7 +1670,7 @@ inline void Vec3::set_z(float value) {
 
 // Weapon
 
-// string name = 1;
+// bytes name = 1;
 inline void Weapon::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
@@ -1682,7 +1682,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void Weapon::set_name(ArgT0&& arg0, ArgT... args) {
  
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:mygame.Weapon.name)
 }
 inline std::string* Weapon::mutable_name() {
@@ -1874,7 +1874,7 @@ inline void Monster::set_hp(int32_t value) {
   // @@protoc_insertion_point(field_set:mygame.Monster.hp)
 }
 
-// string name = 4;
+// bytes name = 4;
 inline void Monster::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
@@ -1886,7 +1886,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void Monster::set_name(ArgT0&& arg0, ArgT... args) {
  
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:mygame.Monster.name)
 }
 inline std::string* Monster::mutable_name() {
@@ -2360,7 +2360,7 @@ inline void person::set_id(int32_t value) {
   // @@protoc_insertion_point(field_set:mygame.person.id)
 }
 
-// string name = 2;
+// bytes name = 2;
 inline void person::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
@@ -2372,7 +2372,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void person::set_name(ArgT0&& arg0, ArgT... args) {
  
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:mygame.person.name)
 }
 inline std::string* person::mutable_name() {
