@@ -4,7 +4,7 @@ apt-get install libboost-all-dev -y
 
 apt-get install git -y
 
-git clone https://github.com/protocolbuffers/protobuf.git
+git clone --recurse-submodules https://github.com/protocolbuffers/protobuf.git
 
 cd protobuf
 
