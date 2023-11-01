@@ -8,7 +8,7 @@ git clone https://github.com/protocolbuffers/protobuf.git
 
 git switch -C v21.12
 
-./configure
+cmake .
 
 make -j8
 
