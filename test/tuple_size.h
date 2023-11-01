@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/reflect.hpp"
+#include <elastic.hpp>
 
 BOOST_AUTO_TEST_SUITE(tuple_size)
 
@@ -27,6 +27,5 @@ BOOST_AUTO_TEST_CASE(reflect)
 	static_assert(elastic::get<1>(t3) == 'a', "get value error!");
 	static_assert(elastic::name<person>() == "person"sv, "get name error!");
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

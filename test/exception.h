@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/exception.hpp"
+#include <elastic.hpp>
 
 BOOST_AUTO_TEST_SUITE(exception)
 

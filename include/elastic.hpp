@@ -1,8 +1,7 @@
 #pragma once
 #include "elastic/access.hpp"
-#include "elastic/archive_exception.hpp"
-#include "elastic/type.hpp"
-#include "elastic/binary_archive.hpp"
+#include "elastic/exception.hpp"
+#include "elastic/archive.hpp"
 #include "elastic/reflect.hpp"
 
 namespace elastic

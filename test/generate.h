@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/test/unit_test_suite.hpp>
-#include "../include/elastic/reflect.hpp"
+#include <elastic.hpp>
 
 BOOST_AUTO_TEST_SUITE(generator)
 
@@ -678,8 +678,7 @@ BOOST_AUTO_TEST_CASE(generate)
 	static_assert(elastic::detail::make_tuple(t3, elastic::size_t_<3>{}) == std::tuple<int, int, int>(1, 1, 1));
 
 	constexpr test4 t4{ 1, 1, 1, 1 };
-	static_assert(elastic::detail::make_tuple(t4, elastic::size_t_<4>{}) ==
-				  std::tuple<int, int, int, int>(1, 1, 1, 1));
+	static_assert(elastic::detail::make_tuple(t4, elastic::size_t_<4>{}) == std::tuple<int, int, int, int>(1, 1, 1, 1));
 
 	constexpr test5 t5{ 1, 1, 1, 1, 1 };
 	static_assert(elastic::detail::make_tuple(t5, elastic::size_t_<5>{}) ==
