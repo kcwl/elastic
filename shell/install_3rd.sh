@@ -6,6 +6,8 @@ apt-get install git -y
 
 git clone https://github.com/protocolbuffers/protobuf.git
 
+cd protobuf
+
 git switch -C v21.12
 
 cmake .
