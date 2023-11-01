@@ -143,7 +143,6 @@
   <ItemGroup>
     <ClInclude Include="..\include\elastic.hpp" />
     <ClInclude Include="..\include\elastic\access.hpp" />
-    <ClInclude Include="..\include\elastic\exception.hpp" />
     <ClInclude Include="..\include\elastic\primitive.hpp" />
     <ClInclude Include="..\include\elastic\basic_primitive.hpp" />
     <ClInclude Include="..\include\elastic\archive.hpp" />
@@ -153,7 +152,6 @@
     <ClInclude Include="..\include\elastic\fixed.hpp" />
     <ClInclude Include="..\include\elastic\reflect.hpp" />
     <ClInclude Include="attr.h" />
-    <ClInclude Include="exception.h" />
     <ClInclude Include="generate.h" />
     <ClInclude Include="type.h" />
     <ClInclude Include="inherit.h" />

@@ -1,7 +1,6 @@
 #pragma once
 #include "access.hpp"
 #include "type_traits.hpp"
-#include "exception.hpp"
 #include "reflect.hpp"
 
 #include <vector>
@@ -136,7 +135,7 @@ namespace elastic
 							 ar >> v;
 
 							 if (ar.interrupt())
-								 throw(archive_exception::exception_number::output_stream_error, "make element error!");
+								 throw std::runtime_error("output stream error: make element error!");
 						 });
 			}
 		}

@@ -1,6 +1,5 @@
 #pragma once
 #include "elastic/access.hpp"
-#include "elastic/exception.hpp"
 #include "elastic/archive.hpp"
 #include "elastic/reflect.hpp"
 

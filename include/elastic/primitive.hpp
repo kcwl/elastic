@@ -1,5 +1,6 @@
 #pragma once
-#include "exception.hpp"
+#include <streambuf>
+#include <exception>
 
 namespace elastic
 {
@@ -77,7 +78,7 @@ namespace elastic
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
 			if (scount == 0)
-				throw(archive_exception(archive_exception::exception_number::input_stream_error));
+				throw std::runtime_error("input stream error!");
 		}
 
 	protected:

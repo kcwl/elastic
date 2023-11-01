@@ -41,9 +41,6 @@
     <ClInclude Include="inherit.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="exception.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -60,9 +57,6 @@
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\interface.hpp">
-      <Filter>elastic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\exception.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\basic_primitive.hpp">
