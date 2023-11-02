@@ -1,10 +1,10 @@
 #pragma once
+#include <cstring>
 #include <ios>
 #include <iterator>
 #include <span>
 #include <streambuf>
 #include <vector>
-#include <cstring>
 
 namespace elastic
 {
@@ -368,7 +368,7 @@ namespace elastic
 		private:
 			std::vector<_Elem, allocator_type> buffer_;
 		};
-	} // namespace detail
+	} // namespace impl
 
-	using flex_buffer_t = impl::flex_buffer<uint8_t,std::char_traits<uint8_t>>;
-}
+	using flex_buffer_t = impl::flex_buffer<uint8_t, std::char_traits<uint8_t>>;
+} // namespace elastic

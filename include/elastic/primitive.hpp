@@ -1,6 +1,6 @@
 #pragma once
-#include <streambuf>
 #include <exception>
+#include <streambuf>
 
 namespace elastic
 {
@@ -12,12 +12,34 @@ namespace elastic
 		public:
 			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
 				: streambuf_(bs)
+				, start_pos_(0)
 			{}
+
+		public:
+			bool transfer()
+			{
+				if (start_pos_ != 0)
+					return false;
+
+				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+
+				return true;
+			}
+
+			void roll_back()
+			{
+				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
+
+				start_pos_ = 0;
+			}
 
 		protected:
 			std::basic_streambuf<_Elem, _Traits>& streambuf_;
+
+		private:
+			int32_t start_pos_;
 		};
-	}
+	} // namespace impl
 
 	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_iprimitive : public impl::basic_primitive<_Elem, _Traits>
@@ -25,8 +47,6 @@ namespace elastic
 	protected:
 		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
-			, trans_pos_(0)
-			, interrupt_(false)
 		{}
 
 		~binary_iprimitive()
@@ -37,33 +57,6 @@ namespace elastic
 		void load(_Ty& t)
 		{
 			load_binary(&t, sizeof(_Ty));
-		}
-
-		void start()
-		{
-			if (trans_pos_ != 0)
-				return;
-
-			trans_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
-		}
-
-		void roll_back()
-		{
-			this->streambuf_.pubseekpos(trans_pos_, std::ios::in);
-
-			trans_pos_ = 0;
-
-			interrupt(true);
-		}
-
-		void interrupt(bool f)
-		{
-			interrupt_ = f;
-		}
-
-		bool interrupt()
-		{
-			return interrupt_;
 		}
 
 	protected:
@@ -80,11 +73,6 @@ namespace elastic
 			if (scount == 0)
 				throw std::runtime_error("input stream error!");
 		}
-
-	protected:
-		int32_t trans_pos_;
-
-		bool interrupt_;
 	};
 
 	template <typename _Archive, typename _Elem, typename _Traits>

@@ -1,7 +1,7 @@
 #pragma once
 #include "access.hpp"
-#include "type_traits.hpp"
 #include "reflect.hpp"
+#include "type_traits.hpp"
 
 #include <vector>
 
@@ -22,7 +22,7 @@ namespace
 		return for_each(std::forward<_Ty>(val), std::forward<_Func>(func), Indices{});
 	}
 
-	template <elastic::signed_numric_v _Ty>
+	template <elastic::signed_numric_t _Ty>
 	elastic::zig_zag_t<_Ty> zigzag_encode(_Ty value)
 	{
 		using type = elastic::zig_zag_t<_Ty>;
@@ -32,7 +32,7 @@ namespace
 		return static_cast<type>(value) << 1 ^ static_cast<type>(value) >> size;
 	}
 
-	template <elastic::unsigned_numric_v _Ty>
+	template <elastic::unsigned_numric_t _Ty>
 	elastic::zig_zag_t<_Ty> zigzag_decode(_Ty value)
 	{
 		using type = elastic::zig_zag_t<_Ty>;
@@ -46,7 +46,7 @@ namespace elastic
 {
 	namespace impl
 	{
-		template <typename _Archive, signed_numric_v _Ty>
+		template <typename _Archive, signed_numric_t _Ty>
 		void deserialize(_Archive& ar, _Ty& t)
 		{
 			using zig_type = zig_zag_t<_Ty>;
@@ -79,7 +79,7 @@ namespace elastic
 			t = static_cast<_Ty>(zigzag_decode<zig_type>(result));
 		}
 
-		template <typename _Archive, other_numric_v _Ty>
+		template <typename _Archive, other_numric_t _Ty>
 		void deserialize(_Archive& ar, _Ty& t)
 		{
 			uint8_t c{};
@@ -119,7 +119,7 @@ namespace elastic
 		template <typename _Archive, pod_t _Ty>
 		void deserialize(_Archive& ar, _Ty& t)
 		{
-			if constexpr (fixed_v<std::remove_cvref_t<_Ty>>)
+			if constexpr (fixed_t<std::remove_cvref_t<_Ty>>)
 			{
 				ar.load(*t);
 			}
@@ -133,9 +133,6 @@ namespace elastic
 						 [&](auto&& v)
 						 {
 							 ar >> v;
-
-							 if (ar.interrupt())
-								 throw std::runtime_error("output stream error: make element error!");
 						 });
 			}
 		}
@@ -166,7 +163,7 @@ namespace elastic
 			t.emplace(std::move(val));
 		}
 
-		template <typename _Archive, signed_numric_v _Ty>
+		template <typename _Archive, signed_numric_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
 			auto result = zigzag_encode<_Ty>(std::forward<_Ty>(value));
@@ -180,7 +177,7 @@ namespace elastic
 			ar.save(static_cast<uint8_t>(result));
 		}
 
-		template <typename _Archive, other_numric_v _Ty>
+		template <typename _Archive, other_numric_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
 			auto result = static_cast<uint64_t>(std::forward<_Ty>(value));
@@ -203,7 +200,7 @@ namespace elastic
 		template <typename _Archive, pod_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			if constexpr (fixed_v<std::remove_cvref_t<_Ty>>)
+			if constexpr (fixed_t<std::remove_cvref_t<_Ty>>)
 			{
 				ar.save(*std::forward<_Ty>(value));
 			}
@@ -269,5 +266,5 @@ namespace elastic
 				access::template serialize(ar, std::forward<_Ty>(t));
 			}
 		}
-	}
+	} // namespace binary
 } // namespace elastic
