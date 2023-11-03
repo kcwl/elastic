@@ -1,6 +1,7 @@
 #pragma once
 #include <exception>
 #include <streambuf>
+#include <iostream>
 
 namespace elastic
 {
@@ -13,6 +14,7 @@ namespace elastic
 			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
+				, my_state_(0)
 			{}
 
 		public:
@@ -33,11 +35,36 @@ namespace elastic
 				start_pos_ = 0;
 			}
 
+			void complete()
+			{
+				if (good())
+					return;
+
+				my_state_ = std::ios::iostate{};
+
+				my_state_ |= std::ios::goodbit;
+			}
+
+			bool good()
+			{
+				return my_state_ & std::ios::goodbit;
+			}
+
+		protected:
+			void fail()
+			{
+				my_state_ |= ~std::ios::goodbit;
+
+				my_state_ |= std::ios::failbit;
+			}
+
 		protected:
 			std::basic_streambuf<_Elem, _Traits>& streambuf_;
 
 		private:
 			int32_t start_pos_;
+
+			std::ios::iostate my_state_;
 		};
 	} // namespace impl
 
@@ -70,8 +97,12 @@ namespace elastic
 		{
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
-			if (scount == 0)
-				throw std::runtime_error("input stream error!");
+			if (scount != 0)
+				return;
+
+			this->fail();
+
+			throw std::runtime_error("input stream error!");
 		}
 	};
 

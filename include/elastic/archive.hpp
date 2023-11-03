@@ -82,4 +82,24 @@ namespace elastic
 		}
 	};
 
+	template <typename _Ty, typename _Buffer>
+	bool to_binary(_Ty&& t, _Buffer& buffer)
+	{
+		binary_oarchive oa(buffer);
+
+		oa << std::forward<_Ty>(t);
+
+		return oa.good();
+	}
+
+	template <typename _Ty, typename _Buffer>
+	bool from_binary(_Ty& t, _Buffer& buffer)
+	{
+		binary_iarchive ia(buffer);
+
+		ia >> t;
+
+		return ia.good();
+	}
+
 } // namespace elastic
