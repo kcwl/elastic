@@ -1,20 +1,17 @@
-# ÄÚ´æ²¼¾Ö±àÂë
+±¾ÎÄËµÃ÷elasticÓïÑÔµÄÄÚ´æ²¼¾ÖÄ£ÐÍ£¬Ïà¹ØÀàÐÍ½éÉÜ²Î¿¼[Éè¼ÆÎÄµµ]
 
-## ¼òµ¥µÄ¶¨Òå
-¼ÙÉèÄãÓÐÒ»Ìõ¼òµ¥µÄÏûÏ¢¶¨Òå£º
-```
-message Test1 
-{
-	optional int32 a;
-}
-```
-ÔÚ³ÌÐòÖÐ£¬´´½¨Ò»¸öTest1ÀàÐÍµÄ±äÁ¿£¬²¢½«³ÉÔ±±äÁ¿a¸³ÖµÎª150£¬È»ºóÊä³öµ½Êä³öÁ÷ÖÐ£¬Äã»á¿´µ½Á½¸ö×Ö½Ú
-```
-96 01
-```
-ÎÒÃÇÖ»¶Ô¶ÔÓ¦×Ö¶ÎµÄÖµ½øÐÐ±ä³¤±àÂë¡£
 
-## ±ä³¤ÕûÐÎ
+# ÏûÏ¢½á¹¹
+ÔÚÊµ¼Ê±àÂëÖÐ£¬ÓÐ3ÖÖ±àÂëÀàÐÍ£¬·Ö±ðÎª£ºvarint(±äÌå)£¬length-body(´øÓÐ³¤¶ÈÇ°×ºµÄ½á¹¹)ºÍfix-type(¹Ì¶¨³¤¶ÈµÄÀàÐÍ)
+
+|Ãû×Ö|ÓÃÍ¾|
+|----|----|
+|varint|int32,int64,uint32,uint64,bool,enum|
+|length-body|string,bytes,repeated|
+|fix-type|fixed32,fixed64,float,double|
+
+
+## varint(±ä³¤ÕûÐÎ)
 varint ÖÐµÄÃ¿¸ö×Ö½Ú¶¼ÓÐÒ»¸öÁ¬ÐøÎ»£¬Ö¸Ê¾ÆäºóÃæµÄ×Ö½ÚÊÇ·ñÊÇ varint µÄÒ»²¿·Ö¡£ÕâÊÇ×Ö½ÚµÄ×î¸ßÓÐÐ§Î»(MSB)£¨ÓÐÊ±Ò²³ÆÎª·ûºÅÎ»£©¡£µÍ7Î»ÊÇÓÐÐ§¸ºÔØ£»½á¹ûÕûÊýÊÇÍ¨¹ý½«Æä×é³É×Ö½ÚµÄ 7 Î»ÓÐÐ§¸ºÔØ¸½¼ÓÔÚÒ»Æð¶ø¹¹½¨µÄ¡£
 
 ÀýÈç£¬ÕâÀïÊÇÊý×Ö 1£¬±àÂëÎª`01`¨C ËüÊÇµ¥¸ö×Ö½Ú£¬Òò´ËÎ´ÉèÖÃ MSB£º
@@ -28,8 +25,7 @@ varint ÖÐµÄÃ¿¸ö×Ö½Ú¶¼ÓÐÒ»¸öÁ¬ÐøÎ»£¬Ö¸Ê¾ÆäºóÃæµÄ×Ö½ÚÊÇ·ñÊÇ varint µÄÒ»²¿·Ö¡£ÕâÊÇ×
 ^ msb    ^ msb
 ```
 
-  ÄãÔõÃ´ÖªµÀÕâÊÇ150£¿Ê×ÏÈ£¬ÄúÉ¾³ýÃ¿¸ö×Ö½ÚÖÐµÄ MSB£¬ÒòÎªÕâÖ»ÊÇ¸æËßÎÒÃÇÊÇ·ñÒÑµ½´ïÊý×ÖµÄÄ©Î²£¨ÈçÄúËù¼û£¬ËüÉèÖÃÔÚµÚÒ»¸ö×Ö½ÚÖÐ£¬ÒòÎª varint ÖÐÓÐ¶à¸ö×Ö½Ú£©¡£
-ÕâÐ© 7 Î»ÓÐÐ§¸ºÔØ²ÉÓÃÐ¡¶ËË³Ðò¡£×ª»»Îª´ó¶ËË³Ðò¡¢Á¬½Ó²¢½âÊÍÎªÎÞ·ûºÅ 64 Î»ÕûÊý£º
+Ê×ÏÈ£¬É¾³ýÃ¿¸ö×Ö½ÚÖÐµÄ MSB£¬ÒòÎªÕâÖ»ÊÇ¸æËßÎÒÃÇÊÇ·ñÒÑµ½´ïÊý×ÖµÄÄ©Î²¡£Ã¿¸ö×Ö½ÚÓàÏÂµÄ7Î»ÓÐÐ§¸ºÔØ²ÉÓÃÐ¡¶ËË³Ðò£¬×ª»»Îª´ó¶ËË³ÐòÁ¬½Ó²¢½âÊÍÎª64Î»ÎÞ·ûºÅÕûÊý£º
 ```
 10010110 00000001        // Original inputs.
  0010110  0000001        // Drop continuation bits.
@@ -37,22 +33,14 @@ varint ÖÐµÄÃ¿¸ö×Ö½Ú¶¼ÓÐÒ»¸öÁ¬ÐøÎ»£¬Ö¸Ê¾ÆäºóÃæµÄ×Ö½ÚÊÇ·ñÊÇ varint µÄÒ»²¿·Ö¡£ÕâÊÇ×
    00000010010110        // Concatenate.
  128 + 16 + 4 + 2 = 150  // Interpret as an unsigned 64-bit integer.
 ```
-ÒòÎª±äÌå¶ÔÓÚÐ­Òé»º³åÇø·Ç³£ÖØÒª£¬ËùÒÔÔÚÔ­ÐÍÓï·¨ÖÐ£¬ÎÒÃÇ½«ËüÃÇ³ÆÎªÆÕÍ¨ÕûÊý¡£150µÈ¼ÛÓÚ`9601`¡£
+ÒòÎª±äÌå¶ÔÓÚÐ­Òé»º³åÇø·Ç³£ÖØÒª£¬ËùÒÔÔÚÔ­ÐÍÓï·¨ÖÐ£¬ÎÒÃÇ½«ËüÃÇ³ÆÎªÆÕÍ¨ÕûÊý¡£¡£
+varinitÊôÓÚ±¾ÓïÑÔµÄ»ù±¾Êý¾ÝÀàÐÍ£¬ÎÒÃÇ½«Ëü³ÆÎªÆÕÍ¨ÕûÊý£¬µÈÍ¬ÓÚÄÚÖÃÕûÊýÀàÐÍ,¼´£º`150µÈÍ¬ÓÚ9601`¡£
 
-## ÏûÏ¢½á¹¹
-ÔÚÊµ¼Ê±àÂëÖÐ£¬ÓÐ3ÖÖ±àÂëÀàÐÍ£¬·Ö±ðÎª£ºvarint(±äÌå)£¬length-body(´øÓÐ³¤¶ÈÇ°×ºµÄ½á¹¹)ºÍfix-type(¹Ì¶¨³¤¶ÈµÄÀàÐÍ)
 
-|Ãû×Ö|ÓÃÍ¾|
-|		  |
-|varint|int32,int64,uint32,uint64,bool,enum|
-|length-body|string,bytes,repeated|
-|fix-type|fixed32,fixed64,float,double|
+## ²¼¶ûÖµºÍÃ¶¾Ù
+bool ºÍ enum ¶¼±»±àÂëÎªint32¡£ÌØ±ðÊÇ²¼¶ûÖµ£¬×ÜÊÇ±àÂëÎª`00`»ò`01`¡£
 
-## ¸ü¶àÕûÊýÀàÐÍ
-### ²¼¶ûÖµºÍÃ¶¾Ù
-Bool ºÍ enum ¶¼±»±àÂëÎªint32¡£ÌØ±ðÊÇ²¼¶ûÖµ£¬×ÜÊÇ±àÂëÎª`00`»ò`01`¡£
-
-### ÓÐ·ûºÏÕûÊý
+## ÓÐ·ûºÏÕûÊý
 ÕýÈçÄúÔÚÉÏÒ»½ÚÖÐ¿´µ½µÄ£¬ÕûÐÎÀàÐÍ¶¼±»±àÂëÎª varint¡£µ«ÊÇ£¬±ä³¤ÕûÐÍÊÇÎÞ·ûºÅµÄ£¬Òò´Ë²»Í¬µÄÓÐ·ûºÅÀàÐÍ¶Ô¸ºÕûÊý½øÐÐ²»Í¬µÄ±àÂë¡£
 
 ÕâÐ©intNÀàÐÍ½«¸ºÊý±àÂëÎª¶þ½øÖÆ²¹Âë£¬ÕâÒâÎ¶×Å£¬×÷ÎªÎÞ·ûºÅ 64 Î»ÕûÊý£¬ËüÃÇ¾ßÓÐ×î¸ßÎ»¼¯¡£Òò´Ë£¬ÕâÒâÎ¶×Å±ØÐëÊ¹ÓÃËùÓÐÊ®¸ö×Ö½Ú¡£ÀýÈç£¬-2Í¨¹ýÔ­Âë×ª»»Îª
@@ -84,10 +72,10 @@ intNÊ¹ÓÃ¡°ZigZag¡±±àÂë¶ø²»ÊÇ¶þ½øÖÆ²¹ÂëÀ´±àÂë¸ºÕûÊý¡£ÕýÕûÊýp±»±àÂëÎª2 * p£¨Å¼Êý£©
 (N << 1) ^ (N>>63)
 ```
 
-### ·Ç±äÌåÊý×Ö
+## ·Ç±äÌåÊý×Ö
 ·Ç varint Êý×ÖÀàÐÍºÜ¼òµ¥,ÖîÈçdouble,float, fixed32,fixed64ÀàÐÍÊý¾Ý¶¼ÊÇ°´ÕÕ¹Ì¶¨×Ö½ÚÊý´æ´¢µÄ
 
-### ´øÓÐ³¤¶ÈÇ°×ºµÄÊý¾Ý
+## ´øÓÐ³¤¶ÈÇ°×ºµÄÊý¾Ý
 ³¤¶ÈÇ°×ºÊÇÀàÐÍµÄÁíÒ»¸öÖ÷Òª¸ÅÄî¡£Í¬Ê±£¬³¤¶ÈÒ²²ÉÓÃ±ä³¤±àÂë£¬ºóÃæÎª¸ºÔØÊýÖµ¡£
 
 ¿¼ÂÇÕâ¸öÏûÏ¢Ä£Ê½£º
@@ -104,12 +92,11 @@ message Test2 {
 
 bytes×Ö¶ÎÒÔÏàÍ¬µÄ·½Ê½±àÂë¡£
 
-### repeatedºÍoptionalÀàÐÍ
+## optionalÀàÐÍ
+±ê¼Ç×Ö¶ÎÊÇ·ñ»á±»ºöÂÔ£¬ÈçÎ´¸³Öµ£¬Ôò¸³Ä¬ÈÏÖµ£¬Êä³öµ½Êý¾ÝÁ÷ÖÐ¡£
 
-### oneofÀàÐÍ
+## repeated
+¿ÉÒÔÖØ¸´Ìí¼ÓÊý¾ÝµÄÀàÐÍ£¬ÊôÓÚ`length-body`±àÂëÀàÐÍ£¬Ê×ÏÈ±àÂëÊý¾ÝÊýÁ¿(²ÉÓÃvarint±àÂëÄ£Ê½)£¬È»ºó°´ÕÕÊý¾ÝµÄË³Ðò½øÐÐ±àÂë¡£
 
-### anyÀàÐÍ
-
-### mapÀàÐÍ
-
-### Ç¶Ì×ÀàÐÍ
+## mapÀàÐÍ
+ÓërepeatedÍ¬Êô`length-body`±àÂëÀàÐÍ£¬Ê×ÏÈ±àÂëÊý¾ÝÊýÁ¿(²ÉÓÃvarint±àÂëÄ£Ê½),È»ºóÔÙÒÔ£¨key£¬value£©µÄË³Ðò½øÐÐ±àÂë¡£
