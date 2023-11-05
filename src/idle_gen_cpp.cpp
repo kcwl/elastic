@@ -116,23 +116,35 @@ namespace elastic
 
 				ifs.get();
 
-				auto line = std::string(lines.data());
-
-				common::trip(line, '\r', '\n', '\t', ' ');
-
-				return line;
+				return std::string(lines.data());
 			}
 
 			void generate_cpp::read_structure()
 			{
-				multi_key_words_.push_back({});
+				reflactor_structure impl{};
 
-				auto& impl = multi_key_words_.back();
+				keyword status = read_struct_head(impl);
 
-				auto status = read_struct_head(impl);
+				switch (status)
+				{
+				case elastic::compiler::keyword::single:
+					{
+						impl.prio_ = static_cast<int>(priority::single);
+					}
+					break;
+				case elastic::compiler::keyword::multi:
+					{
+						impl.prio_ = static_cast<int>(priority::multi);
+						read_struct_body(impl);
+					}
+					break;
+				case elastic::compiler::keyword::error:
+					return;
+				default:
+					break;
+				}
 
-				if (status == keyword::multi)
-					read_struct_body(impl);
+				multi_key_words_.push(impl);
 			}
 
 			keyword generate_cpp::read_struct_head(reflactor_structure& impl)
@@ -150,6 +162,8 @@ namespace elastic
 				else
 				{
 					auto name_and_number = read_to_spilt(read_file_stream_, '{');
+
+					common::trip(name_and_number, '\r', '\n', '\t', ' ');
 
 					auto pos = name_and_number.find('=');
 
@@ -176,8 +190,19 @@ namespace elastic
 				{
 					auto key = read_to_spilt(read_file_stream_, ' ');
 
-					if (key == "}")
+					if (key.empty())
+						continue;
+
+					if (*key.begin() == '}')
+					{
+						int size = static_cast<int>(key.size() - 1);
+
+						read_file_stream_.seekg(-size, std::ios::cur);
+
 						break;
+					}
+
+					common::trip(key, '\t', '\r', '\n', ' ');
 
 					impl.structs_.push_back({});
 

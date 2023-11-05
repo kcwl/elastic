@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <map>
+#include <queue>
 
 using namespace std::string_view_literals;
 
@@ -65,7 +66,7 @@ namespace elastic
 
 				std::ofstream write_h_stream_;
 
-				std::vector<reflactor_structure> multi_key_words_;
+				std::priority_queue<reflactor_structure> multi_key_words_;
 			};
 		} // namespace cpp
 	}	  // namespace compiler

@@ -1,5 +1,3 @@
-package xxx;
-
 message person = 10001
 {
 	int32 age;
@@ -14,3 +12,5 @@ message person = 10001
 	fixed32 input_stream;
 	fixed64 output_stream;
 }
+
+package xxx;

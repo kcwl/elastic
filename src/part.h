@@ -28,6 +28,12 @@ namespace elastic
 			error
 		};
 
+		enum class priority
+		{
+			single,
+			multi
+		};
+
 		struct header_file
 		{
 			std::vector<std::string> list_;
@@ -35,12 +41,19 @@ namespace elastic
 
 		struct reflactor_structure
 		{
+			bool operator<(const reflactor_structure other) const
+			{
+				return other.prio_ < prio_;
+			}
+
 			std::string number_;
 
 			std::string type_;
 
 			std::string name_;
-			
+
+			int32_t prio_;
+
 			std::vector<reflactor_structure> structs_;
 		};
 	} // namespace compiler
