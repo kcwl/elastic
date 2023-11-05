@@ -15,32 +15,33 @@ namespace elastic
 			message_t,
 		};
 
+		enum class file_status
+		{
+			success,
+			format_error,
+		};
+
+		enum class keyword
+		{
+			single,
+			multi,
+			error
+		};
+
 		struct header_file
 		{
 			std::vector<std::string> list_;
 		};
 
-		struct struct_member
+		struct reflactor_structure
 		{
-			std::string property_;
-			std::string type_;
-			std::string name_;
-			int flag_;
-		};
+			std::string number_;
 
-		struct struct_impl
-		{
-			std::string name_;
 			std::string type_;
-			keyword_type kt_;
-			std::string default_type_;
-			std::vector<struct_member> member_list_;
-			std::vector<int> require_list_;
-		};
 
-		struct struct_file
-		{
-			std::vector<struct_impl> list_;
+			std::string name_;
+			
+			std::vector<reflactor_structure> structs_;
 		};
-	}
-}
+	} // namespace compiler
+} // namespace elastic

@@ -35,16 +35,6 @@ namespace elastic
 				return str;
 			}
 
-			std::string get_type_name(const std::string& name)
-			{
-				if (name == "enum")
-					return "enum class";
-				else if (name == "message")
-					return "struct";
-
-				return {};
-			}
-
 			keyword_type enum_type(const std::string& ty)
 			{
 				keyword_type tp;
