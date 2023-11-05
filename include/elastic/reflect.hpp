@@ -1,8 +1,54 @@
 #pragma once
-#include <string_view>
 #include "type_traits.hpp"
 
+#include <string_view>
+
 using namespace std::string_view_literals;
+
+namespace
+{
+	template <typename _Ty, std::size_t N>
+	constexpr std::size_t find_n_of()
+	{
+		std::size_t pos = 0;
+		constexpr auto member = _Ty::member_str();
+
+		int i = N + 1;
+		for (; i > 0; i--)
+		{
+			pos = member.find_first_of(";", pos + 1);
+		}
+
+		return pos;
+	}
+
+	template <typename _Ty, std::size_t _Index>
+	constexpr auto get()
+	{
+		constexpr auto member_info = _Ty::member_str();
+
+		constexpr std::size_t pos = member_info.find_first_of(";", find_n_of<_Ty, _Index>());
+
+		constexpr std::string_view s =
+			member_info.substr(find_n_of<_Ty, _Index - 1>() + 1, pos - find_n_of<_Ty, _Index - 1>() - 1);
+
+		constexpr std::string_view result = s.substr(s.rfind(" ") + 1);
+
+		return result;
+	}
+
+	template <typename _Ty, std::size_t... I>
+	constexpr auto split_impl(std::index_sequence<I...>)
+	{
+		return std::array{ get<_Ty, I>()... };
+	}
+
+	template <typename _Ty, std::size_t N, typename Indices = std::make_index_sequence<N>>
+	constexpr auto split()
+	{
+		return split_impl<_Ty>(Indices{});
+	}
+}
 
 namespace elastic
 {
@@ -22,7 +68,7 @@ namespace elastic
 		{
 			static_assert(Start == End, "It is not a correct way with binary search!");
 
-			if constexpr (aggregate_inialize<_Ty, Start>)
+			if constexpr (aggregate_inialize_t<_Ty, Start>)
 			{
 				return Start;
 			}
@@ -36,7 +82,7 @@ namespace elastic
 		constexpr std::size_t detect_fields_greey(multi_range);
 
 		template <typename _Ty, std::size_t Begin, std::size_t End>
-		requires(aggregate_inialize<_Ty, End>)
+		requires(aggregate_inialize_t<_Ty, End>)
 		constexpr auto detect_fields_greey(multi_range)
 		{
 			constexpr std::size_t next = End + (End - Begin + 1) / 2;
@@ -394,4 +440,32 @@ namespace elastic
 	template <std::size_t I, typename _Tuple>
 	using tuple_element_t = typename tuple_element<I, _Tuple>::type;
 
+	template<std::size_t I, typename _Tuple>
+	constexpr auto tuple_element_name()
+	{
+		return std::get<I>(decltype(_Tuple::make_reflect_member())::apply_member());
+	}
+
 } // namespace elastic
+
+#define MAKE_REFLECT(...)	\
+	template<typename _Ty>\
+	static auto make_reflect_member()\
+	{\
+		struct reflect_member\
+		{\
+			inline constexpr static auto member_str()\
+			{\
+				return std::string_view(#__VA_ARGS__,sizeof(#__VA_ARGS__) - 1);\
+			}\
+			inline constexpr decltype(auto) static apply_member()\
+			{\
+				return split<reflect_member, elastic::tuple_size_v<_Ty>>();\
+			}\
+		};\
+		return reflect_member{};\
+	}
+
+#define MACRO(...) __VA_ARGS__
+
+#define REFLECT_DEFINE(...) MACRO(__VA_ARGS__) MAKE_REFLECT(__VA_ARGS__)

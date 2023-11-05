@@ -1,5 +1,7 @@
 #pragma once
-#include "exception.hpp"
+#include <exception>
+#include <streambuf>
+#include <iostream>
 
 namespace elastic
 {
@@ -11,12 +13,60 @@ namespace elastic
 		public:
 			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
 				: streambuf_(bs)
+				, start_pos_(0)
+				, my_state_(0)
 			{}
+
+		public:
+			bool transfer()
+			{
+				if (start_pos_ != 0)
+					return false;
+
+				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+
+				return true;
+			}
+
+			void roll_back()
+			{
+				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
+
+				start_pos_ = 0;
+			}
+
+			void complete()
+			{
+				if (good())
+					return;
+
+				my_state_ = std::ios::iostate{};
+
+				my_state_ |= std::ios::goodbit;
+			}
+
+			bool good()
+			{
+				return my_state_ & std::ios::goodbit;
+			}
+
+		protected:
+			void fail()
+			{
+				my_state_ |= ~std::ios::goodbit;
+
+				my_state_ |= std::ios::failbit;
+			}
 
 		protected:
 			std::basic_streambuf<_Elem, _Traits>& streambuf_;
+
+		private:
+			int32_t start_pos_;
+
+			std::ios::iostate my_state_;
 		};
-	}
+	} // namespace impl
 
 	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_iprimitive : public impl::basic_primitive<_Elem, _Traits>
@@ -24,8 +74,6 @@ namespace elastic
 	protected:
 		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
-			, trans_pos_(0)
-			, interrupt_(false)
 		{}
 
 		~binary_iprimitive()
@@ -36,33 +84,6 @@ namespace elastic
 		void load(_Ty& t)
 		{
 			load_binary(&t, sizeof(_Ty));
-		}
-
-		void start()
-		{
-			if (trans_pos_ != 0)
-				return;
-
-			trans_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
-		}
-
-		void roll_back()
-		{
-			this->streambuf_.pubseekpos(trans_pos_, std::ios::in);
-
-			trans_pos_ = 0;
-
-			interrupt(true);
-		}
-
-		void interrupt(bool f)
-		{
-			interrupt_ = f;
-		}
-
-		bool interrupt()
-		{
-			return interrupt_;
 		}
 
 	protected:
@@ -76,14 +97,13 @@ namespace elastic
 		{
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
-			if (scount == 0)
-				throw(archive_exception(archive_exception::exception_number::input_stream_error));
+			if (scount != 0)
+				return;
+
+			this->fail();
+
+			throw std::runtime_error("input stream error!");
 		}
-
-	protected:
-		int32_t trans_pos_;
-
-		bool interrupt_;
 	};
 
 	template <typename _Archive, typename _Elem, typename _Traits>
