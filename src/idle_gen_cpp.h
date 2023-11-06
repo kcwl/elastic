@@ -1,6 +1,6 @@
 #pragma once
 #include "code_generator.h"
-#include "part.h"
+#include "defines.h"
 
 #include <fstream>
 #include <map>
@@ -70,7 +70,7 @@ namespace elastic
 
 				std::ofstream write_cpp_stream_;
 
-				std::priority_queue<reflactor_structure> multi_key_words_;
+				std::vector<reflactor_structure> multi_key_words_;
 			};
 		} // namespace cpp
 	}	  // namespace compiler

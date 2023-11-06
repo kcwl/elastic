@@ -35,7 +35,7 @@
     <ClInclude Include="idle_gen_cpp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="part.h">
+    <ClInclude Include="defines.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

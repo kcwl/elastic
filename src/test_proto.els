@@ -1,16 +1,22 @@
-message person = 10001
-{
-	int32 age;
-	string name;
-	bool sex;
-	int64 money;
-	uint32 back_money;
-	uint64 crc;
-	bytes role_data;
-	float hp;
-	double mana;
-	fixed32 input_stream;
-	fixed64 output_stream;
-}
+/*****************
+* test_proto
+*****************/
 
 package xxx;
+
+//message person that number is 10001
+message person = 10001  //注释
+{ //begin
+	int32 age;		//年龄
+	string name;	//姓名
+	bool sex;		//性别
+	int64 money;	//钱
+	uint32 back_money; //仓库里的钱
+	uint64 crc; //crc验证码
+	bytes role_data; //人物数据
+	float hp; //人物血量
+	double mana; //人物蓝量
+	fixed32 input_stream; //输入流
+	fixed64 output_stream; //输出流
+}//end
+

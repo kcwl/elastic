@@ -116,24 +116,42 @@ namespace elastic
 
 				switch (status)
 				{
-				case elastic::compiler::keyword::single:
+				case elastic::keyword::single:
 					{
-						impl.prio_ = static_cast<int>(priority::single);
+						impl.name_ = read_to_spilt(read_file_stream_, ';');
 					}
 					break;
-				case elastic::compiler::keyword::multi:
+				case elastic::keyword::multi:
 					{
-						impl.prio_ = static_cast<int>(priority::multi);
+						auto name_and_number = read_to_spilt(read_file_stream_, '{');
+
+						trip(name_and_number, '\r', '\n', '\t', ' ');
+
+						auto pos = name_and_number.find('=');
+
+						if (pos == std::string::npos)
+						{
+							impl.name_ = name_and_number;
+						}
+						else
+						{
+							pos = name_and_number.find('=');
+
+							impl.name_ = name_and_number.substr(0, pos);
+
+							impl.number_ = name_and_number.substr(pos + 1);
+						}
+
 						read_struct_body(impl);
 					}
 					break;
-				case elastic::compiler::keyword::error:
+				case elastic::keyword::error:
 					return;
 				default:
 					break;
 				}
 
-				multi_key_words_.push(impl);
+				multi_key_words_.push_back(impl);
 			}
 
 			keyword generate_cpp::read_struct_head(reflactor_structure& impl)
@@ -141,34 +159,6 @@ namespace elastic
 				impl.type_ = read_to_spilt(read_file_stream_, ' ');
 
 				auto status = check_key_word(impl.type_);
-
-				if (status == keyword::error)
-					return status;
-				else if (status == keyword::single)
-				{
-					impl.name_ = read_to_spilt(read_file_stream_, ';');
-				}
-				else
-				{
-					auto name_and_number = read_to_spilt(read_file_stream_, '{');
-
-					common::trip(name_and_number, '\r', '\n', '\t', ' ');
-
-					auto pos = name_and_number.find('=');
-
-					if (pos == std::string::npos)
-					{
-						impl.name_ = name_and_number;
-					}
-					else
-					{
-						pos = name_and_number.find('=');
-
-						impl.name_ = name_and_number.substr(0, pos);
-
-						impl.number_ = name_and_number.substr(pos + 1);
-					}
-				}
 
 				return status;
 			}
@@ -191,7 +181,7 @@ namespace elastic
 						break;
 					}
 
-					common::trip(key, '\t', '\r', '\n', ' ');
+					trip(key, '\t', '\r', '\n', ' ');
 
 					impl.structs_.push_back({});
 
@@ -217,11 +207,10 @@ namespace elastic
 
 				bool has_namespace = false;
 
-				auto multi_words = multi_key_words_;
-
-				while (!multi_words.empty())
+				int count = 0;
+				for (auto& s : multi_key_words_)
 				{
-					auto s = multi_words.top();
+					count++;
 
 					if (s.type_ == "package")
 					{
@@ -255,9 +244,7 @@ namespace elastic
 						end_write_class(class_format_space);
 					}
 
-					multi_words.pop();
-
-					if (!multi_words.empty())
+					if (count == multi_key_words_.size())
 						write_h_stream_ << "\n";
 				}
 				if (has_namespace)
@@ -274,10 +261,8 @@ namespace elastic
 
 				std::string class_format_space{};
 
-				while (!multi_key_words_.empty())
+				for (auto& s : multi_key_words_)
 				{
-					auto& s = multi_key_words_.top();
-
 					if (s.type_ == "package")
 					{
 						has_namespace = true;
@@ -322,8 +307,6 @@ namespace elastic
 								write_cpp_stream_ << "\n";
 						}
 					}
-
-					multi_key_words_.pop();
 				}
 
 				if (has_namespace)
