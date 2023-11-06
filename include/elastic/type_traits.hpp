@@ -6,6 +6,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <map>
 
 namespace elastic
 {
@@ -160,8 +161,19 @@ namespace elastic
 		typename std::remove_cvref_t<_Ty>::value_type;
 	};
 
+	template<typename _Ty>
+	struct is_map : public std::false_type
+	{};
+
+	template<typename _Key, typename _Value>
+	struct is_map<std::map<_Key, _Value>> : std::true_type
+	{};
+
+	template<typename _Ty>
+	concept map_t = is_map<_Ty>::value;
+
 	template <typename _Ty>
-	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || fixed_t<_Ty>;
+	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || fixed_t<_Ty> || map_t<_Ty>;
 
 	template <typename _Ty>
 	concept inherit_t = !non_inherit_t<_Ty>;

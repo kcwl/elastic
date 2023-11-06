@@ -163,6 +163,29 @@ namespace elastic
 			t.emplace(std::move(val));
 		}
 
+		template<typename _Archive, map_t _Ty>
+		void deserialize(_Archive& ar, _Ty& t)
+		{
+			uint32_t bytes{};
+			deserialize(ar, bytes);
+
+			for (uint32_t i = 0; i < bytes; ++i)
+			{
+				using type = typename _Ty::value_type;
+
+				using key_t = typename type::first_type;
+				using value_t = typename type::sencond_type;
+
+				key_t key{};
+				value_t value{};
+
+				deserialize(ar, key);
+				deserialize(ar, value);
+
+				t.emplace(key, value);
+			}
+		}
+
 		template <typename _Archive, signed_numric_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
@@ -227,6 +250,20 @@ namespace elastic
 		void serialize(_Archive& ar, _Ty&& value)
 		{
 			ar << *value;
+		}
+
+		template<typename _Archive, map_t _Ty>
+		void serialize(_Archive& ar, _Ty&& value)
+		{
+			auto size = value.size();
+
+			serialize(ar, size);
+
+			for (auto& v : value)
+			{
+				serialize(ar, v.first);
+				serialize(ar, v.second);
+			}
 		}
 
 	} // namespace impl
