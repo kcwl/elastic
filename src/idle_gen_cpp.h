@@ -31,7 +31,7 @@ namespace elastic
 
 				std::string read_to_spilt(std::ifstream& ifs, const char sp);
 				
-				void read_structure();
+				bool read_structure(reflactor_structure& impl);
 
 				keyword read_struct_head(reflactor_structure& impl);
 
@@ -58,6 +58,8 @@ namespace elastic
 				void write_member_impl(const std::string& space);
 
 				void end_write_class(const std::string& space);
+
+				std::string read_note(); 
 
 			private:
 				std::ifstream read_file_stream_;

@@ -1,8 +1,8 @@
 /*****************
-* test_proto
+*test_proto
 *****************/
 
-package xxx;
+package xxx; // package named namespace
 
 //message person that number is 10001
 message person = 10001  //×¢ÊÍ

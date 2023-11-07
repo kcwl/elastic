@@ -68,7 +68,12 @@ namespace elastic
 			{
 				while (!read_file_stream_.eof())
 				{
-					read_structure();
+					reflactor_structure impl{};
+
+					if (!read_structure(impl))
+						continue;
+
+					multi_key_words_.push_back(impl);
 				}
 
 				return true;
@@ -93,13 +98,16 @@ namespace elastic
 			{
 				std::array<char, 1024> lines;
 
-				while (true)
+				while (!ifs.eof())
 				{
 					if (ifs.peek() == '\r' || ifs.peek() == '\n')
 						ifs.get();
 					else
 						break;
 				}
+
+				if (ifs.eof())
+					return {};
 
 				ifs.get(&lines[0], 1024, sp);
 
@@ -108,9 +116,9 @@ namespace elastic
 				return std::string(lines.data());
 			}
 
-			void generate_cpp::read_structure()
+			bool generate_cpp::read_structure(reflactor_structure& impl)
 			{
-				reflactor_structure impl{};
+				bool result = true;
 
 				keyword status = read_struct_head(impl);
 
@@ -119,6 +127,8 @@ namespace elastic
 				case elastic::keyword::single:
 					{
 						impl.name_ = read_to_spilt(read_file_stream_, ';');
+
+						impl.note_ = read_note();
 					}
 					break;
 				case elastic::keyword::multi:
@@ -135,27 +145,61 @@ namespace elastic
 						}
 						else
 						{
-							pos = name_and_number.find('=');
-
 							impl.name_ = name_and_number.substr(0, pos);
 
-							impl.number_ = name_and_number.substr(pos + 1);
+							auto note_pos = name_and_number.find('/');
+
+							if (note_pos == std::string::npos)
+								impl.number_ = name_and_number.substr(pos + 1);
+							else
+							{
+								impl.number_ = name_and_number.substr(pos + 1, note_pos - pos - 1);
+
+								impl.note_ = name_and_number.substr(note_pos + 2);
+							}
 						}
 
 						read_struct_body(impl);
 					}
 					break;
+				case elastic::keyword::note:
+					{
+						impl.note_ = read_note();
+					}
+					break;
 				case elastic::keyword::error:
-					return;
+				{
+						result = false;
+				}
 				default:
 					break;
 				}
 
-				multi_key_words_.push_back(impl);
+				return result;
 			}
 
 			keyword generate_cpp::read_struct_head(reflactor_structure& impl)
 			{
+				while (!read_file_stream_.eof())
+				{
+					auto cur = read_file_stream_.peek();
+
+					if (cur == '/')
+						return keyword::note;
+
+					if (cur == ' ')
+					{
+						read_file_stream_.get();
+
+						continue;
+					}
+						
+					if (cur != '\r' && cur != '\n' && cur !='\t')
+						break;
+
+					read_file_stream_.get();
+				}
+
 				impl.type_ = read_to_spilt(read_file_stream_, ' ');
 
 				auto status = check_key_word(impl.type_);
@@ -167,35 +211,42 @@ namespace elastic
 			{
 				while (true)
 				{
-					auto key = read_to_spilt(read_file_stream_, ' ');
-
-					if (key.empty())
-						continue;
-
-					if (*key.begin() == '}')
+					auto cur = read_file_stream_.peek();
+					if (cur == '}')
 					{
-						int size = static_cast<int>(key.size() - 1);
-
-						read_file_stream_.seekg(-size, std::ios::cur);
-
+						read_file_stream_.get();
 						break;
 					}
-
-					trip(key, '\t', '\r', '\n', ' ');
 
 					impl.structs_.push_back({});
 
 					auto& i = impl.structs_.back();
 
-					if (check_key_word(key) == keyword::single)
-					{
-						i.type_ = key;
+					auto status = read_struct_head(i);
 
-						i.name_ = read_to_spilt(read_file_stream_, ';');
-					}
-					else
+					switch (status)
 					{
-						read_struct_head(i);
+					case keyword::single:
+					{
+							i.name_ = read_to_spilt(read_file_stream_, ';');
+
+							i.note_ = read_note();
+					}
+					break;
+					case keyword::note:
+					{
+							i.note_ = read_note();
+					}
+					break;
+					case keyword::multi:
+					{
+							i.structs_.push_back({});
+							auto& next_i = i.structs_.back();
+
+							read_structure(next_i);
+					}
+					default:
+					break;
 					}
 				}
 			}
@@ -317,6 +368,12 @@ namespace elastic
 
 			keyword generate_cpp::check_key_word(const std::string& value)
 			{
+				if (value.empty())
+					return keyword::error;
+
+				if (value[0] == '/')
+					return keyword::note;
+
 				auto iter_multi = std::find_if(multi_key_words.begin(), multi_key_words.end(),
 											   [&](auto&& key) { return key == value; });
 
@@ -428,6 +485,44 @@ namespace elastic
 			void generate_cpp::end_write_class(const std::string& space)
 			{
 				write_h_stream_ << space << "};";
+			}
+
+			std::string generate_cpp::read_note()
+			{
+				std::string space{};
+				std::string result{};
+				while (!read_file_stream_.eof())
+				{
+					auto cur = read_file_stream_.peek();
+
+					read_file_stream_.get();
+
+					if (cur == '\r' || cur == '\n')
+						break;
+
+					if (cur != '/')
+					{
+						space += std::to_string(cur);
+						continue;
+					}
+
+					cur = read_file_stream_.get();
+
+					if (cur == '*')
+					{
+						result = space + std::string("/") + read_to_spilt(read_file_stream_, '/') + std::string("/");
+					}
+					else if (cur == '/')
+					{
+						result = space + std::string("//") + read_to_spilt(read_file_stream_, '\r');
+
+						read_file_stream_.get();
+					}
+
+					break;
+				}
+
+				return result;
 			}
 		} // namespace cpp
 	}	  // namespace compiler
