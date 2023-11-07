@@ -1,6 +1,6 @@
 #pragma once
 #include "code_generator.h"
-#include "part.h"
+#include "defines.h"
 
 #include <fstream>
 #include <map>
@@ -31,7 +31,7 @@ namespace elastic
 
 				std::string read_to_spilt(std::ifstream& ifs, const char sp);
 				
-				void read_structure();
+				bool read_structure(reflactor_structure& impl);
 
 				keyword read_struct_head(reflactor_structure& impl);
 
@@ -43,7 +43,8 @@ namespace elastic
 
 				keyword check_key_word(const std::string& value);
 
-				void begin_write_class(const std::string& class_name, const std::string& space);
+				void begin_write_class(const std::string& class_name, const std::string& note,
+									   const std::string& space);
 
 				void write_friend_class(const std::string& class_name, const std::string& space);
 
@@ -59,6 +60,8 @@ namespace elastic
 
 				void end_write_class(const std::string& space);
 
+				std::string read_note(); 
+
 			private:
 				std::ifstream read_file_stream_;
 
@@ -70,7 +73,7 @@ namespace elastic
 
 				std::ofstream write_cpp_stream_;
 
-				std::priority_queue<reflactor_structure> multi_key_words_;
+				std::vector<reflactor_structure> multi_key_words_;
 			};
 		} // namespace cpp
 	}	  // namespace compiler

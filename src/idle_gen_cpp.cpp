@@ -68,7 +68,12 @@ namespace elastic
 			{
 				while (!read_file_stream_.eof())
 				{
-					read_structure();
+					reflactor_structure impl{};
+
+					if (!read_structure(impl))
+						continue;
+
+					multi_key_words_.push_back(impl);
 				}
 
 				return true;
@@ -93,13 +98,16 @@ namespace elastic
 			{
 				std::array<char, 1024> lines;
 
-				while (true)
+				while (!ifs.eof())
 				{
 					if (ifs.peek() == '\r' || ifs.peek() == '\n')
 						ifs.get();
 					else
 						break;
 				}
+
+				if (ifs.eof())
+					return {};
 
 				ifs.get(&lines[0], 1024, sp);
 
@@ -108,67 +116,93 @@ namespace elastic
 				return std::string(lines.data());
 			}
 
-			void generate_cpp::read_structure()
+			bool generate_cpp::read_structure(reflactor_structure& impl)
 			{
-				reflactor_structure impl{};
+				bool result = true;
 
 				keyword status = read_struct_head(impl);
 
 				switch (status)
 				{
-				case elastic::compiler::keyword::single:
+				case elastic::keyword::single:
 					{
-						impl.prio_ = static_cast<int>(priority::single);
+						impl.name_ = read_to_spilt(read_file_stream_, ';');
+
+						impl.note_ = read_note();
 					}
 					break;
-				case elastic::compiler::keyword::multi:
+				case elastic::keyword::multi:
 					{
-						impl.prio_ = static_cast<int>(priority::multi);
+						auto name_and_number = read_to_spilt(read_file_stream_, '{');
+
+						trip(name_and_number, '\r', '\n', '\t', ' ');
+
+						auto pos = name_and_number.find('=');
+
+						if (pos == std::string::npos)
+						{
+							impl.name_ = name_and_number;
+						}
+						else
+						{
+							impl.name_ = name_and_number.substr(0, pos);
+
+							auto note_pos = name_and_number.find('/');
+
+							if (note_pos == std::string::npos)
+								impl.number_ = name_and_number.substr(pos + 1);
+							else
+							{
+								impl.number_ = name_and_number.substr(pos + 1, note_pos - pos - 1);
+
+								impl.note_ = std::string(" // ") + name_and_number.substr(note_pos + 2);
+							}
+						}
+
 						read_struct_body(impl);
 					}
 					break;
-				case elastic::compiler::keyword::error:
-					return;
+				case elastic::keyword::note:
+					{
+						impl.note_ = read_note();
+					}
+					break;
+				case elastic::keyword::error:
+				{
+						result = false;
+				}
 				default:
 					break;
 				}
 
-				multi_key_words_.push(impl);
+				return result;
 			}
 
 			keyword generate_cpp::read_struct_head(reflactor_structure& impl)
 			{
+				while (!read_file_stream_.eof())
+				{
+					auto cur = read_file_stream_.peek();
+
+					if (cur == '/')
+						return keyword::note;
+
+					if (cur == ' ')
+					{
+						read_file_stream_.get();
+
+						continue;
+					}
+						
+					if (cur != '\r' && cur != '\n' && cur !='\t')
+						break;
+
+					read_file_stream_.get();
+				}
+
 				impl.type_ = read_to_spilt(read_file_stream_, ' ');
 
 				auto status = check_key_word(impl.type_);
-
-				if (status == keyword::error)
-					return status;
-				else if (status == keyword::single)
-				{
-					impl.name_ = read_to_spilt(read_file_stream_, ';');
-				}
-				else
-				{
-					auto name_and_number = read_to_spilt(read_file_stream_, '{');
-
-					common::trip(name_and_number, '\r', '\n', '\t', ' ');
-
-					auto pos = name_and_number.find('=');
-
-					if (pos == std::string::npos)
-					{
-						impl.name_ = name_and_number;
-					}
-					else
-					{
-						pos = name_and_number.find('=');
-
-						impl.name_ = name_and_number.substr(0, pos);
-
-						impl.number_ = name_and_number.substr(pos + 1);
-					}
-				}
 
 				return status;
 			}
@@ -177,35 +211,42 @@ namespace elastic
 			{
 				while (true)
 				{
-					auto key = read_to_spilt(read_file_stream_, ' ');
-
-					if (key.empty())
-						continue;
-
-					if (*key.begin() == '}')
+					auto cur = read_file_stream_.peek();
+					if (cur == '}')
 					{
-						int size = static_cast<int>(key.size() - 1);
-
-						read_file_stream_.seekg(-size, std::ios::cur);
-
+						read_file_stream_.get();
 						break;
 					}
-
-					common::trip(key, '\t', '\r', '\n', ' ');
 
 					impl.structs_.push_back({});
 
 					auto& i = impl.structs_.back();
 
-					if (check_key_word(key) == keyword::single)
-					{
-						i.type_ = key;
+					auto status = read_struct_head(i);
 
-						i.name_ = read_to_spilt(read_file_stream_, ';');
-					}
-					else
+					switch (status)
 					{
-						read_struct_head(i);
+					case keyword::single:
+					{
+							i.name_ = read_to_spilt(read_file_stream_, ';');
+
+							i.note_ = read_note();
+					}
+					break;
+					case keyword::note:
+					{
+							i.note_ = read_note();
+					}
+					break;
+					case keyword::multi:
+					{
+							i.structs_.push_back({});
+							auto& next_i = i.structs_.back();
+
+							read_structure(next_i);
+					}
+					default:
+					break;
 					}
 				}
 			}
@@ -217,17 +258,21 @@ namespace elastic
 
 				bool has_namespace = false;
 
-				auto multi_words = multi_key_words_;
-
-				while (!multi_words.empty())
+				int count = 0;
+				for (auto& s : multi_key_words_)
 				{
-					auto s = multi_words.top();
+					count++;
 
 					if (s.type_ == "package")
 					{
 						has_namespace = true;
 
-						write_h_stream_ << "namespace " << s.name_ << "\n{";
+						write_h_stream_ << "namespace " << s.name_;
+
+						if (!s.note_.empty())
+							write_h_stream_ << s.note_ << "\r";
+
+						write_h_stream_ << "\n{\n";
 					}
 					else if (s.type_ == "message")
 					{
@@ -238,7 +283,7 @@ namespace elastic
 
 						std::string member_format_space = class_format_space + "\t";
 
-						begin_write_class(s.name_, class_format_space);
+						begin_write_class(s.name_, s.note_, class_format_space);
 
 						write_friend_class(s.name_, member_format_space);
 
@@ -254,10 +299,17 @@ namespace elastic
 
 						end_write_class(class_format_space);
 					}
+					else
+					{
+						std::string class_format_space = "";
 
-					multi_words.pop();
+						if (has_namespace)
+							class_format_space = "\t";
 
-					if (!multi_words.empty())
+						write_h_stream_ << class_format_space <<s.note_ << '\r';
+					}
+
+					if (count == multi_key_words_.size())
 						write_h_stream_ << "\n";
 				}
 				if (has_namespace)
@@ -274,10 +326,8 @@ namespace elastic
 
 				std::string class_format_space{};
 
-				while (!multi_key_words_.empty())
+				for (auto& s : multi_key_words_)
 				{
-					auto& s = multi_key_words_.top();
-
 					if (s.type_ == "package")
 					{
 						has_namespace = true;
@@ -293,6 +343,9 @@ namespace elastic
 
 						for (auto& mem : s.structs_)
 						{
+							if (mem.type_.empty())
+								continue;
+
 							auto type = type_pair.at(mem.type_);
 
 							if (type.empty())
@@ -322,8 +375,6 @@ namespace elastic
 								write_cpp_stream_ << "\n";
 						}
 					}
-
-					multi_key_words_.pop();
 				}
 
 				if (has_namespace)
@@ -334,6 +385,12 @@ namespace elastic
 
 			keyword generate_cpp::check_key_word(const std::string& value)
 			{
+				if (value.empty())
+					return keyword::error;
+
+				if (value[0] == '/')
+					return keyword::note;
+
 				auto iter_multi = std::find_if(multi_key_words.begin(), multi_key_words.end(),
 											   [&](auto&& key) { return key == value; });
 
@@ -349,34 +406,40 @@ namespace elastic
 				return keyword::error;
 			}
 
-			void generate_cpp::begin_write_class(const std::string& class_name, const std::string& space)
+			void generate_cpp::begin_write_class(const std::string& class_name, const std::string& note, const std::string& space)
 			{
 				auto base_type = std::format("elastic::message_lite<{}>", class_name);
 
-				write_h_stream_ << space << "class " << class_name << " final : public " << base_type << "\n";
+				write_h_stream_ << space << "class " << class_name << " final : public " << base_type << note;
 
-				write_h_stream_ << space << "{\n";
+				write_h_stream_ << "\n" << space << "{";
 			}
 
 			void generate_cpp::write_friend_class(const std::string& class_name, const std::string& space)
 			{
 				auto base_type = std::format("elastic::message_lite<{}>", class_name);
 
-				write_h_stream_ << space << "friend class " << base_type << ";\n\n";
+				write_h_stream_ << '\n' << space << "friend class " << base_type << ";\n\n";
 			}
 
 			void generate_cpp::write_struct_impl(const reflactor_structure& s, const std::string& space)
 			{
 				write_h_stream_ << space << "struct member_impl : elastic::message_pod\n";
-				write_h_stream_ << space << "{\n";
+				write_h_stream_ << space << "{";
 
-				write_h_stream_ << space << "REFLECT_DEFINE(\n";
+				write_h_stream_ <<'\n'<< space << "REFLECT_DEFINE(";
 
 				std::string struct_format_space = space + "\t";
 
 				int count = 0;
 				for (auto& mem : s.structs_)
 				{
+					if (mem.type_.empty())
+					{
+						write_h_stream_ << mem.note_ << "\r\n";
+						continue;
+					}
+
 					auto type = type_pair.at(mem.type_);
 
 					if (type.empty())
@@ -384,7 +447,7 @@ namespace elastic
 
 					count++;
 
-					write_h_stream_ << struct_format_space << type << " " << mem.name_ << ";\n";
+					write_h_stream_ << '\n' << struct_format_space << type << " " << mem.name_ << ";" << mem.note_;
 
 					if (count != s.structs_.size())
 						write_h_stream_ << "\n";
@@ -419,6 +482,9 @@ namespace elastic
 
 				for (auto& mem : s.structs_)
 				{
+					if (mem.type_.empty())
+						continue;
+
 					auto type = type_pair.at(mem.type_);
 
 					if (type.empty())
@@ -445,6 +511,44 @@ namespace elastic
 			void generate_cpp::end_write_class(const std::string& space)
 			{
 				write_h_stream_ << space << "};";
+			}
+
+			std::string generate_cpp::read_note()
+			{
+				std::string space{};
+				std::string result{};
+				while (!read_file_stream_.eof())
+				{
+					auto cur = read_file_stream_.peek();
+
+					read_file_stream_.get();
+
+					if (cur == '\r' || cur == '\n')
+						break;
+
+					if (cur != '/')
+					{
+						space += static_cast<char>(cur);
+						continue;
+					}
+
+					cur = read_file_stream_.get();
+
+					if (cur == '*')
+					{
+						result = space + std::string("/") + read_to_spilt(read_file_stream_, '/') + std::string("/");
+					}
+					else if (cur == '/')
+					{
+						result = space + std::string("//") + read_to_spilt(read_file_stream_, '\r');
+
+						read_file_stream_.get();
+					}
+
+					break;
+				}
+
+				return result;
 			}
 		} // namespace cpp
 	}	  // namespace compiler
