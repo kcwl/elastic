@@ -155,7 +155,7 @@ namespace elastic
 							{
 								impl.number_ = name_and_number.substr(pos + 1, note_pos - pos - 1);
 
-								impl.note_ = name_and_number.substr(note_pos + 2);
+								impl.note_ = std::string(" // ") + name_and_number.substr(note_pos + 2);
 							}
 						}
 
@@ -267,7 +267,12 @@ namespace elastic
 					{
 						has_namespace = true;
 
-						write_h_stream_ << "namespace " << s.name_ << "\n{";
+						write_h_stream_ << "namespace " << s.name_;
+
+						if (!s.note_.empty())
+							write_h_stream_ << s.note_ << "\r";
+
+						write_h_stream_ << "\n{\n";
 					}
 					else if (s.type_ == "message")
 					{
@@ -278,7 +283,7 @@ namespace elastic
 
 						std::string member_format_space = class_format_space + "\t";
 
-						begin_write_class(s.name_, class_format_space);
+						begin_write_class(s.name_, s.note_, class_format_space);
 
 						write_friend_class(s.name_, member_format_space);
 
@@ -293,6 +298,15 @@ namespace elastic
 						write_member_impl(class_format_space);
 
 						end_write_class(class_format_space);
+					}
+					else
+					{
+						std::string class_format_space = "";
+
+						if (has_namespace)
+							class_format_space = "\t";
+
+						write_h_stream_ << class_format_space <<s.note_ << '\r';
 					}
 
 					if (count == multi_key_words_.size())
@@ -329,6 +343,9 @@ namespace elastic
 
 						for (auto& mem : s.structs_)
 						{
+							if (mem.type_.empty())
+								continue;
+
 							auto type = type_pair.at(mem.type_);
 
 							if (type.empty())
@@ -389,34 +406,40 @@ namespace elastic
 				return keyword::error;
 			}
 
-			void generate_cpp::begin_write_class(const std::string& class_name, const std::string& space)
+			void generate_cpp::begin_write_class(const std::string& class_name, const std::string& note, const std::string& space)
 			{
 				auto base_type = std::format("elastic::message_lite<{}>", class_name);
 
-				write_h_stream_ << space << "class " << class_name << " final : public " << base_type << "\n";
+				write_h_stream_ << space << "class " << class_name << " final : public " << base_type << note;
 
-				write_h_stream_ << space << "{\n";
+				write_h_stream_ << "\n" << space << "{";
 			}
 
 			void generate_cpp::write_friend_class(const std::string& class_name, const std::string& space)
 			{
 				auto base_type = std::format("elastic::message_lite<{}>", class_name);
 
-				write_h_stream_ << space << "friend class " << base_type << ";\n\n";
+				write_h_stream_ << '\n' << space << "friend class " << base_type << ";\n\n";
 			}
 
 			void generate_cpp::write_struct_impl(const reflactor_structure& s, const std::string& space)
 			{
 				write_h_stream_ << space << "struct member_impl : elastic::message_pod\n";
-				write_h_stream_ << space << "{\n";
+				write_h_stream_ << space << "{";
 
-				write_h_stream_ << space << "REFLECT_DEFINE(\n";
+				write_h_stream_ <<'\n'<< space << "REFLECT_DEFINE(";
 
 				std::string struct_format_space = space + "\t";
 
 				int count = 0;
 				for (auto& mem : s.structs_)
 				{
+					if (mem.type_.empty())
+					{
+						write_h_stream_ << mem.note_ << "\r\n";
+						continue;
+					}
+
 					auto type = type_pair.at(mem.type_);
 
 					if (type.empty())
@@ -424,7 +447,7 @@ namespace elastic
 
 					count++;
 
-					write_h_stream_ << struct_format_space << type << " " << mem.name_ << ";\n";
+					write_h_stream_ << '\n' << struct_format_space << type << " " << mem.name_ << ";" << mem.note_;
 
 					if (count != s.structs_.size())
 						write_h_stream_ << "\n";
@@ -459,6 +482,9 @@ namespace elastic
 
 				for (auto& mem : s.structs_)
 				{
+					if (mem.type_.empty())
+						continue;
+
 					auto type = type_pair.at(mem.type_);
 
 					if (type.empty())
@@ -502,7 +528,7 @@ namespace elastic
 
 					if (cur != '/')
 					{
-						space += std::to_string(cur);
+						space += static_cast<char>(cur);
 						continue;
 					}
 

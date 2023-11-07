@@ -43,7 +43,8 @@ namespace elastic
 
 				keyword check_key_word(const std::string& value);
 
-				void begin_write_class(const std::string& class_name, const std::string& space);
+				void begin_write_class(const std::string& class_name, const std::string& note,
+									   const std::string& space);
 
 				void write_friend_class(const std::string& class_name, const std::string& space);
 
