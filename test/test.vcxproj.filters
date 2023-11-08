@@ -21,7 +21,7 @@
     <ClCompile Include="Test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="test_proto.els.cpp">
+    <ClCompile Include="..\src\test_proto.els.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,7 +74,7 @@
     <ClInclude Include="..\include\elastic\flex_buffer.hpp">
       <Filter>elastic</Filter>
     </ClInclude>
-    <ClInclude Include="test_proto.els.h">
+    <ClInclude Include="..\src\test_proto.els.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

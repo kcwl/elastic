@@ -377,7 +377,7 @@ namespace elastic
 
 			void generate_cpp::write_struct_def()
 			{
-				write_cpp_stream_ << "#include \"" << input_file_name_ << ".h\"\n\n";
+				write_cpp_stream_ << "#include \"" << input_file_name_ << ".h" << crlf <<crlf;
 
 				bool has_namespace = false;
 
@@ -389,12 +389,12 @@ namespace elastic
 					{
 						has_namespace = true;
 
-						write_cpp_stream_ << "namespace " << s.name_ << crlf << "{";
+						write_cpp_stream_ << "namespace " << s.name_ << crlf << "{" <<crlf;
 					}
 					else if (s.type_ == "message")
 					{
 						if (has_namespace)
-							class_format_space = "\t";
+							class_format_space = tab;
 
 						int count = 0;
 
@@ -411,26 +411,28 @@ namespace elastic
 							count++;
 
 							write_cpp_stream_ << class_format_space << "const " << type << "& " << s.name_
-											  << "::" << mem.name_ << "()\r\n";
-							write_cpp_stream_ << class_format_space << "{\r\n";
-							write_cpp_stream_ << class_format_space << "\treturn impl." << mem.name_ << ";\r\n";
-							write_cpp_stream_ << class_format_space << "}\r\n\r\n";
+											  << "::" << mem.name_ << "()" << crlf;
+							write_cpp_stream_ << class_format_space << "{" << crlf;
+							write_cpp_stream_ << class_format_space << tab << "return impl." << mem.name_ << ";"
+											  << crlf;
+							write_cpp_stream_ << class_format_space << "}" << crlf <<crlf;
 
 							write_cpp_stream_ << class_format_space << "const " << type << "& " << s.name_
-											  << "::" << mem.name_ << "() const\r\n";
-							write_cpp_stream_ << class_format_space << "{\r\n";
-							write_cpp_stream_ << class_format_space << "\treturn impl." << mem.name_ << ";\r\n";
-							write_cpp_stream_ << class_format_space << "}\r\n\r\n";
+											  << "::" << mem.name_ << "() const" << crlf;
+							write_cpp_stream_ << class_format_space << "{" << crlf;
+							write_cpp_stream_ << class_format_space << tab << "return impl." << mem.name_ << ";"
+											  << crlf;
+							write_cpp_stream_ << class_format_space << "}" << crlf << crlf;
 
 							write_cpp_stream_ << class_format_space << "void " << s.name_ << "::set_" << mem.name_
-											  << "(const " << type << "& " << mem.name_ << ")\r\n";
-							write_cpp_stream_ << class_format_space << "{\r\n";
-							write_cpp_stream_ << class_format_space << "\timpl." << mem.name_ << " = " << mem.name_
-											  << ";\n";
-							write_cpp_stream_ << class_format_space << "}\r\n";
+											  << "(const " << type << "& " << mem.name_ << ")" << crlf;
+							write_cpp_stream_ << class_format_space << "{" << crlf;
+							write_cpp_stream_ << class_format_space << tab << "impl." << mem.name_ << " = " << mem.name_
+											  << ";" << crlf;
+							write_cpp_stream_ << class_format_space << "}" << crlf;
 
 							if (count != s.structs_.size())
-								write_cpp_stream_ << "\r\n";
+								write_cpp_stream_ << crlf;
 						}
 					}
 				}

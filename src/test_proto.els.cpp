@@ -1,7 +1,8 @@
-#include "test_proto.els.h"
+#include "test_proto.els.h
 
 namespace xxx
-{	const int32_t& person::age()
+{
+	const int32_t& person::age()
 	{
 		return impl.age;
 	}
