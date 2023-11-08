@@ -18,5 +18,5 @@ message person = 10001  //注释
 	double mana; //人物蓝量
 	fixed32 input_stream; //输入流
 	fixed64 output_stream; //输出流
+	map<uint32,string> pairs;
 }//end
-

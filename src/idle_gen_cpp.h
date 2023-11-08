@@ -29,22 +29,27 @@ namespace elastic
 
 				bool write_file();
 
-				std::string read_to_spilt(std::ifstream& ifs, const char sp);
-				
+				bool read_to_spilt(std::string& value, const char sp);
+
 				bool read_structure(reflactor_structure& impl);
 
-				keyword read_struct_head(reflactor_structure& impl);
+				bool read_struct_head(reflactor_structure& impl);
 
-				void read_struct_body(reflactor_structure& impl);
+				bool read_struct_body(reflactor_structure& impl);
+
+				bool read_commond(reflactor_structure& rs);
+
+				void choose_state(int current, reflactor_structure& rs);
+
+				void read_note_dir(reflactor_structure& rs, note_dir way);
 
 				void write_struct_declare();
 
 				void write_struct_def();
 
-				keyword check_key_word(const std::string& value);
+				bool check_key_word(const std::string& value);
 
-				void begin_write_class(const std::string& class_name, const std::string& note,
-									   const std::string& space);
+				void begin_write_class(const reflactor_structure& rs, const std::string& space);
 
 				void write_friend_class(const std::string& class_name, const std::string& space);
 
@@ -58,9 +63,9 @@ namespace elastic
 
 				void write_member_impl(const std::string& space);
 
-				void end_write_class(const std::string& space);
+				void end_write_class(const reflactor_structure& rs, const std::string& space);
 
-				std::string read_note(); 
+				note read_note();
 
 			private:
 				std::ifstream read_file_stream_;

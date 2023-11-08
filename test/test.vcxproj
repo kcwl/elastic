@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp" />
+    <ClCompile Include="test_proto.els.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\elastic.hpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="..\include\elastic\reflect.hpp" />
     <ClInclude Include="attr.h" />
     <ClInclude Include="generate.h" />
+    <ClInclude Include="test_proto.els.h" />
     <ClInclude Include="type.h" />
     <ClInclude Include="inherit.h" />
     <ClInclude Include="tuple_size.h" />

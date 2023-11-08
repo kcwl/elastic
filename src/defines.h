@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
-#include <vector>
 #include <array>
+#include <string>
 #include <string_view>
+#include <vector>
 
 using namespace std::string_view_literals;
 
@@ -14,17 +14,27 @@ namespace elastic
 		format_error,
 	};
 
-	enum class keyword
+	enum class note_dir
 	{
-		single,
-		multi,
-		note,
-		error
+		left,
+		right
+	};
+
+	enum class note_type
+	{
+		double_slash,
+		slash
+	};
+
+	struct note
+	{
+		std::string content_;
+		note_type type_;
 	};
 
 	struct reflactor_structure
 	{
-		std::string note_;
+		note note_;
 
 		std::string number_;
 
@@ -32,13 +42,20 @@ namespace elastic
 
 		std::string name_;
 
+		note left_note_;
+
+		note right_note_;
+
 		std::vector<reflactor_structure> structs_;
 	};
 
 	constexpr static std::array<std::string_view, 1> multi_key_words = { "message"sv };
 
-	constexpr static std::array<std::string_view, 12> single_key_words = { "package"sv, "int32"sv,	 "int64"sv,
-																		   "uint32"sv,	"uint64"sv,	 "float"sv,
-																		   "double"sv,	"fixed32"sv, "fixed64"sv,
-																		   "bool"sv,	"bytes"sv,	 "string"sv };
+	constexpr static std::array<std::string_view, 13> single_key_words = {
+		"package"sv, "int32"sv,	  "int64"sv, "uint32"sv, "uint64"sv, "float"sv, "double"sv,
+		"fixed32"sv, "fixed64"sv, "bool"sv,	 "bytes"sv,	 "string"sv, "map"sv
+	};
+
+	constexpr static std::string_view tab = "\t"sv;
+	constexpr static std::string_view crlf = "\r\n"sv;
 } // namespace elastic
