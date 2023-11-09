@@ -33,11 +33,8 @@ namespace elastic
 			{
 				binary::template deserialize(*this, t);
 			}
-			catch (std::exception_ptr& ec)
+			catch (...)
 			{
-				if (!first_archive())
-					throw ec;
-
 				this->roll_back();
 
 				//_Ty error{};

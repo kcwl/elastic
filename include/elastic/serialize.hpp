@@ -156,7 +156,8 @@ namespace elastic
 
 					key_type key{};
 
-					ar >> key >> v.second;
+					deserialize(ar, key);
+					deserialize(ar, v.second);
 
 					t.insert({key, v.second});
 				}
@@ -176,7 +177,7 @@ namespace elastic
 
 			type val{};
 
-			ar >> val;
+			deserialize(ar, val);
 
 			t.emplace(std::move(val));
 		}
@@ -224,7 +225,11 @@ namespace elastic
 			}
 			else
 			{
-				for_each(std::forward<_Ty>(value), [&](auto&& v) { ar << v; });
+				for_each(std::forward<_Ty>(value),
+						 [&](auto&& v)
+						 {
+							 serialize(ar, v);
+						 });
 			}
 		}
 
@@ -235,17 +240,18 @@ namespace elastic
 
 			auto bytes = value.size();
 
-			ar << bytes;
+			serialize(ar, bytes);
 
 			for (auto& s : std::forward<_Ty>(value))
 			{
 				if constexpr (map_t<type>)
 				{
-					ar << s.first << s.second;
+					serialize(ar, s.first);
+					serialize(ar, s.second);
 				}
 				else
 				{
-					ar << s;
+					serialize(ar, s);
 				}
 			}
 		}
@@ -253,7 +259,7 @@ namespace elastic
 		template <typename _Archive, optional_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			ar << *value;
+			serialize(ar, *value);
 		}
 	} // namespace impl
 

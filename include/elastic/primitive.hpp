@@ -15,7 +15,6 @@ namespace elastic
 				: streambuf_(bs)
 				, start_pos_(-1)
 				, my_state_(0)
-				, has_first_archive_(false)
 			{}
 
 		public:
@@ -26,8 +25,6 @@ namespace elastic
 
 				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
 
-				has_first_archive_ = true;
-
 				return true;
 			}
 
@@ -36,8 +33,6 @@ namespace elastic
 				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
 
 				start_pos_ = -1;
-
-				has_first_archive_ = false;
 			}
 
 			void complete()
@@ -55,11 +50,6 @@ namespace elastic
 				return my_state_ & std::ios::goodbit;
 			}
 
-			bool first_archive()
-			{
-				return has_first_archive_;
-			}
-
 		protected:
 			void fail()
 			{
@@ -75,8 +65,6 @@ namespace elastic
 			int32_t start_pos_;
 
 			std::ios::iostate my_state_;
-
-			bool has_first_archive_;
 		};
 	} // namespace impl
 
