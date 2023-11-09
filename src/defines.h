@@ -56,6 +56,6 @@ namespace elastic
 		"fixed32"sv, "fixed64"sv, "bool"sv,	 "bytes"sv,	 "string"sv, "map"sv
 	};
 
-	constexpr static std::string_view tab = "\t"sv;
-	constexpr static std::string_view crlf = "\r\n"sv;
+	inline static const std::string tab = "\t";
+	inline static  std::string crlf = "\r\n";
 } // namespace elastic

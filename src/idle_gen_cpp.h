@@ -27,8 +27,6 @@ namespace elastic
 			private:
 				bool read_file();
 
-				bool write_file();
-
 				bool read_to_spilt(std::string& value, const char sp);
 
 				bool read_structure(reflactor_structure& impl);
@@ -43,29 +41,35 @@ namespace elastic
 
 				void read_note_dir(reflactor_structure& rs, note_dir way);
 
+				note read_note();
+
+				bool write_file();
+
 				void write_struct_declare();
+
+				void write_struct_declare_header();
 
 				void write_struct_def();
 
 				bool check_key_word(const std::string& value);
 
-				void begin_write_class(const reflactor_structure& rs, const std::string& space);
+				void begin_write_class(const reflactor_structure& rs);
 
-				void write_friend_class(const std::string& class_name, const std::string& space);
+				void write_friend_class(const std::string& class_name);
 
-				void write_struct_impl(const reflactor_structure& s, const std::string& space);
+				void write_struct_impl(const reflactor_structure& s);
 
-				void write_pod_t(const std::string& space);
+				void write_pod_t();
 
-				void write_construct(const std::string& class_name, const std::string& space);
+				void write_construct(const std::string& class_name);
 
-				void write_member_func(const reflactor_structure& s, const std::string& space);
+				void write_member_func(const reflactor_structure& s);
 
-				void write_member_impl(const std::string& space);
+				void write_member_impl();
 
-				void end_write_class(const reflactor_structure& rs, const std::string& space);
+				void end_write_class(const reflactor_structure& rs);
 
-				note read_note();
+				void real_write_file(std::ofstream& ofs);
 
 			private:
 				std::ifstream read_file_stream_;
@@ -79,6 +83,8 @@ namespace elastic
 				std::ofstream write_cpp_stream_;
 
 				std::vector<reflactor_structure> multi_key_words_;
+
+				std::vector<std::string> lines;
 			};
 		} // namespace cpp
 	}	  // namespace compiler

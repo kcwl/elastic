@@ -8,25 +8,10 @@
 
 namespace
 {
-	constexpr static std::array<std::string_view, 1> multi_key_words = { "message"sv };
-
-	constexpr static std::array<std::string_view, 12> single_key_words = { "package"sv, "int32"sv,	 "int64"sv,
-																		   "uint32"sv,	"uint64"sv,	 "float"sv,
-																		   "double"sv,	"fixed32"sv, "fixed64"sv,
-																		   "bool"sv,	"bytes"sv,	 "string"sv };
-
 	const std::map<std::string, std::string> type_pair = {
-		{ "int32", "int32_t" },
-		{ "int64", "int64_t" },
-		{ "string", "std::string" },
-		{ "bool", "bool" },
-		{ "uint32", "uint32_t" },
-		{ "uint64", "uint64_t" },
-		{ "bytes", "std::vector<uint8_t>" },
-		{ "float", "float" },
-		{ "double", "double" },
-		{ "fixed32", "elastic::fixed<uint32_t>" },
-		{ "fixed64", "elastic::fixed<uint64_t>" },
+		{ "int32", "int32_t" },	  { "int64", "int64_t" },	  { "string", "std::string" }, { "bool", "bool" },
+		{ "uint32", "uint32_t" }, { "uint64", "uint64_t" },	  { "bytes", "bytes" },		   { "float", "float" },
+		{ "double", "double" },	  { "fixed32", "fixed32_t" }, { "fixed64", "fixed64_t" },
 	};
 
 	std::string get_type_name(const std::string& type)
@@ -108,30 +93,15 @@ namespace elastic
 				return true;
 			}
 
-			bool generate_cpp::write_file()
-			{
-				if (!write_h_stream_.is_open())
-					return false;
-
-				write_struct_declare();
-
-				if (!write_cpp_stream_.is_open())
-					return false;
-
-				write_struct_def();
-
-				return true;
-			}
-
 			bool generate_cpp::read_to_spilt(std::string& value, const char sp)
 			{
-				std::array<char, 1024> lines;
+				std::array<char, 1024> temp_line;
 
-				read_file_stream_.get(&lines[0], 1024, sp);
+				read_file_stream_.get(&temp_line[0], 1024, sp);
 
 				read_file_stream_.get();
 
-				value = lines.data();
+				value = temp_line.data();
 
 				return true;
 			}
@@ -303,301 +273,6 @@ namespace elastic
 				}
 			}
 
-			void generate_cpp::write_struct_declare()
-			{
-				write_h_stream_ << "#pragma once" << crlf;
-				write_h_stream_ << "#include <elastic.hpp>" << crlf << crlf;
-
-				bool has_namespace = false;
-
-				int count = 0;
-				for (auto& s : multi_key_words_)
-				{
-					count++;
-
-					if (s.type_ == "package")
-					{
-						has_namespace = true;
-
-						write_h_stream_ << "namespace " << s.name_;
-
-						if (!s.note_.content_.empty())
-							write_h_stream_ << s.note_.content_;
-
-						if (s.note_.type_ == note_type::slash)
-							write_h_stream_ << crlf;
-
-						write_h_stream_ << crlf;
-
-						write_h_stream_ << "{" << crlf;
-					}
-					else if (s.type_ == "message")
-					{
-						std::string class_format_space = "";
-
-						if (has_namespace)
-							class_format_space = "\t";
-
-						std::string member_format_space = class_format_space + "\t";
-
-						begin_write_class(s, class_format_space);
-
-						write_friend_class(s.name_, member_format_space);
-
-						write_struct_impl(s, member_format_space);
-
-						write_pod_t(class_format_space);
-
-						write_construct(s.name_, class_format_space);
-
-						write_member_func(s, class_format_space);
-
-						write_member_impl(class_format_space);
-
-						end_write_class(s, class_format_space);
-					}
-					else
-					{
-						std::string class_format_space = "";
-
-						if (has_namespace)
-							class_format_space = "\t";
-
-						write_h_stream_ << class_format_space << s.note_.content_ << crlf;
-
-						if (s.note_.type_ == note_type::slash)
-							write_h_stream_ << crlf;
-					}
-				}
-				if (has_namespace)
-				{
-					write_h_stream_ << crlf << "}";
-				}
-			}
-
-			void generate_cpp::write_struct_def()
-			{
-				write_cpp_stream_ << "#include \"" << input_file_name_ << ".h\"" << crlf <<crlf;
-
-				bool has_namespace = false;
-
-				std::string class_format_space{};
-
-				for (auto& s : multi_key_words_)
-				{
-					if (s.type_ == "package")
-					{
-						has_namespace = true;
-
-						write_cpp_stream_ << "namespace " << s.name_ << crlf << "{" <<crlf;
-					}
-					else if (s.type_ == "message")
-					{
-						if (has_namespace)
-							class_format_space = tab;
-
-						int count = 0;
-
-						for (auto& mem : s.structs_)
-						{
-							if (mem.type_.empty())
-								continue;
-
-							auto type = get_type_name(mem.type_);
-
-							if (type.empty())
-								continue;
-
-							count++;
-
-							write_cpp_stream_ << class_format_space << "const " << type << "& " << s.name_
-											  << "::" << mem.name_ << "()" << crlf;
-							write_cpp_stream_ << class_format_space << "{" << crlf;
-							write_cpp_stream_ << class_format_space << tab << "return impl." << mem.name_ << ";"
-											  << crlf;
-							write_cpp_stream_ << class_format_space << "}" << crlf <<crlf;
-
-							write_cpp_stream_ << class_format_space << "const " << type << "& " << s.name_
-											  << "::" << mem.name_ << "() const" << crlf;
-							write_cpp_stream_ << class_format_space << "{" << crlf;
-							write_cpp_stream_ << class_format_space << tab << "return impl." << mem.name_ << ";"
-											  << crlf;
-							write_cpp_stream_ << class_format_space << "}" << crlf << crlf;
-
-							write_cpp_stream_ << class_format_space << "void " << s.name_ << "::set_" << mem.name_
-											  << "(const " << type << "& " << mem.name_ << ")" << crlf;
-							write_cpp_stream_ << class_format_space << "{" << crlf;
-							write_cpp_stream_ << class_format_space << tab << "impl." << mem.name_ << " = " << mem.name_
-											  << ";" << crlf;
-							write_cpp_stream_ << class_format_space << "}" << crlf;
-
-							if (count != s.structs_.size())
-								write_cpp_stream_ << crlf;
-						}
-						write_cpp_stream_ << crlf;
-						write_cpp_stream_ << class_format_space << "elastic::message_pod& "<<s.name_ <<"::internal_type()" << crlf;
-						write_cpp_stream_ << class_format_space << "{" << crlf;
-						write_cpp_stream_ << class_format_space << tab << "return impl;" << crlf;
-						write_cpp_stream_ << class_format_space << "}" << crlf;
-					}
-				}
-
-				if (has_namespace)
-				{
-					write_cpp_stream_ << "}";
-				}
-			}
-
-			bool generate_cpp::check_key_word(const std::string& value)
-			{
-				if (value.empty())
-					return false;
-
-				if (value[0] == '/')
-					return false;
-
-				std::string temp_value = value;
-
-				if (temp_value.find("map") != std::string::npos)
-					temp_value = "map";
-
-				auto iter_multi = std::find_if(multi_key_words.begin(), multi_key_words.end(),
-											   [&](auto&& key) { return key == temp_value; });
-
-				if (iter_multi != multi_key_words.end())
-					return true;
-
-				auto iter_single = std::find_if(single_key_words.begin(), single_key_words.end(),
-												[&](auto&& key) { return key == temp_value; });
-
-				if (iter_single != single_key_words.end())
-					return true;
-
-				return false;
-			}
-
-			void generate_cpp::begin_write_class(const reflactor_structure& rs, const std::string& space)
-			{
-				auto base_type = std::format("elastic::message_lite<{}>", rs.name_);
-
-				write_h_stream_ << space << "class " << rs.name_ << " final : public " << base_type << rs.note_.content_
-								<< crlf;
-
-				if (rs.note_.type_ == note_type::slash)
-					write_h_stream_ << crlf;
-
-				write_h_stream_ << space << "{";
-
-				if (!rs.left_note_.content_.empty())
-					write_h_stream_ << rs.left_note_.content_ << crlf;
-			}
-
-			void generate_cpp::write_friend_class(const std::string& class_name, const std::string& space)
-			{
-				auto base_type = std::format("elastic::message_lite<{}>", class_name);
-
-				write_h_stream_ << space << "friend class " << base_type << ";" << crlf << crlf;
-			}
-
-			void generate_cpp::write_struct_impl(const reflactor_structure& s, const std::string& space)
-			{
-				write_h_stream_ << space << "struct member_impl : elastic::message_pod\r\n";
-				write_h_stream_ << space << "{";
-
-				write_h_stream_ << crlf << space << "REFLECT_DEFINE(";
-
-				std::string struct_format_space = space + "\t";
-
-				int count = 0;
-				for (auto& mem : s.structs_)
-				{
-					if (mem.type_.empty())
-					{
-						write_h_stream_ << mem.note_.content_ << crlf;
-
-						if (mem.note_.type_ == note_type::slash)
-							write_h_stream_ << crlf;
-
-						continue;
-					}
-
-					auto type = get_type_name(mem.type_);
-
-					if (type.empty())
-						continue;
-
-					count++;
-
-					write_h_stream_ << crlf << struct_format_space << type << " " << mem.name_ << ";"
-									<< mem.note_.content_;
-
-					write_h_stream_ << crlf;
-				}
-
-				write_h_stream_ << space << ")" << crlf;
-				write_h_stream_ << space << "};" << crlf << crlf;
-			}
-
-			void generate_cpp::write_pod_t(const std::string& space)
-			{
-				write_h_stream_ << space << "public :" << crlf;
-
-				write_h_stream_ << space << "\tusing pod_t = member_impl;" << crlf << crlf;
-			}
-
-			void generate_cpp::write_construct(const std::string& class_name, const std::string& space)
-			{
-				write_h_stream_ << space << "public:\r\n";
-
-				write_h_stream_ << space << "\t" << class_name << "() =default;\r\n\r\n";
-
-				write_h_stream_ << space << "\t"
-								<< "virtual ~" << class_name << "() = default;\r\n\r\n";
-			}
-
-			void generate_cpp::write_member_func(const reflactor_structure& s, const std::string& space)
-			{
-				write_h_stream_ << space << "public:\r\n";
-
-				auto member_format_space = space + "\t";
-
-				for (auto& mem : s.structs_)
-				{
-					if (mem.type_.empty())
-						continue;
-
-					auto type = get_type_name(mem.type_);
-
-					if (type.empty())
-						continue;
-
-					write_h_stream_ << member_format_space << "const " << type << "& " << mem.name_ << "();\r\n\r\n";
-
-					write_h_stream_ << member_format_space << "const " << type << "& " << mem.name_
-									<< "() const;\r\n\r\n";
-
-					write_h_stream_ << member_format_space << "void "
-									<< "set_" << mem.name_ << "(const " << type << "& " << mem.name_ << ");\r\n\r\n";
-				}
-			}
-
-			void generate_cpp::write_member_impl(const std::string& space)
-			{
-				write_h_stream_ << space << "private:\r\n";
-				write_h_stream_ << space << "\tvirtual elastic::message_pod& internal_type() final;\r\n\r\n";
-
-				write_h_stream_ << space << "private:\r\n";
-				write_h_stream_ << space << "\tmember_impl impl;\r\n";
-			}
-
-			void generate_cpp::end_write_class(const reflactor_structure& rs, const std::string& space)
-			{
-				write_h_stream_ << space << "};";
-
-				if (!rs.right_note_.content_.empty())
-					write_h_stream_ << rs.right_note_.content_;
-			}
-
 			note generate_cpp::read_note()
 			{
 				note n{};
@@ -644,6 +319,325 @@ namespace elastic
 				}
 
 				return n;
+			}
+
+			bool generate_cpp::write_file()
+			{
+				if (!write_h_stream_.is_open())
+					return false;
+
+				write_struct_declare();
+
+				real_write_file(write_h_stream_);
+
+				if (!write_cpp_stream_.is_open())
+					return false;
+
+				write_struct_def();
+
+				real_write_file(write_cpp_stream_);
+
+				return true;
+			}
+
+			void generate_cpp::write_struct_declare()
+			{
+				write_struct_declare_header();
+
+				bool has_namespace = false;
+
+				for (auto& s : multi_key_words_)
+				{
+					if (s.type_ == "package")
+					{
+						has_namespace = true;
+
+						lines.push_back("namespace " + s.name_ + s.note_.content_);
+						lines.push_back("{");
+					}
+					else if (s.type_ == "message")
+					{
+						begin_write_class(s);
+
+						write_friend_class(s.name_);
+
+						write_struct_impl(s);
+
+						write_pod_t();
+
+						write_construct(s.name_);
+
+						write_member_func(s);
+
+						write_member_impl();
+
+						end_write_class(s);
+					}
+					else
+					{
+						lines.push_back(s.note_.content_);
+					}
+				}
+
+				if (has_namespace)
+				{
+					lines.push_back("}");
+				}
+			}
+
+			void generate_cpp::write_struct_declare_header()
+			{
+				lines.push_back("#pragma once");
+				lines.push_back("#include <elastic.hpp>");
+				lines.push_back({});
+			}
+
+			void generate_cpp::write_struct_def()
+			{
+				lines.clear();
+
+				lines.push_back("#include \"" + input_file_name_ + ".h\"");
+				lines.push_back({});
+
+				bool has_namespace = false;
+
+				for (auto& s : multi_key_words_)
+				{
+					if (s.type_ == "package")
+					{
+						lines.push_back("namespace " + s.name_);
+						lines.push_back("{");
+
+						has_namespace = true;
+					}
+					else if (s.type_ == "message")
+					{
+						for (auto& mem : s.structs_)
+						{
+							if (mem.type_.empty())
+								continue;
+
+							auto type = get_type_name(mem.type_);
+
+							if (type.empty())
+								continue;
+
+							lines.push_back(type + " " + s.name_ + "::" + mem.name_ + "() const");
+							lines.push_back("{");
+							lines.push_back("return impl." + mem.name_ + ";");
+							lines.push_back("}");
+							lines.push_back({});
+
+							lines.push_back("void " + s.name_ + "::set_" + mem.name_ + "(const " + type + "& " +
+											mem.name_ + ")");
+							lines.push_back("{");
+							lines.push_back("impl." + mem.name_ + " = " + mem.name_ + ";");
+							lines.push_back("}");
+						}
+
+						lines.push_back({});
+						lines.push_back("elastic::message_pod& " + s.name_ + "::internal_type()");
+						lines.push_back("{");
+						lines.push_back("return impl;");
+						lines.push_back("}");
+					}
+				}
+
+				if (has_namespace)
+				{
+					lines.push_back("}");
+				}
+			}
+
+			bool generate_cpp::check_key_word(const std::string& value)
+			{
+				if (value.empty())
+					return false;
+
+				if (value[0] == '/')
+					return false;
+
+				std::string temp_value = value;
+
+				if (temp_value.find("map") != std::string::npos)
+					temp_value = "map";
+
+				auto iter_multi = std::find_if(multi_key_words.begin(), multi_key_words.end(),
+											   [&](auto&& key) { return key == temp_value; });
+
+				if (iter_multi != multi_key_words.end())
+					return true;
+
+				auto iter_single = std::find_if(single_key_words.begin(), single_key_words.end(),
+												[&](auto&& key) { return key == temp_value; });
+
+				if (iter_single != single_key_words.end())
+					return true;
+
+				return false;
+			}
+
+			void generate_cpp::begin_write_class(const reflactor_structure& rs)
+			{
+				auto base_type = std::format("elastic::message_lite<{}>", rs.name_);
+
+				lines.push_back("class " + rs.name_ + " final : public " + base_type + rs.note_.content_);
+
+				lines.push_back("{" + rs.left_note_.content_);
+			}
+
+			void generate_cpp::write_friend_class(const std::string& class_name)
+			{
+				auto base_type = std::format("elastic::message_lite<{}>", class_name);
+
+				lines.push_back("friend class " + base_type + ";");
+			}
+
+			void generate_cpp::write_struct_impl(const reflactor_structure& s)
+			{
+				lines.push_back("struct member_impl : elastic::message_pod");
+				lines.push_back("{");
+				lines.push_back("REFLECT_DEFINE");
+				lines.push_back("(");
+
+				for (auto& mem : s.structs_)
+				{
+					if (mem.type_.empty())
+					{
+						lines.push_back(mem.note_.content_);
+
+						continue;
+					}
+
+					auto type = get_type_name(mem.type_);
+
+					if (type.empty())
+						continue;
+
+					lines.push_back(type + " " + mem.name_ + ";" + mem.note_.content_);
+				}
+
+				lines.push_back(")");
+				lines.push_back({});
+				lines.push_back("bool operator==(const member_impl& other) const");
+				lines.push_back("{");
+				lines.push_back("return");
+
+				int count = 0;
+				for (auto& mem : s.structs_)
+				{
+					if (mem.name_.empty() || mem.type_.empty())
+						continue;
+
+					count++;
+
+					std::string line = tab + mem.name_ + " == other." + mem.name_;
+
+					if (count != s.structs_.size())
+						line += " &&";
+					else
+					{
+						line += ";";
+					}
+
+					lines.push_back(line);
+				}
+
+				lines.push_back("}");
+
+				lines.push_back("private:");
+
+				lines.push_back(tab + "friend class elastic::access;");
+				lines.push_back({});
+				lines.push_back(tab + "template<typename _Archive>");
+				lines.push_back(tab + "void serialize(_Archive& ar)");
+				lines.push_back(tab + "{");
+
+				for (auto& mem : s.structs_)
+				{
+					if (mem.name_.empty() || mem.type_.empty())
+						continue;
+
+					lines.push_back(tab + tab + "ar& " + mem.name_ + ";");
+				}
+				lines.push_back(tab + "}");
+
+				lines.push_back("};");
+				lines.push_back({});
+			}
+
+			void generate_cpp::write_pod_t()
+			{
+				lines.push_back("public:");
+				lines.push_back(tab + "using pod_t = member_impl;");
+				lines.push_back({});
+			}
+
+			void generate_cpp::write_construct(const std::string& class_name)
+			{
+				lines.push_back("public:");
+				lines.push_back(tab + class_name + "() = default;");
+				lines.push_back(tab + "virtual ~" + class_name + "() = default;");
+				lines.push_back({});
+
+				lines.push_back("public:");
+				lines.push_back(tab + "bool operator==(const " + class_name + "& other)");
+				lines.push_back(tab + "{");
+				lines.push_back(tab + tab + "return impl == other.impl;");
+				lines.push_back(tab + "}");
+				lines.push_back({});
+			}
+
+			void generate_cpp::write_member_func(const reflactor_structure& s)
+			{
+				lines.push_back("public:");
+
+				for (auto& mem : s.structs_)
+				{
+					if (mem.type_.empty())
+						continue;
+
+					auto type = get_type_name(mem.type_);
+
+					if (type.empty())
+						continue;
+
+					lines.push_back(tab + type + " " + mem.name_ + "() const;" + crlf);
+					lines.push_back(tab + "void set_" + mem.name_ + "(const " + type + "& " + mem.name_ + ");" + crlf);
+					lines.push_back(tab + "void clear_" + mem.name_ + "();" + crlf);
+				}
+			}
+
+			void generate_cpp::write_member_impl()
+			{
+				lines.push_back("public:");
+				lines.push_back(tab + "virtual elastic::message_pod& internal_type() final;" + crlf);
+
+				lines.push_back("private:");
+				lines.push_back(tab + "member_impl impl;");
+			}
+
+			void generate_cpp::end_write_class(const reflactor_structure& rs)
+			{
+				lines.push_back("};" + rs.right_note_.content_);
+			}
+
+			void generate_cpp::real_write_file(std::ofstream& ofs)
+			{
+				std::string space{};
+				for (auto& line : lines)
+				{
+					if (!line.empty())
+					{
+						if (line[0] == ')' || line[0] == '}')
+							space.pop_back();
+					}
+
+					ofs << space << line << crlf;
+
+					if (line[0] == '{' || line[0] == '(')
+						space += tab;
+				}
 			}
 		} // namespace cpp
 	}	  // namespace compiler
