@@ -252,7 +252,7 @@ namespace elastic
 
 			auto result = _Traits::to_int_type(*base_type::gptr());
 
-			consume(1);
+			//consume(1);
 
 			return result;
 		}

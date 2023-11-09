@@ -13,14 +13,14 @@ namespace elastic
 		public:
 			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
 				: streambuf_(bs)
-				, start_pos_(-1)
+				, start_pos_(0)
 				, my_state_(0)
 			{}
 
 		public:
 			bool transfer()
 			{
-				if (start_pos_ != -1)
+				if (start_pos_ != 0)
 					return false;
 
 				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
@@ -32,7 +32,7 @@ namespace elastic
 			{
 				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
 
-				start_pos_ = -1;
+				start_pos_ = 0;
 			}
 
 			void complete()
@@ -47,7 +47,7 @@ namespace elastic
 
 			bool good()
 			{
-				return my_state_ & std::ios::goodbit;
+				return (my_state_ & std::ios::goodbit) == std::ios::goodbit;
 			}
 
 		protected:
@@ -98,7 +98,11 @@ namespace elastic
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
 			if (scount != 0)
+			{
+				this->complete();
+
 				return;
+			}
 
 			this->fail();
 

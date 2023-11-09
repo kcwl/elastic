@@ -129,11 +129,7 @@ namespace elastic
 
 				using Indices = std::make_index_sequence<N>;
 
-				for_each(t,
-						 [&](auto&& v)
-						 {
-							 ar >> v;
-						 });
+				for_each(t, [&](auto&& v) { deserialize(ar, v); });
 			}
 		}
 
@@ -159,11 +155,11 @@ namespace elastic
 					deserialize(ar, key);
 					deserialize(ar, v.second);
 
-					t.insert({key, v.second});
+					t.insert({ key, v.second });
 				}
 				else
 				{
-					ar >> v;
+					deserialize(ar, v);
 
 					t.push_back(v);
 				}
@@ -225,11 +221,7 @@ namespace elastic
 			}
 			else
 			{
-				for_each(std::forward<_Ty>(value),
-						 [&](auto&& v)
-						 {
-							 serialize(ar, v);
-						 });
+				for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
 			}
 		}
 
