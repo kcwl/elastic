@@ -2,169 +2,117 @@
 
 namespace xxx
 {
-	const int32_t& age()
+	int32_t person::age() const
 	{
 		return impl.age;
 	}
-
-	const int32_t& age() const
-	{
-		return impl.age;
-	}
-
-	void set_age(const int32_t& age)
+	
+	void person::set_age(const int32_t& age)
 	{
 		impl.age = age;
 	}
-
-	const std::string& name()
+	std::string person::name() const
 	{
 		return impl.name;
 	}
-
-	const std::string& name() const
-	{
-		return impl.name;
-	}
-
-	void set_name(const std::string& name)
+	
+	void person::set_name(const std::string& name)
 	{
 		impl.name = name;
 	}
-
-	const bool& sex()
+	bool person::sex() const
 	{
 		return impl.sex;
 	}
-
-	const bool& sex() const
-	{
-		return impl.sex;
-	}
-
-	void set_sex(const bool& sex)
+	
+	void person::set_sex(const bool& sex)
 	{
 		impl.sex = sex;
 	}
-
-	const int64_t& money()
+	int64_t person::money() const
 	{
 		return impl.money;
 	}
-
-	const int64_t& money() const
-	{
-		return impl.money;
-	}
-
-	void set_money(const int64_t& money)
+	
+	void person::set_money(const int64_t& money)
 	{
 		impl.money = money;
 	}
-
-	const uint32_t& back_money()
+	uint32_t person::back_money() const
 	{
 		return impl.back_money;
 	}
-
-	const uint32_t& back_money() const
-	{
-		return impl.back_money;
-	}
-
-	void set_back_money(const uint32_t& back_money)
+	
+	void person::set_back_money(const uint32_t& back_money)
 	{
 		impl.back_money = back_money;
 	}
-
-	const uint64_t& crc()
+	uint64_t person::crc() const
 	{
 		return impl.crc;
 	}
-
-	const uint64_t& crc() const
-	{
-		return impl.crc;
-	}
-
-	void set_crc(const uint64_t& crc)
+	
+	void person::set_crc(const uint64_t& crc)
 	{
 		impl.crc = crc;
 	}
-
-	const std::vector<uint8_t>& role_data()
+	bytes person::role_data() const
 	{
 		return impl.role_data;
 	}
-
-	const std::vector<uint8_t>& role_data() const
-	{
-		return impl.role_data;
-	}
-
-	void set_role_data(const std::vector<uint8_t>& role_data)
+	
+	void person::set_role_data(const bytes& role_data)
 	{
 		impl.role_data = role_data;
 	}
-
-	const float& hp()
+	float person::hp() const
 	{
 		return impl.hp;
 	}
-
-	const float& hp() const
-	{
-		return impl.hp;
-	}
-
-	void set_hp(const float& hp)
+	
+	void person::set_hp(const float& hp)
 	{
 		impl.hp = hp;
 	}
-
-	const double& mana()
+	double person::mana() const
 	{
 		return impl.mana;
 	}
-
-	const double& mana() const
-	{
-		return impl.mana;
-	}
-
-	void set_mana(const double& mana)
+	
+	void person::set_mana(const double& mana)
 	{
 		impl.mana = mana;
 	}
-
-	const elastic::fixed<uint32_t>& input_stream()
+	fixed32_t person::input_stream() const
 	{
 		return impl.input_stream;
 	}
-
-	const elastic::fixed<uint32_t>& input_stream() const
-	{
-		return impl.input_stream;
-	}
-
-	void set_input_stream(const elastic::fixed<uint32_t>& input_stream)
+	
+	void person::set_input_stream(const fixed32_t& input_stream)
 	{
 		impl.input_stream = input_stream;
 	}
-
-	const elastic::fixed<uint64_t>& output_stream()
+	fixed64_t person::output_stream() const
 	{
 		return impl.output_stream;
 	}
-
-	const elastic::fixed<uint64_t>& output_stream() const
-	{
-		return impl.output_stream;
-	}
-
-	void set_output_stream(const elastic::fixed<uint64_t>& output_stream)
+	
+	void person::set_output_stream(const fixed64_t& output_stream)
 	{
 		impl.output_stream = output_stream;
 	}
-
+	std::map<uint32_t,std::string> person::pairs() const
+	{
+		return impl.pairs;
+	}
+	
+	void person::set_pairs(const std::map<uint32_t,std::string>& pairs)
+	{
+		impl.pairs = pairs;
+	}
+	
+	elastic::message_pod& person::internal_type()
+	{
+		return impl;
+	}
 }

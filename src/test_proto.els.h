@@ -3,120 +3,158 @@
 
 /****************
 *test_proto
-*****************/namespace xxx // package named namespace
+*****************/
+namespace xxx // package named namespace
 {
-	//message person that number is 10001	class person final : public elastic::message_lite<person> // 注释
-	{
+	//message person that number is 10001
+	class person final : public elastic::message_lite<person> // 注释
+	{ //begin
 		friend class elastic::message_lite<person>;
-
 		struct member_impl : elastic::message_pod
 		{
-		REFLECT_DEFINE(//begin
-
-			int32_t age;		//年龄
-
-			std::string name;	//姓名
-
-			bool sex;
-
-			int64_t money;	//钱
-
-			uint32_t back_money; //仓库里的钱
-
-			uint64_t crc; //crc验证码
-
-			std::vector<uint8_t> role_data; //人物数据
-
-			float hp; //人物血量
-
-			double mana; //人物蓝量
-
-			elastic::fixed<uint32_t> input_stream; //输入流
-
-			elastic::fixed<uint64_t> output_stream; //输出流
-		)
+			REFLECT_DEFINE
+			(
+				int32_t age;		//年龄
+				std::string name;	//姓名
+				bool sex;
+				int64_t money;	//钱
+				uint32_t back_money; //仓库里的钱
+				uint64_t crc; //crc验证码
+				bytes role_data; //人物数据
+				float hp; //人物血量
+				double mana; //人物蓝量
+				fixed32_t input_stream; //输入流
+				fixed64_t output_stream; //输出流
+				std::map<uint32_t,std::string> pairs;
+			)
+			
+			bool operator==(const member_impl& other) const
+			{
+				return
+					age == other.age &&
+					name == other.name &&
+					sex == other.sex &&
+					money == other.money &&
+					back_money == other.back_money &&
+					crc == other.crc &&
+					role_data == other.role_data &&
+					hp == other.hp &&
+					mana == other.mana &&
+					input_stream == other.input_stream &&
+					output_stream == other.output_stream &&
+					pairs == other.pairs;
+			}
+			private:
+				friend class elastic::access;
+			
+				template<typename _Archive>
+				void serialize(_Archive& ar)
+				{
+					ar& age;
+					ar& name;
+					ar& sex;
+					ar& money;
+					ar& back_money;
+					ar& crc;
+					ar& role_data;
+					ar& hp;
+					ar& mana;
+					ar& input_stream;
+					ar& output_stream;
+					ar& pairs;
+				}
 		};
+		
+		public:
+			using pod_t = member_impl;
+		
+		public:
+			person() = default;
+			virtual ~person() = default;
+		
+		public:
+			bool operator==(const person& other)
+			{
+				return impl == other.impl;
+			}
+		
+		public:
+			int32_t age() const;
 
-	public :
-		using pod_t = member_impl;
+			void set_age(const int32_t& age);
 
-	public:
-		person() =default;
+			void clear_age();
 
-		virtual ~person() = default;
+			std::string name() const;
 
-	public:
-		const int32_t& age();
+			void set_name(const std::string& name);
 
-		const int32_t& age(); const
+			void clear_name();
 
-		void set_age(const int32_t& age);
+			bool sex() const;
 
-		const std::string& name();
+			void set_sex(const bool& sex);
 
-		const std::string& name(); const
+			void clear_sex();
 
-		void set_name(const std::string& name);
+			int64_t money() const;
 
-		const bool& sex();
+			void set_money(const int64_t& money);
 
-		const bool& sex(); const
+			void clear_money();
 
-		void set_sex(const bool& sex);
+			uint32_t back_money() const;
 
-		const int64_t& money();
+			void set_back_money(const uint32_t& back_money);
 
-		const int64_t& money(); const
+			void clear_back_money();
 
-		void set_money(const int64_t& money);
+			uint64_t crc() const;
 
-		const uint32_t& back_money();
+			void set_crc(const uint64_t& crc);
 
-		const uint32_t& back_money(); const
+			void clear_crc();
 
-		void set_back_money(const uint32_t& back_money);
+			bytes role_data() const;
 
-		const uint64_t& crc();
+			void set_role_data(const bytes& role_data);
 
-		const uint64_t& crc(); const
+			void clear_role_data();
 
-		void set_crc(const uint64_t& crc);
+			float hp() const;
 
-		const std::vector<uint8_t>& role_data();
+			void set_hp(const float& hp);
 
-		const std::vector<uint8_t>& role_data(); const
+			void clear_hp();
 
-		void set_role_data(const std::vector<uint8_t>& role_data);
+			double mana() const;
 
-		const float& hp();
+			void set_mana(const double& mana);
 
-		const float& hp(); const
+			void clear_mana();
 
-		void set_hp(const float& hp);
+			fixed32_t input_stream() const;
 
-		const double& mana();
+			void set_input_stream(const fixed32_t& input_stream);
 
-		const double& mana(); const
+			void clear_input_stream();
 
-		void set_mana(const double& mana);
+			fixed64_t output_stream() const;
 
-		const elastic::fixed<uint32_t>& input_stream();
+			void set_output_stream(const fixed64_t& output_stream);
 
-		const elastic::fixed<uint32_t>& input_stream(); const
+			void clear_output_stream();
 
-		void set_input_stream(const elastic::fixed<uint32_t>& input_stream);
+			std::map<uint32_t,std::string> pairs() const;
 
-		const elastic::fixed<uint64_t>& output_stream();
+			void set_pairs(const std::map<uint32_t,std::string>& pairs);
 
-		const elastic::fixed<uint64_t>& output_stream(); const
+			void clear_pairs();
 
-		void set_output_stream(const elastic::fixed<uint64_t>& output_stream);
+		public:
+			virtual elastic::message_pod& internal_type() final;
 
-	private:
-		virtual elastic::message_pod& internal_type() final;
-
- 	private:
-		member_impl impl;
-	};	//end
-
+		private:
+			member_impl impl;
+	};//end
 }

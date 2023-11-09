@@ -47,7 +47,7 @@ namespace elastic
 
 			bool good()
 			{
-				return my_state_ & std::ios::goodbit;
+				return (my_state_ & std::ios::goodbit) == std::ios::goodbit;
 			}
 
 		protected:
@@ -98,11 +98,15 @@ namespace elastic
 			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
 			if (scount != 0)
+			{
+				this->complete();
+
 				return;
+			}
 
 			this->fail();
 
-			throw std::runtime_error("input stream error!");
+			throw std::exception("input stream error!");
 		}
 	};
 

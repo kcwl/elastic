@@ -17,12 +17,10 @@ namespace elastic
 		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_iarchive(_StreamBuffer& bs)
 			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
-			, has_first_archive_(false)
 		{}
 
 		binary_iarchive(std::istream& is)
 			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(*is.rdbuf())
-			, has_first_archive_(false)
 		{}
 
 	private:
@@ -33,29 +31,21 @@ namespace elastic
 
 			try
 			{
-				has_first_archive_ = this->transfer();
-
 				binary::template deserialize(*this, t);
 			}
-			catch (std::exception& ec)
+			catch (...)
 			{
-				if (!has_first_archive_)
-					throw ec;
-
 				this->roll_back();
 
-				_Ty error{};
+				//_Ty error{};
 
-				std::swap(t, error);
+				//std::swap(t, error);
 
 				result = false;
 			}
 
 			return result;
 		}
-
-	private:
-		bool has_first_archive_;
 	};
 
 	class binary_oarchive : public binary_oprimitive<binary_oarchive, char, std::char_traits<char>>,

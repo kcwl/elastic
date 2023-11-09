@@ -11,6 +11,12 @@ namespace elastic
 	public:
 		fixed() = default;
 
+		fixed(_Ty value)
+			: value_(value)
+		{
+
+		}
+
 	public:
 		using value_type = _Ty;
 

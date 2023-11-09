@@ -25,13 +25,13 @@ namespace elastic
 		template <typename _StreamBuffer>
 		bool to_binary(_StreamBuffer& buffer)
 		{
-			return elastic::to_binary(_this->internal_type(), buffer);
+			return elastic::to_binary(static_cast<typename message_type::pod_t&>(_this()->internal_type()), buffer);
 		}
 
 		template <typename _StreamBuffer>
 		bool from_binary(_StreamBuffer& buffer)
 		{
-			return elastic::from_binary(_this()->internal_type(), buffer);
+			return elastic::from_binary(static_cast<typename message_type::pod_t&>(_this()->internal_type()), buffer);
 		}
 
 		template <typename _StreamBuffer>
