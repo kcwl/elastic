@@ -44,8 +44,6 @@ BOOST_AUTO_TEST_CASE(els)
 	per.from_binary(buffer);
 
 	BOOST_CHECK(per == persons);
-
-	constexpr bool res = std::is_pod_v<xxx::person>;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

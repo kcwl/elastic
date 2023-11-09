@@ -581,7 +581,7 @@ namespace elastic
 				lines.push_back({});
 
 				lines.push_back("public:");
-				lines.push_back(tab + "bool operator==(const " + class_name + "& other)");
+				lines.push_back(tab + "bool operator==(const " + class_name + "& other) const");
 				lines.push_back(tab + "{");
 				lines.push_back(tab + tab + "return impl == other.impl;");
 				lines.push_back(tab + "}");
