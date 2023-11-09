@@ -13,17 +13,20 @@ namespace elastic
 		public:
 			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
 				: streambuf_(bs)
-				, start_pos_(0)
+				, start_pos_(-1)
 				, my_state_(0)
+				, has_first_archive_(false)
 			{}
 
 		public:
 			bool transfer()
 			{
-				if (start_pos_ != 0)
+				if (start_pos_ != -1)
 					return false;
 
 				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+
+				has_first_archive_ = true;
 
 				return true;
 			}
@@ -32,7 +35,9 @@ namespace elastic
 			{
 				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
 
-				start_pos_ = 0;
+				start_pos_ = -1;
+
+				has_first_archive_ = false;
 			}
 
 			void complete()
@@ -50,6 +55,11 @@ namespace elastic
 				return my_state_ & std::ios::goodbit;
 			}
 
+			bool first_archive()
+			{
+				return has_first_archive_;
+			}
+
 		protected:
 			void fail()
 			{
@@ -65,6 +75,8 @@ namespace elastic
 			int32_t start_pos_;
 
 			std::ios::iostate my_state_;
+
+			bool has_first_archive_;
 		};
 	} // namespace impl
 
@@ -102,7 +114,7 @@ namespace elastic
 
 			this->fail();
 
-			throw std::runtime_error("input stream error!");
+			throw std::exception("input stream error!");
 		}
 	};
 
