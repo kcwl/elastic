@@ -140,14 +140,32 @@ namespace elastic
 		template <typename _Archive, sequence_t _Ty>
 		void deserialize(_Archive& ar, _Ty& t)
 		{
-			uint32_t bytes{};
+			std::size_t bytes{};
+
 			deserialize(ar, bytes);
 
-			t.resize(bytes);
-
-			for (auto& v : t)
+			for (std::size_t i = 0; i < bytes; ++i)
 			{
-				ar >> v;
+				using value_type = typename _Ty::value_type;
+
+				value_type v{};
+
+				if constexpr (map_t<_Ty>)
+				{
+					using key_type = std::remove_const_t<decltype(v.first)>;
+
+					key_type key{};
+
+					ar >> key >> v.second;
+
+					t.insert({key, v.second});
+				}
+				else
+				{
+					ar >> v;
+
+					t.push_back(v);
+				}
 			}
 		}
 
@@ -161,29 +179,6 @@ namespace elastic
 			ar >> val;
 
 			t.emplace(std::move(val));
-		}
-
-		template<typename _Archive, map_t _Ty>
-		void deserialize(_Archive& ar, _Ty& t)
-		{
-			uint32_t bytes{};
-			deserialize(ar, bytes);
-
-			for (uint32_t i = 0; i < bytes; ++i)
-			{
-				using type = typename _Ty::value_type;
-
-				using key_t = typename type::first_type;
-				using value_t = typename type::sencond_type;
-
-				key_t key{};
-				value_t value{};
-
-				deserialize(ar, key);
-				deserialize(ar, value);
-
-				t.emplace(key, value);
-			}
 		}
 
 		template <typename _Archive, signed_numric_t _Ty>
@@ -236,13 +231,22 @@ namespace elastic
 		template <typename _Archive, sequence_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
+			using type = std::remove_cvref_t<_Ty>;
+
 			auto bytes = value.size();
 
 			ar << bytes;
 
 			for (auto& s : std::forward<_Ty>(value))
 			{
-				ar << s;
+				if constexpr (map_t<type>)
+				{
+					ar << s.first << s.second;
+				}
+				else
+				{
+					ar << s;
+				}
 			}
 		}
 
@@ -251,21 +255,6 @@ namespace elastic
 		{
 			ar << *value;
 		}
-
-		template<typename _Archive, map_t _Ty>
-		void serialize(_Archive& ar, _Ty&& value)
-		{
-			auto size = value.size();
-
-			serialize(ar, size);
-
-			for (auto& v : value)
-			{
-				serialize(ar, v.first);
-				serialize(ar, v.second);
-			}
-		}
-
 	} // namespace impl
 
 	namespace binary

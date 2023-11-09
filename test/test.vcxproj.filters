@@ -77,6 +77,12 @@
     <ClInclude Include="..\src\test_proto.els.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\elastic\message_lite.hpp">
+      <Filter>elastic</Filter>
+    </ClInclude>
+    <ClInclude Include="els.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

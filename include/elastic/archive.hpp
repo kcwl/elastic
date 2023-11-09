@@ -44,9 +44,9 @@ namespace elastic
 
 				this->roll_back();
 
-				_Ty error{};
+				//_Ty error{};
 
-				std::swap(t, error);
+				//std::swap(t, error);
 
 				result = false;
 			}

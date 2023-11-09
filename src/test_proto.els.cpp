@@ -1,4 +1,4 @@
-#include "test_proto.els.h
+#include "test_proto.els.h"
 
 namespace xxx
 {
@@ -180,5 +180,10 @@ namespace xxx
 	void person::set_pairs(const std::map<uint32_t,std::string>& pairs)
 	{
 		impl.pairs = pairs;
+	}
+
+	elastic::message_pod& person::internal_type()
+	{
+		return impl;
 	}
 }

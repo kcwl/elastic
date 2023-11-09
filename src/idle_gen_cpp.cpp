@@ -377,7 +377,7 @@ namespace elastic
 
 			void generate_cpp::write_struct_def()
 			{
-				write_cpp_stream_ << "#include \"" << input_file_name_ << ".h" << crlf <<crlf;
+				write_cpp_stream_ << "#include \"" << input_file_name_ << ".h\"" << crlf <<crlf;
 
 				bool has_namespace = false;
 
@@ -434,6 +434,11 @@ namespace elastic
 							if (count != s.structs_.size())
 								write_cpp_stream_ << crlf;
 						}
+						write_cpp_stream_ << crlf;
+						write_cpp_stream_ << class_format_space << "elastic::message_pod& "<<s.name_ <<"::internal_type()" << crlf;
+						write_cpp_stream_ << class_format_space << "{" << crlf;
+						write_cpp_stream_ << class_format_space << tab << "return impl;" << crlf;
+						write_cpp_stream_ << class_format_space << "}" << crlf;
 					}
 				}
 
