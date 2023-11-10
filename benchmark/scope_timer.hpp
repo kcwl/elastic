@@ -19,10 +19,12 @@ public:
 	{
 		auto end = std::chrono::high_resolution_clock::now();
 		auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(end - m_beg);
+		auto dur_s = std::chrono::duration_cast<std::chrono::milliseconds>(end - m_beg);
 		if (m_ns)
 			*m_ns = dur.count();
 
 		std::cout << m_name << " :     "   << dur.count() << " ns\n";
+		std::cout << m_name << " :     " << dur_s.count() << " ms\n";
 	}
 
 private:

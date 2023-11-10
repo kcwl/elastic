@@ -1,59 +1,74 @@
 ﻿// benchmark.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
-#include "elc.hpp"
-#include "protobuf.hpp"
+#include "elastic_parse.hpp"
+#include "proto_data_base.hpp"
 
 #include <iostream>
 
-template <parse_type Value>
-void serialize(elc& e, protobuf& p)
-{
-	std::cout << "=====================================================\n";
-
-	e.serialize<Value>();
-	 p.seriliaze<Value>();
-
-	std::cout << "=====================================================\n\n";
-}
-
-template <parse_type Value>
-void deserialize(elc& e, protobuf& p)
-{
-	std::cout << "=====================================================\n";
-
-	e.deserialize<Value>();
-	 p.deseriliaze<Value>();
-
-	std::cout << "=====================================================\n\n";
-}
+//template <parse_type Value>
+//void serialize(elc& e, protobuf& p)
+//{
+//	std::cout << "=====================================================\n";
+//
+//	e.serialize<Value>();
+//	p.seriliaze<Value>();
+//
+//	std::cout << "=====================================================\n\n";
+//}
+//
+//template <parse_type Value>
+//void deserialize(elc& e, protobuf& p)
+//{
+//	std::cout << "=====================================================\n";
+//
+//	e.deserialize<Value>();
+//	p.deseriliaze<Value>();
+//
+//	std::cout << "=====================================================\n\n";
+//}
 
 int main()
 {
 	std::cout << "benchmark : elastic and protobuf\n\n\n";
 
-	elc els{};
+	proto_base protobuf{};
 
-	protobuf proto{};
+	elastic_base elas{};
 
-	serialize<parse_type::vec3>(els, proto);
-	serialize<parse_type::weapon>(els, proto);
-	serialize<parse_type::monster>(els, proto);
-	serialize<parse_type::monsters>(els, proto);
-	serialize<parse_type::rect32>(els, proto);
-	serialize<parse_type::rect32s>(els, proto);
-	serialize<parse_type::person>(els, proto);
-	serialize<parse_type::persons>(els, proto);
 
-	//std::cout << "\n\n\n\n";
+	std::cout << "=====================================================\n";
+	protobuf.serialize();
+	elas.serialize();
+	std::cout << "=====================================================\n\n";
 
-	deserialize<parse_type::vec3>(els, proto);
-	deserialize<parse_type::weapon>(els, proto);
-	deserialize<parse_type::monster>(els, proto);
-	deserialize<parse_type::monsters>(els, proto);
-	deserialize<parse_type::rect32>(els, proto);
-	deserialize<parse_type::rect32s>(els, proto);
-	deserialize<parse_type::person>(els, proto);
-	deserialize<parse_type::persons>(els, proto);
+	std::cout << "=====================================================\n";
+	protobuf.deserialize();
+	elas.deserialize();
+	std::cout << "=====================================================\n\n";
+
+	//elc els{};
+
+	//protobuf proto{};
+
+	//serialize<parse_type::vec3>(els, proto);
+	//serialize<parse_type::weapon>(els, proto);
+	//serialize<parse_type::monster>(els, proto);
+	//serialize<parse_type::monsters>(els, proto);
+	//serialize<parse_type::rect32>(els, proto);
+	//serialize<parse_type::rect32s>(els, proto);
+	//serialize<parse_type::person>(els, proto);
+	//serialize<parse_type::persons>(els, proto);
+
+	//// std::cout << "\n\n\n\n";
+
+	//deserialize<parse_type::vec3>(els, proto);
+	//deserialize<parse_type::weapon>(els, proto);
+	//deserialize<parse_type::monster>(els, proto);
+	//deserialize<parse_type::monsters>(els, proto);
+	//deserialize<parse_type::rect32>(els, proto);
+	//deserialize<parse_type::rect32s>(els, proto);
+	//deserialize<parse_type::person>(els, proto);
+	//deserialize<parse_type::persons>(els, proto);
 
 	std::cout << "those are the benchmark results\n";
 

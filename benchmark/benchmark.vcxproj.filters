@@ -21,6 +21,9 @@
     <ClCompile Include="data.pb.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\test_proto.els.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data.pb.h">
@@ -35,10 +38,13 @@
     <ClInclude Include="config.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="protobuf.hpp">
+    <ClInclude Include="proto_data_base.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="elc.hpp">
+    <ClInclude Include="..\src\test_proto.els.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="elastic_parse.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

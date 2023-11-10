@@ -3,7 +3,7 @@
 #include <string_view>
 #include <cstdint>
 
-inline constexpr int32_t PARSE_TIMES = 1000000;
+inline constexpr int32_t PARSE_TIMES = 100000;
 
 enum class parse_type
 {

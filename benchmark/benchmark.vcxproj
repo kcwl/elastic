@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../include;F:\git\protobuf\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../include;F:\git\protobuf\src;$(ProjectDir)../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -139,15 +139,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\test_proto.els.cpp" />
     <ClCompile Include="benchmark.cpp" />
     <ClCompile Include="data.pb.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\test_proto.els.h" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="data.hpp" />
     <ClInclude Include="data.pb.h" />
-    <ClInclude Include="elc.hpp" />
-    <ClInclude Include="protobuf.hpp" />
+    <ClInclude Include="elastic_parse.hpp" />
+    <ClInclude Include="proto_data_base.hpp" />
     <ClInclude Include="scope_timer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
