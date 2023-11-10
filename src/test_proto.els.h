@@ -25,7 +25,6 @@ namespace xxx // package named namespace
 				double mana; //人物蓝量
 				fixed32_t input_stream; //输入流
 				fixed64_t output_stream; //输出流
-				std::map<uint32_t,std::string> pairs;
 			)
 			
 			bool operator==(const member_impl& other) const
@@ -41,8 +40,7 @@ namespace xxx // package named namespace
 					hp == other.hp &&
 					mana == other.mana &&
 					input_stream == other.input_stream &&
-					output_stream == other.output_stream &&
-					pairs == other.pairs;
+					output_stream == other.output_stream;
 			}
 			private:
 				friend class elastic::access;
@@ -61,7 +59,6 @@ namespace xxx // package named namespace
 					ar& mana;
 					ar& input_stream;
 					ar& output_stream;
-					ar& pairs;
 				}
 		};
 		
@@ -73,7 +70,7 @@ namespace xxx // package named namespace
 			virtual ~person() = default;
 		
 		public:
-			bool operator==(const person& other)
+			bool operator==(const person& other) const
 			{
 				return impl == other.impl;
 			}
@@ -144,12 +141,6 @@ namespace xxx // package named namespace
 			void set_output_stream(const fixed64_t& output_stream);
 
 			void clear_output_stream();
-
-			std::map<uint32_t,std::string> pairs() const;
-
-			void set_pairs(const std::map<uint32_t,std::string>& pairs);
-
-			void clear_pairs();
 
 		public:
 			virtual elastic::message_pod& internal_type() final;

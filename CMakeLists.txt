@@ -10,3 +10,4 @@ add_subdirectory(depends)
 
 add_subdirectory(test)
 
+add_subdirectory(benchmark)

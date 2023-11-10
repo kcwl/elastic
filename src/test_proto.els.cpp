@@ -101,15 +101,6 @@ namespace xxx
 	{
 		impl.output_stream = output_stream;
 	}
-	std::map<uint32_t,std::string> person::pairs() const
-	{
-		return impl.pairs;
-	}
-	
-	void person::set_pairs(const std::map<uint32_t,std::string>& pairs)
-	{
-		impl.pairs = pairs;
-	}
 	
 	elastic::message_pod& person::internal_type()
 	{
