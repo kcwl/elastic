@@ -17,12 +17,6 @@ namespace elastic
 		{
 			return static_cast<_Ty&>(u);
 		}
-
-		template <typename _Ty, typename _U>
-		static _Ty* cast_pointer(_U* u)
-		{
-			return static_cast<_Ty*>(u);
-		}
 	};
 
 	template <typename _Base, typename _Derived>

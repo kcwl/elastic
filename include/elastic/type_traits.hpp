@@ -6,42 +6,36 @@
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <cstdint>
+#include <map>
 
 namespace elastic
 {
-	struct any_type
+	namespace impl
 	{
-		std::size_t ignore_;
-
-		template <typename _Ty>
-		constexpr operator _Ty() const noexcept
+		struct any_type
 		{
-			return _Ty{};
+			std::size_t ignore_;
+
+			template <typename _Ty>
+			constexpr operator _Ty() const noexcept
+			{
+				return _Ty{};
+			};
 		};
-	};
+	} // namespace impl
 
 	template <typename _Ty, typename Indices, typename = void>
 	struct is_aggregate_initalize_impl : std::false_type
 	{};
 
 	template <typename _Ty, size_t... I>
-	struct is_aggregate_initalize_impl<_Ty, std::index_sequence<I...>, std::void_t<decltype(_Ty{ any_type{ I }... })>>
-		: std::true_type
+	struct is_aggregate_initalize_impl<_Ty, std::index_sequence<I...>,
+									   std::void_t<decltype(_Ty{ impl::any_type{ I }... })>> : std::true_type
 	{};
 
 	template <typename _Ty, std::size_t N>
 	struct is_aggregate_initialize : is_aggregate_initalize_impl<_Ty, std::make_index_sequence<N>>
 	{};
-
-	template <typename _Ty>
-	struct identify
-	{
-		using type = _Ty;
-	};
-
-	template <typename _Ty>
-	using identify_t = typename identify<std::remove_cvref_t<_Ty>>::type;
 
 	template <typename _Ty>
 	struct is_fixed : std::false_type
@@ -50,33 +44,6 @@ namespace elastic
 	template <typename _Ty>
 	struct is_fixed<fixed<_Ty>> : std::true_type
 	{};
-
-	template <typename _Ty>
-	struct is_string : std::false_type
-	{};
-
-	template <>
-	struct is_string<std::string> : std::true_type
-	{};
-
-	template <typename _Ty, std::size_t N>
-	struct is_string<std::array<_Ty, N>> : std::true_type
-	{};
-
-	template <typename _Ty, std::size_t N>
-	struct is_string<_Ty[N]> : std::true_type
-	{};
-
-	template <typename _Ty>
-	struct is_string<_Ty[]> : std::true_type
-	{};
-
-	template <typename _Ty>
-	struct is_string<std::vector<_Ty>> : std::true_type
-	{};
-
-	template <typename _Ty>
-	inline constexpr bool is_string_v = is_string<_Ty>::value;
 
 	template <typename _Ty, typename... _Args>
 	inline constexpr bool is_any_of_v = std::disjunction_v<std::is_same<std::remove_cvref_t<_Ty>, _Args>...>;
@@ -138,15 +105,15 @@ namespace elastic
 	using zig_zag_t = typename zig_zag<std::remove_cvref_t<_Ty>>::type;
 
 	template <typename _Ty, std::size_t N>
-	concept aggregate_inialize = is_aggregate_initialize<_Ty, N>::value;
+	concept aggregate_inialize_t = is_aggregate_initialize<_Ty, N>::value;
 
 	template <typename _Ty>
-	concept copable = std::is_copy_constructible_v<std::remove_all_extents_t<_Ty>> &&
-					  std::is_move_constructible_v<std::remove_all_extents_t<_Ty>>;
+	concept copable_t = std::is_copy_constructible_v<std::remove_all_extents_t<_Ty>> &&
+						std::is_move_constructible_v<std::remove_all_extents_t<_Ty>>;
 
 	template <typename _Ty>
-	concept reflection =
-		copable<_Ty> && !std::is_polymorphic_v<_Ty> && (std::is_aggregate_v<_Ty> || std::is_scalar_v<_Ty>);
+	concept reflection_t =
+		copable_t<_Ty> && !std::is_polymorphic_v<_Ty> && (std::is_aggregate_v<_Ty> || std::is_scalar_v<_Ty>);
 
 	template <typename _Ty>
 	concept tuple_t = requires() { std::tuple_size<_Ty>(); };
@@ -155,26 +122,26 @@ namespace elastic
 	concept class_t = std::is_class_v<std::remove_reference_t<_Ty>>;
 
 	template <typename _Ty>
-	concept signed_numric_v = is_any_of_v<_Ty, int8_t, int16_t, int32_t, int64_t>;
+	concept signed_numric_t = is_any_of_v<_Ty, int8_t, int16_t, int32_t, int64_t>;
 
 	template <typename _Ty>
-	concept unsigned_numric_v = std::is_unsigned_v<std::remove_cvref_t<_Ty>>;
+	concept unsigned_numric_t = std::is_unsigned_v<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
-	concept other_numric_v = is_any_of_v<std::remove_cvref_t<_Ty>, bool, std::byte, char> ||
-							 std::is_enum_v<std::remove_cvref_t<_Ty>> || unsigned_numric_v<_Ty>;
+	concept other_numric_t = is_any_of_v<std::remove_cvref_t<_Ty>, bool, std::byte, char> ||
+							 std::is_enum_v<std::remove_cvref_t<_Ty>> || unsigned_numric_t<_Ty>;
 
 	template <typename _Ty>
 	concept multi_numric_v = is_any_of_v<_Ty, double, float>;
 
 	template <typename _Ty>
-	concept varint_t = signed_numric_v<std::remove_cvref_t<_Ty>> || other_numric_v<std::remove_cvref_t<_Ty>>;
+	concept varint_t = signed_numric_t<std::remove_cvref_t<_Ty>> || other_numric_t<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
-	concept integer_t = signed_numric_v<_Ty> || other_numric_v<_Ty> || multi_numric_v<_Ty>;
+	concept integer_t = signed_numric_t<_Ty> || other_numric_t<_Ty> || multi_numric_v<_Ty>;
 
 	template <typename _Ty>
-	concept fixed_v = is_fixed<_Ty>::value || multi_numric_v<_Ty>;
+	concept fixed_t = is_fixed<_Ty>::value || multi_numric_v<_Ty>;
 
 	template <typename _Ty>
 	concept optional_t = requires(_Ty value) {
@@ -194,8 +161,19 @@ namespace elastic
 		typename std::remove_cvref_t<_Ty>::value_type;
 	};
 
+	template<typename _Ty>
+	struct is_map : public std::false_type
+	{};
+
+	template<typename _Key, typename _Value>
+	struct is_map<std::map<_Key, _Value>> : std::true_type
+	{};
+
+	template<typename _Ty>
+	concept map_t = is_map<_Ty>::value;
+
 	template <typename _Ty>
-	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || fixed_v<_Ty>;
+	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || fixed_t<_Ty> || map_t<_Ty>;
 
 	template <typename _Ty>
 	concept inherit_t = !non_inherit_t<_Ty>;

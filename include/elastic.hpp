@@ -1,32 +1,10 @@
 #pragma once
 #include "elastic/access.hpp"
-#include "elastic/exception.hpp"
 #include "elastic/archive.hpp"
+#include "elastic/flex_buffer.hpp"
+#include "elastic/message_lite.hpp"
 #include "elastic/reflect.hpp"
 
-namespace elastic
-{
-	template <typename _Ty, typename _Buffer>
-	int32_t to_binary(_Ty&& t, _Buffer& buffer)
-	{
-		auto old_size = buffer.size();
-
-		binary_oarchive oa(buffer);
-
-		oa << std::forward<_Ty>(t);
-
-		return static_cast<int32_t>(old_size - buffer.size());
-	}
-
-	template <typename _Ty, typename _Buffer>
-	int32_t from_binary(_Ty& t, _Buffer& buffer)
-	{
-		auto old_size = buffer.size();
-
-		binary_iarchive ia(buffer);
-
-		ia >> t;
-
-		return static_cast<int32_t>(old_size - buffer.size());
-	}
-} // namespace elastic
+using fixed32_t = elastic::fixed<uint32_t>;
+using fixed64_t = elastic::fixed<uint64_t>;
+using bytes = std::vector<uint8_t>;
