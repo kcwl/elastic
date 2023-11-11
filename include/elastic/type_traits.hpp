@@ -158,6 +158,7 @@ namespace elastic
 		value.size();
 		std::begin(value);
 		std::end(value);
+		value.data();
 		typename std::remove_cvref_t<_Ty>::value_type;
 	};
 

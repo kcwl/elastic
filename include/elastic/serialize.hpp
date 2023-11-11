@@ -140,30 +140,39 @@ namespace elastic
 
 			deserialize(ar, bytes);
 
-			for (std::size_t i = 0; i < bytes; ++i)
-			{
-				using value_type = typename _Ty::value_type;
+			t.resize(bytes);
 
-				value_type v{};
+			ar.load(t.data(), bytes);
 
-				if constexpr (map_t<_Ty>)
-				{
-					using key_type = std::remove_const_t<decltype(v.first)>;
+			//if constexpr (!map_t<_Ty>)
+			//{
+			//	t.resize(bytes);
+			//}
 
-					key_type key{};
+			//for (std::size_t i = 0; i < bytes; ++i)
+			//{
+			//	using value_type = typename _Ty::value_type;
 
-					deserialize(ar, key);
-					deserialize(ar, v.second);
+			//	value_type v{};
 
-					t.insert({ key, v.second });
-				}
-				else
-				{
-					deserialize(ar, v);
+			//	if constexpr (map_t<_Ty>)
+			//	{
+			//		using key_type = std::remove_const_t<decltype(v.first)>;
 
-					t.push_back(v);
-				}
-			}
+			//		key_type key{};
+
+			//		deserialize(ar, key);
+			//		deserialize(ar, v.second);
+
+			//		t.insert({ key, v.second });
+			//	}
+			//	else
+			//	{
+			//		deserialize(ar, v);
+
+			//		t.push_back(v);
+			//	}
+			//}
 		}
 
 		template <typename _Archive, optional_t _Ty>
@@ -228,24 +237,11 @@ namespace elastic
 		template <typename _Archive, sequence_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			using type = std::remove_cvref_t<_Ty>;
-
 			auto bytes = value.size();
 
 			serialize(ar, bytes);
 
-			for (auto& s : std::forward<_Ty>(value))
-			{
-				if constexpr (map_t<type>)
-				{
-					serialize(ar, s.first);
-					serialize(ar, s.second);
-				}
-				else
-				{
-					serialize(ar, s);
-				}
-			}
+			ar.save(value.data(), bytes);
 		}
 
 		template <typename _Archive, optional_t _Ty>

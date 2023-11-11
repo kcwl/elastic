@@ -86,6 +86,12 @@ namespace elastic
 			load_binary(&t, sizeof(_Ty));
 		}
 
+		template<typename _Ty>
+		void load(_Ty* begin, std::size_t size)
+		{
+			load_binary(begin, size);
+		}
+
 	protected:
 		_Archive* _this()
 		{
@@ -125,6 +131,12 @@ namespace elastic
 		void save(_Ty&& t)
 		{
 			save_binary(std::addressof(t), sizeof(_Ty));
+		}
+
+		template<typename _Ty>
+		void save(_Ty* begin, std::size_t size)
+		{
+			save_binary(begin, size);
 		}
 
 	protected:
