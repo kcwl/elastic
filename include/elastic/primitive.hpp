@@ -84,13 +84,32 @@ namespace elastic
 		template <typename _Ty>
 		void load(_Ty& t)
 		{
-			this->load(&t, sizeof(_Ty));
+			constexpr auto array_size = sizeof(_Ty);
+
+			_Elem buffer[array_size] = { 0 };
+
+			this->load(&buffer[0], array_size);
+
+			t = *reinterpret_cast<_Ty*>(buffer);
 		}
 
 		template <typename _Ty>
-		void load(_Ty* begin, std::size_t size)
+		void load(_Ty* address, std::size_t size)
 		{
-			load_binary(begin, size);
+			std::streamsize s = static_cast<std::streamsize>(size / sizeof(_Elem));
+
+			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
+
+			if (scount != 0)
+			{
+				this->complete();
+
+				return;
+			}
+
+			this->fail();
+
+			throw std::exception("input stream error!");
 		}
 
 		void get(uint8_t& c)
@@ -104,23 +123,6 @@ namespace elastic
 		_Archive* _this()
 		{
 			return static_cast<_Archive*>(this);
-		}
-
-	private:
-		void load_binary(void* address, std::size_t count)
-		{
-			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
-			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
-			if (scount != 0)
-			{
-				this->complete();
-
-				return;
-			}
-
-			this->fail();
-
-			throw std::exception("input stream error!");
 		}
 	};
 

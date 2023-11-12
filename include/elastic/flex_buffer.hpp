@@ -315,9 +315,12 @@ namespace elastic
 			if (size > active())
 				return 0;
 
-			traits_type::copy(rdata(), begin, size);
+			for (size_type i = 0; i < size; ++i)
+			{
+				*rdata() = begin[i];
 
-			commit(static_cast<int>(size));
+				commit(1);
+			}
 
 			return size;
 		}
@@ -327,9 +330,12 @@ namespace elastic
 			if (size > this->size())
 				return 0;
 
-			traits_type::copy(begin, wdata(), size);
+			for (size_type i = 0; i < size; ++i)
+			{
+				begin[i] = *wdata();
 
-			consume(static_cast<int>(size));
+				consume(1);
+			}
 
 			return size;
 		}
