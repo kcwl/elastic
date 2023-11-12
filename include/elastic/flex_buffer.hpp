@@ -131,18 +131,18 @@ namespace elastic
 			return data() + pptr_;
 		}
 
-		void commit(int bytes)
+		void commit(off_type bytes)
 		{
-			bytes = std::min<int>(bytes, buffer_.size() - pptr_);
+			bytes = static_cast<off_type>(std::min<std::size_t>(bytes, buffer_.size() - pptr_));
 
 			pptr_ += bytes;
 
 			pptr_ < 0 ? pptr_ = 0 : 0;
 		}
 
-		void consume(int bytes)
+		void consume(off_type bytes)
 		{
-			bytes = std::min<int>(bytes, pptr_ - gptr_);
+			bytes = std::min<off_type>(bytes, pptr_ - gptr_);
 
 			gptr_ += bytes;
 
