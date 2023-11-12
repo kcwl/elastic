@@ -7,7 +7,7 @@ BOOST_AUTO_TEST_SUITE(io)
 BOOST_AUTO_TEST_CASE(elastic_type)
 {
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		char a_in = (std::numeric_limits<char>::max)();
@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		int8_t a_in = (std::numeric_limits<int8_t>::max)();
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint8_t a_in = (std::numeric_limits<uint8_t>::max)();
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		int16_t a_in = (std::numeric_limits<int16_t>::max)();
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		BOOST_TEST(a_in == a_out);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint16_t a_in = (std::numeric_limits<uint16_t>::max)();
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		int32_t a_in = (std::numeric_limits<int32_t>::max)();
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint32_t a_in = (std::numeric_limits<uint32_t>::max)();
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		int64_t a_in = (std::numeric_limits<int64_t>::max)();
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		uint64_t a_in = (std::numeric_limits<uint64_t>::max)();
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 			blue = 2
 		};
 
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << color::red;
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		BOOST_CHECK(cr == color::red);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		std::string a_in = "hello world!";
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		BOOST_TEST(a_in == a_out);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		bool a_in = false;
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		BOOST_TEST(a_in == a_out);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		BOOST_TEST(a_in == a_out);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		double a_in = 1.2;
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		BOOST_TEST(a_in == a_out);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		float a_in = 2.4f;

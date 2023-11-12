@@ -1,6 +1,7 @@
 #pragma once
+#include "flex_buffer.hpp"
+
 #include <exception>
-#include <streambuf>
 #include <iostream>
 
 namespace elastic
@@ -11,7 +12,7 @@ namespace elastic
 		class basic_primitive
 		{
 		public:
-			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
+			explicit basic_primitive(flex_buffer<_Elem, _Traits>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
 				, my_state_(0)
@@ -59,7 +60,7 @@ namespace elastic
 			}
 
 		protected:
-			std::basic_streambuf<_Elem, _Traits>& streambuf_;
+			flex_buffer<_Elem, _Traits>& streambuf_;
 
 		private:
 			int32_t start_pos_;
@@ -72,7 +73,7 @@ namespace elastic
 	class binary_iprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
 	protected:
-		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+		binary_iprimitive(flex_buffer<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
 		{}
 
@@ -86,7 +87,7 @@ namespace elastic
 			load_binary(&t, sizeof(_Ty));
 		}
 
-		template<typename _Ty>
+		template <typename _Ty>
 		void load(_Ty* begin, std::size_t size)
 		{
 			load_binary(begin, size);
@@ -120,7 +121,7 @@ namespace elastic
 	class binary_oprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
 	protected:
-		binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+		binary_oprimitive(flex_buffer<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
 		{}
 
@@ -133,7 +134,7 @@ namespace elastic
 			save_binary(std::addressof(t), sizeof(_Ty));
 		}
 
-		template<typename _Ty>
+		template <typename _Ty>
 		void save(_Ty* begin, std::size_t size)
 		{
 			save_binary(begin, size);

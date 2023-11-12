@@ -14,13 +14,8 @@ namespace elastic
 
 	public:
 		template <typename _StreamBuffer>
-		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_iarchive(_StreamBuffer& bs)
 			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
-		{}
-
-		binary_iarchive(std::istream& is)
-			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(*is.rdbuf())
 		{}
 
 	private:
@@ -55,13 +50,8 @@ namespace elastic
 
 	public:
 		template <typename _StreamBuffer>
-		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_oarchive(_StreamBuffer& bsb)
 			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(bsb)
-		{}
-
-		binary_oarchive(std::ostream& os)
-			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(*os.rdbuf())
 		{}
 
 	private:

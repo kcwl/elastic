@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(inherit)
 		d.c = 3;
 		d.d = 4;
 
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << d;
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(inherit)
 	}
 
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		struct son
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(inherit)
 			son s_;
 		};
 
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 
 		elastic::binary_oarchive oa(buf);
 

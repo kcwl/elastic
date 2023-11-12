@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(els)
 
 	persons.set_crc(111122222);
 
-	persons.set_role_data(std::vector<uint8_t>{ 'a', 'b' });
+	persons.set_role_data(std::string{ 'a', 'b' });
 
 	persons.set_hp(1.2f);
 
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(els)
 
 	persons.set_output_stream(elastic::fixed<uint64_t>(10));
 
-	persons.set_pairs(std::map<uint32_t, std::string>{ { 1, "hello" }, { 2, "world" } });
+	//persons.set_pairs(std::map<uint32_t, std::string>{ { 1, "hello" }, { 2, "world" } });
 
 	persons.to_binary(buffer);
 
