@@ -140,7 +140,7 @@ namespace elastic
 
 			t.resize(bytes);
 
-			int count = bytes;
+			std::size_t count = bytes;
 
 			while (bytes--)
 			{
