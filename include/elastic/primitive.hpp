@@ -84,13 +84,20 @@ namespace elastic
 		template <typename _Ty>
 		void load(_Ty& t)
 		{
-			load_binary(&t, sizeof(_Ty));
+			this->load(&t, sizeof(_Ty));
 		}
 
 		template <typename _Ty>
 		void load(_Ty* begin, std::size_t size)
 		{
 			load_binary(begin, size);
+		}
+
+		void get(uint8_t& c)
+		{
+			c = *this->streambuf_.wdata();
+
+			this->streambuf_.consume(1);
 		}
 
 	protected:

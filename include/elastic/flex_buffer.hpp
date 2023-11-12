@@ -342,5 +342,5 @@ namespace elastic
 		off_type gptr_;
 	};
 
-	using flex_buffer_t = flex_buffer<char, std::char_traits<char>>;
+	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;
 } // namespace elastic
