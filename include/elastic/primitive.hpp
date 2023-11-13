@@ -140,13 +140,38 @@ namespace elastic
 		template <typename _Ty>
 		void save(_Ty&& t)
 		{
-			save_binary(std::addressof(t), sizeof(_Ty));
+			constexpr auto array_size = sizeof(_Ty);
+
+			using type = std::remove_cvref_t<_Ty>;
+
+			union 
+			{
+				type t;
+				char c[array_size];
+			} elastic_fixed{};
+
+			elastic_fixed.t = std::forward<_Ty>(t);
+
+			for (auto& m : elastic_fixed.c)
+			{
+				put(m);
+			}
 		}
 
 		template <typename _Ty>
 		void save(_Ty* begin, std::size_t size)
 		{
-			save_binary(begin, size);
+			for (std::size_t i = 0; i < size; ++i)
+			{
+				put(begin[i]);
+			}
+		}
+
+		void put(uint8_t c)
+		{
+			*this->streambuf_.rdata() = c;
+
+			this->streambuf_.commit(1);
 		}
 
 	protected:

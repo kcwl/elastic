@@ -167,11 +167,11 @@ namespace elastic
 
 			while (result >= 0x80)
 			{
-				ar.save(static_cast<uint8_t>(result | 0x80));
+				ar.put(static_cast<uint8_t>(result | 0x80));
 				result >>= bit;
 			}
 
-			ar.save(static_cast<uint8_t>(result));
+			ar.put(static_cast<uint8_t>(result));
 		}
 
 		template <typename _Archive, other_numric_t _Ty>
@@ -181,11 +181,11 @@ namespace elastic
 
 			while (result >= 0x80)
 			{
-				ar.save(static_cast<uint8_t>(result | 0x80));
+				ar.put(static_cast<uint8_t>(result | 0x80));
 				result >>= bit;
 			}
 
-			ar.save(static_cast<uint8_t>(result));
+			ar.put(static_cast<uint8_t>(result));
 		}
 
 		template <typename _Archive, multi_numric_v _Ty>
@@ -214,17 +214,18 @@ namespace elastic
 
 			serialize(ar, bytes);
 
-			if constexpr (std::same_as<std::string, _Ty>)
+			for (auto& mem : value)
 			{
-				ar.save(value.data(), bytes);
-			}
-			else
-			{
-				for (auto& mem : value)
+				if constexpr (std::same_as<std::string, _Ty>)
+				{
+					ar.put(mem);
+				}
+				else
 				{
 					serialize(ar, mem);
 				}
 			}
+
 		}
 
 		template <typename _Archive, optional_t _Ty>
