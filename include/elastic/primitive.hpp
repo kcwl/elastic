@@ -72,6 +72,8 @@ namespace elastic
 	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_iprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
+		using element_type = _Elem;
+
 	protected:
 		binary_iprimitive(flex_buffer<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
@@ -86,7 +88,7 @@ namespace elastic
 		{
 			constexpr auto array_size = sizeof(_Ty);
 
-			_Elem buffer[array_size] = { 0 };
+			element_type buffer[array_size] = { 0 };
 
 			this->load(&buffer[0], array_size);
 
@@ -112,11 +114,9 @@ namespace elastic
 			throw std::exception("input stream error!");
 		}
 
-		void get(uint8_t& c)
+		std::size_t get(element_type* c)
 		{
-			c = *this->streambuf_.wdata();
-
-			this->streambuf_.consume(1);
+			return this->streambuf_.sgetc(c);
 		}
 
 	protected:
@@ -129,6 +129,8 @@ namespace elastic
 	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_oprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
+		using element_type = _Elem;
+
 	protected:
 		binary_oprimitive(flex_buffer<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
@@ -142,36 +144,20 @@ namespace elastic
 		{
 			constexpr auto array_size = sizeof(_Ty);
 
-			using type = std::remove_cvref_t<_Ty>;
+			auto* elastic_fixed_ptr = reinterpret_cast<element_type*>(&t);
 
-			union 
-			{
-				type t;
-				char c[array_size];
-			} elastic_fixed{};
-
-			elastic_fixed.t = std::forward<_Ty>(t);
-
-			for (auto& m : elastic_fixed.c)
-			{
-				put(m);
-			}
+			this->streambuf_.sputn(elastic_fixed_ptr, array_size);
 		}
 
 		template <typename _Ty>
 		void save(_Ty* begin, std::size_t size)
 		{
-			for (std::size_t i = 0; i < size; ++i)
-			{
-				put(begin[i]);
-			}
+			this->streambuf_.sputn(begin, size);
 		}
 
-		void put(uint8_t c)
+		std::size_t put(const element_type& c)
 		{
-			*this->streambuf_.rdata() = c;
-
-			this->streambuf_.commit(1);
+			return this->streambuf_.sputc(c);
 		}
 
 	protected:
@@ -181,11 +167,11 @@ namespace elastic
 		}
 
 	private:
-		void save_binary(const void* address, std::size_t count)
+		void save_binary(const element_type* address, std::size_t count)
 		{
-			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
+			count = (count + sizeof(element_type) - 1) / sizeof(element_type);
 
-			this->streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
+			this->streambuf_.sputn(address, count);
 		}
 	};
 } // namespace elastic

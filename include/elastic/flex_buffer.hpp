@@ -325,6 +325,11 @@ namespace elastic
 			return size;
 		}
 
+		size_type sputc(const value_type& c)
+		{
+			return sputn(&c, 1);
+		}
+
 		size_type sgetn(value_type* begin, size_type size)
 		{
 			if (size > this->size())
@@ -338,6 +343,11 @@ namespace elastic
 			}
 
 			return size;
+		}
+
+		size_type sgetc(value_type* c)
+		{
+			return sgetn(c, 1);
 		}
 
 	private:

@@ -53,7 +53,7 @@ namespace elastic
 
 			uint8_t c{};
 
-			ar.get(c);
+			ar.get(&c);
 
 			t = c;
 
@@ -63,7 +63,7 @@ namespace elastic
 
 				int8_t temp_bit = bit;
 
-				while (ar.get(c), (c & 0x80) != 0)
+				while (ar.get(&c), (c & 0x80) != 0)
 				{
 					t += static_cast<zig_type>(c) << temp_bit;
 					t -= static_cast<zig_type>(0x80u) << temp_bit;
@@ -84,7 +84,7 @@ namespace elastic
 
 			uint64_t result{};
 
-			ar.get(c);
+			ar.get(&c);
 
 			result = c;
 
@@ -94,7 +94,7 @@ namespace elastic
 
 				int8_t temp_bit = bit;
 
-				while (ar.get(c), (c & 0x80) != 0)
+				while (ar.get(&c), (c & 0x80) != 0)
 				{
 					result += static_cast<uint64_t>(c) << temp_bit;
 					result -= static_cast<uint64_t>(0x80) << temp_bit;
@@ -144,7 +144,7 @@ namespace elastic
 
 			while (bytes--)
 			{
-				ar.get((uint8_t&)(*(t.data() + count - bytes - 1)));
+				ar.get((uint8_t*)((t.data() + count - bytes - 1)));
 			}
 		}
 
