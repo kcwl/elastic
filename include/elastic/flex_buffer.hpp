@@ -9,11 +9,11 @@
 namespace elastic
 {
 	template <typename _Elem, typename _Traits, typename _Alloc = std::allocator<_Elem>>
-	class flex_buffer : public std::basic_streambuf<_Elem, _Traits>
+	class flex_buffer
 	{
 		using allocator_type = _Alloc;
 
-		using base_type = std::basic_streambuf<_Elem, _Traits>;
+		using traits_type = _Traits;
 
 		constexpr static std::size_t capacity = 4096;
 
@@ -29,9 +29,9 @@ namespace elastic
 		using pointer = typename std::vector<_Elem, allocator_type>::pointer;
 		using const_pointer = std::vector<_Elem, allocator_type>::const_pointer;
 
-		using off_type = typename base_type::off_type;
-		using pos_type = typename base_type::pos_type;
-		using int_type = typename _Traits::int_type;
+		using off_type = typename traits_type::off_type;
+		using pos_type = typename traits_type::pos_type;
+		using int_type = typename traits_type::int_type;
 
 	public:
 		flex_buffer()
@@ -40,9 +40,9 @@ namespace elastic
 
 		flex_buffer(size_type number)
 			: buffer_(number)
-		{
-			reset();
-		}
+			, pptr_(0)
+			, gptr_(0)
+		{}
 
 		template <typename _Iter>
 		flex_buffer(_Iter begin, _Iter end)
@@ -66,18 +66,20 @@ namespace elastic
 		{
 			if (this != std::addressof(other))
 			{
-				this->swap(other);
+				flex_buffer().swap(other);
 			}
 		}
 
 		flex_buffer(const void* buffer, size_type sz)
 			: flex_buffer()
 		{
-			if (sz < active())
-			{
-				std::memcpy(rdata(), buffer, sz);
-				commit(static_cast<int>(sz));
-			}
+			auto active_sz = active();
+
+			sz > active_sz ? sz = active_sz : 0;
+
+			traits_type::copy(rdata(), buffer, sz);
+
+			commit(static_cast<int>(sz));
 		}
 
 		flex_buffer(const flex_buffer&) = delete;
@@ -85,18 +87,18 @@ namespace elastic
 
 		bool operator==(const flex_buffer& other) const
 		{
-			return buffer_ == other.buffer_;
+			return buffer_ == other.buffer_ && pptr_ = other.pptr_ && gptr_ == other.gptr_;
 		}
 
 	public:
 		size_type active() noexcept
 		{
-			return base_type::epptr() - base_type::pptr();
+			return buffer_.size() - pptr_;
 		}
 
 		size_type active() const noexcept
 		{
-			return base_type::epptr() - base_type::pptr();
+			return buffer_.size() - pptr_;
 		}
 
 		pointer data() noexcept
@@ -111,43 +113,40 @@ namespace elastic
 
 		pointer wdata() noexcept
 		{
-			return base_type::gptr();
+			return data() + gptr_;
 		}
 
 		const_pointer wdata() const noexcept
 		{
-			return base_type::gptr();
+			return data() + gptr_;
 		}
 
 		pointer rdata() noexcept
 		{
-			return base_type::pptr();
+			return data() + pptr_;
 		}
 
 		const_pointer rdata() const noexcept
 		{
-			return base_type::pptr();
+			return data() + pptr_;
 		}
 
-		void commit(int bytes)
+		void commit(off_type bytes)
 		{
-			bytes = static_cast<int>((std::min<std::size_t>)(bytes, base_type::epptr() - base_type::pptr()));
-			base_type::pbump(static_cast<int>(bytes));
-			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
+			bytes = static_cast<off_type>(std::min<std::size_t>(bytes, buffer_.size() - pptr_));
+
+			pptr_ += bytes;
+
+			pptr_ < 0 ? pptr_ = 0 : 0;
 		}
 
-		void consume(int bytes)
+		void consume(off_type bytes)
 		{
-			if (base_type::egptr() < base_type::pptr())
-				base_type::setg(&buffer_[0], base_type::gptr(), base_type::pptr());
+			bytes = std::min<off_type>(bytes, pptr_ - gptr_);
 
-			if (base_type::gptr() + bytes > base_type::pptr())
-				bytes = static_cast<int>(base_type::pptr() - base_type::gptr());
+			gptr_ += bytes;
 
-			if (base_type::gptr() + bytes < base_type::eback())
-				bytes = static_cast<int>(base_type::eback() - base_type::gptr());
-
-			base_type::gbump(bytes);
+			gptr_ < 0 ? gptr_ = 0 : 0;
 		}
 
 		constexpr iterator begin() noexcept
@@ -174,54 +173,49 @@ namespace elastic
 		{
 			buffer_.clear();
 
-			reset();
+			pptr_ = 0;
+
+			gptr_ = 0;
 		}
 
 		void resize(size_type bytes)
 		{
-			bytes == 0 ? bytes = capacity : 0;
-
-			auto old_size = buffer_.size();
-
-			if (bytes <= old_size)
-				return;
+			clear();
 
 			buffer_.resize(bytes);
-
-			reset();
 		}
 
-		void swap(flex_buffer& buf)
+		void swap(flex_buffer& other)
 		{
-			base_type::swap(buf);
+			buffer_.swap(other.buffer_);
 
-			buffer_.swap(buf.buffer_);
+			pptr_ = other.pptr_;
+
+			gptr_ = other.gptr_;
 		}
 
 		size_type size() noexcept
 		{
-			return base_type::pptr() - wdata();
+			return pptr_ - gptr_;
 		}
 
 		size_type size() const noexcept
 		{
-			return base_type::pptr() - wdata();
+			return pptr_ - gptr_;
 		}
 
 		void normalize()
 		{
-			if (rdata() == &buffer_[0])
+			if (pptr_ == 0)
 				return;
 
-			int seg = static_cast<int>(rdata() - wdata());
-
-			seg <= 0 ? seg = 0 : 0;
+			std::size_t seg = size();
 
 			std::memmove(buffer_.data(), wdata(), seg);
 
-			reset();
+			pptr_ = seg;
 
-			commit(seg);
+			gptr_ = 0;
 		}
 
 		void ensure()
@@ -229,7 +223,7 @@ namespace elastic
 			if (active() > water_line)
 				return;
 
-			buffer_.resize(max_size() * 2);
+			buffer_.resize(max_size() * 3);
 		}
 
 		size_type max_size()
@@ -242,33 +236,8 @@ namespace elastic
 			return buffer_.size();
 		}
 
-	protected:
-		virtual int_type underflow() override
+		pos_type pubseekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode)
 		{
-			const auto pptr = base_type::pptr();
-
-			if (pptr == base_type::eback())
-				return _Traits::eof();
-
-			auto result = _Traits::to_int_type(*base_type::gptr());
-
-			//consume(1);
-
-			return result;
-		}
-
-		virtual pos_type seekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode) override
-		{
-			// change position by offset, according to way and mode
-
-			const auto pptr_old = base_type::pptr();
-
-			const auto gptr_old = base_type::gptr();
-
-			const auto seek_low = base_type::eback();
-
-			const auto seek_dist = pptr_old - seek_low;
-
 			off_type new_off{};
 
 			switch (way)
@@ -277,95 +246,117 @@ namespace elastic
 				{
 					new_off = 0;
 				}
-				break;
-			case std::ios::end:
-				{
-					new_off = pptr_old - base_type::eback();
-				}
+
 				break;
 			case std::ios::cur:
 				{
-					constexpr auto both = std::ios::in | std::ios::out;
-					if ((mode & both) != both)
+					if (mode & std::ios::in)
 					{
-						if (mode & std::ios::in)
-						{
-							if (gptr_old || !base_type::eback())
-							{
-								new_off = gptr_old - base_type::eback();
-							}
-						}
-						else if ((mode & std::ios::out) && (pptr_old || !base_type::eback()))
-						{
-							new_off = pptr_old - base_type::eback();
-						}
+						new_off = pptr_;
+					}
+					else if (mode & std::ios::out)
+					{
+						new_off = gptr_;
 					}
 				}
 				break;
+			case std::ios::end:
+				{
+					new_off = buffer_.size();
+				}
+				break;
 			default:
-				return pos_type(off_type(-1));
+				break;
 			}
-
-			if (static_cast<unsigned long long>(off) + new_off > static_cast<unsigned long long>(seek_dist))
-				return pos_type(off_type(-1));
 
 			off += new_off;
 
-			const auto new_ptr = seek_low + off;
+			off < 0 ? off = 0 : 0;
 
-			if ((mode & std::ios::in) && gptr_old)
-				base_type::setg(seek_low, new_ptr, pptr_old);
+			if (mode & std::ios::in)
+			{
+				off > buffer_.size() ? pptr_ = buffer_.size() : pptr_ = off;
+			}
+			else if (mode & std::ios::out)
+			{
+				off > pptr_ ? gptr_ = pptr_ : gptr_ = off;
+			}
 
-			if ((mode & std::ios::out) && pptr_old)
-				base_type::setg(seek_low, new_ptr, base_type::epptr());
-
-			return pos_type(off);
+			return static_cast<pos_type>(off);
 		}
 
-		virtual pos_type seekpos(pos_type pos, std::ios_base::openmode mode) override
+		pos_type pubseekpos(pos_type pos, std::ios_base::openmode mode)
 		{
-			// change to specified position, according to mode
-			const auto off = static_cast<std::streamoff>(pos);
-
-			const auto gptr_old = base_type::gptr();
-
-			const auto pptr_old = base_type::pptr();
-
-			const auto seek_low = base_type::eback();
-
-			const auto seek_dist = pptr_old - seek_low;
-
-			if (static_cast<unsigned long long>(off) > static_cast<unsigned long long>(seek_dist))
-				return pos_type(off_type(-1));
-
-			const auto new_ptr = seek_low + off;
-
-			if ((mode & std::ios::in) && gptr_old)
+			if (mode & std::ios::in)
 			{
-				base_type::setg(seek_low, new_ptr, pptr_old);
+				auto end_pos = static_cast<int>(buffer_.size());
+
+				pos > end_pos ? pptr_ = end_pos : 0;
+
+				pos < 0 ? pos = 0 : (pos_type)0;
+
+				pptr_ = static_cast<off_type>(pos);
 			}
 
-			if ((mode & std::ios::out) && pptr_old)
+			if (mode & std::ios::out)
 			{
-				base_type::setp(seek_low, new_ptr);
+				pos > pptr_ ? gptr_ = pptr_ : 0;
+
+				pos < 0 ?  pos = 0 : (pos_type)0;
+
+				gptr_ = static_cast<off_type>(pos);
 			}
 
-			return pos_type(off);
+			return static_cast<pos_type>(pos);
+		}
+
+		size_type sputn(const value_type* begin, size_type size)
+		{
+			if (size > active())
+				return 0;
+
+			for (size_type i = 0; i < size; ++i)
+			{
+				*rdata() = begin[i];
+
+				commit(1);
+			}
+
+			return size;
+		}
+
+		size_type sputc(const value_type& c)
+		{
+			return sputn(&c, 1);
+		}
+
+		size_type sgetn(value_type* begin, size_type size)
+		{
+			if (size > this->size())
+				return 0;
+
+			for (size_type i = 0; i < size; ++i)
+			{
+				begin[i] = *wdata();
+
+				consume(1);
+			}
+
+			return size;
+		}
+
+		size_type sgetc(value_type* c)
+		{
+			return sgetn(c, 1);
 		}
 
 	private:
-		void reset()
-		{
-			if (buffer_.empty())
-				return;
+		std::vector<value_type, allocator_type> buffer_;
 
-			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
-			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.size());
-		}
+		off_type pptr_;
 
-	private:
-		std::vector<_Elem, allocator_type> buffer_;
+		off_type gptr_;
 	};
 
-	using flex_buffer_t = flex_buffer<char, std::char_traits<char>>;
+	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;
 } // namespace elastic

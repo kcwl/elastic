@@ -7,20 +7,15 @@
 
 namespace elastic
 {
-	class binary_iarchive : public binary_iprimitive<binary_iarchive, char, std::char_traits<char>>,
+	class binary_iarchive : public binary_iprimitive<binary_iarchive, uint8_t, std::char_traits<uint8_t>>,
 							public interface_iarchive<binary_iarchive>
 	{
 		friend class interface_iarchive<binary_iarchive>;
 
 	public:
 		template <typename _StreamBuffer>
-		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_iarchive(_StreamBuffer& bs)
-			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(bs)
-		{}
-
-		binary_iarchive(std::istream& is)
-			: binary_iprimitive<binary_iarchive, char, std::char_traits<char>>(*is.rdbuf())
+			: binary_iprimitive<binary_iarchive, uint8_t, std::char_traits<uint8_t>>(bs)
 		{}
 
 	private:
@@ -48,20 +43,15 @@ namespace elastic
 		}
 	};
 
-	class binary_oarchive : public binary_oprimitive<binary_oarchive, char, std::char_traits<char>>,
+	class binary_oarchive : public binary_oprimitive<binary_oarchive, uint8_t, std::char_traits<uint8_t>>,
 							public interface_oarchive<binary_oarchive>
 	{
 		friend class interface_oarchive<binary_oarchive>;
 
 	public:
 		template <typename _StreamBuffer>
-		requires(std::is_base_of_v<std::streambuf, _StreamBuffer>)
 		explicit binary_oarchive(_StreamBuffer& bsb)
-			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(bsb)
-		{}
-
-		binary_oarchive(std::ostream& os)
-			: binary_oprimitive<binary_oarchive, char, std::char_traits<char>>(*os.rdbuf())
+			: binary_oprimitive<binary_oarchive, uint8_t, std::char_traits<uint8_t>>(bsb)
 		{}
 
 	private:

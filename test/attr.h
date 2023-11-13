@@ -2,7 +2,6 @@
 #include <elastic.hpp>
 
 #include <boost/test/unit_test_suite.hpp>
-#include <sstream>
 
 BOOST_AUTO_TEST_SUITE(prop)
 
@@ -11,7 +10,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 	{
 		std::optional<int> value{ 1 };
 
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -27,7 +26,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		elastic::fixed<uint32_t> value{};
 		value = 2;
 
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -44,7 +43,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		elastic::fixed<uint64_t> value{};
 		value = 2;
 
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		oa << value;
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 		BOOST_CHECK_EQUAL(*value, *value1);
 	}
 	{
-		std::stringstream buf;
+		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
 		std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };

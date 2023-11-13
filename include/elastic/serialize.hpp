@@ -53,30 +53,28 @@ namespace elastic
 
 			uint8_t c{};
 
-			zig_type result{};
+			ar.get(&c);
 
-			ar.template load<uint8_t>(c);
+			t = c;
 
-			result = c;
-
-			if (result >= 0x80)
+			if (t >= 0x80)
 			{
-				result -= 0x80;
+				t -= 0x80;
 
 				int8_t temp_bit = bit;
 
-				while (ar.load(c), (c & 0x80) != 0)
+				while (ar.get(&c), (c & 0x80) != 0)
 				{
-					result += static_cast<zig_type>(c) << temp_bit;
-					result -= static_cast<zig_type>(0x80u) << temp_bit;
+					t += static_cast<zig_type>(c) << temp_bit;
+					t -= static_cast<zig_type>(0x80u) << temp_bit;
 
 					temp_bit += bit;
 				}
 
-				result += static_cast<zig_type>(c) << temp_bit;
+				t += static_cast<zig_type>(c) << temp_bit;
 			}
 
-			t = static_cast<_Ty>(zigzag_decode<zig_type>(result));
+			t = static_cast<_Ty>(zigzag_decode<zig_type>(t));
 		}
 
 		template <typename _Archive, other_numric_t _Ty>
@@ -86,7 +84,7 @@ namespace elastic
 
 			uint64_t result{};
 
-			ar.template load<uint8_t>(c);
+			ar.get(&c);
 
 			result = c;
 
@@ -96,7 +94,7 @@ namespace elastic
 
 				int8_t temp_bit = bit;
 
-				while (ar.load(c), (c & 0x80) != 0)
+				while (ar.get(&c), (c & 0x80) != 0)
 				{
 					result += static_cast<uint64_t>(c) << temp_bit;
 					result -= static_cast<uint64_t>(0x80) << temp_bit;
@@ -140,29 +138,13 @@ namespace elastic
 
 			deserialize(ar, bytes);
 
-			for (std::size_t i = 0; i < bytes; ++i)
+			t.resize(bytes);
+
+			std::size_t count = bytes;
+
+			while (bytes--)
 			{
-				using value_type = typename _Ty::value_type;
-
-				value_type v{};
-
-				if constexpr (map_t<_Ty>)
-				{
-					using key_type = std::remove_const_t<decltype(v.first)>;
-
-					key_type key{};
-
-					deserialize(ar, key);
-					deserialize(ar, v.second);
-
-					t.insert({ key, v.second });
-				}
-				else
-				{
-					deserialize(ar, v);
-
-					t.push_back(v);
-				}
+				ar.get((uint8_t*)((t.data() + count - bytes - 1)));
 			}
 		}
 
@@ -185,11 +167,11 @@ namespace elastic
 
 			while (result >= 0x80)
 			{
-				ar.save(static_cast<uint8_t>(result | 0x80));
+				ar.put(static_cast<uint8_t>(result | 0x80));
 				result >>= bit;
 			}
 
-			ar.save(static_cast<uint8_t>(result));
+			ar.put(static_cast<uint8_t>(result));
 		}
 
 		template <typename _Archive, other_numric_t _Ty>
@@ -199,11 +181,11 @@ namespace elastic
 
 			while (result >= 0x80)
 			{
-				ar.save(static_cast<uint8_t>(result | 0x80));
+				ar.put(static_cast<uint8_t>(result | 0x80));
 				result >>= bit;
 			}
 
-			ar.save(static_cast<uint8_t>(result));
+			ar.put(static_cast<uint8_t>(result));
 		}
 
 		template <typename _Archive, multi_numric_v _Ty>
@@ -228,24 +210,22 @@ namespace elastic
 		template <typename _Archive, sequence_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			using type = std::remove_cvref_t<_Ty>;
-
 			auto bytes = value.size();
 
 			serialize(ar, bytes);
 
-			for (auto& s : std::forward<_Ty>(value))
+			for (auto& mem : value)
 			{
-				if constexpr (map_t<type>)
+				if constexpr (std::same_as<std::string, _Ty>)
 				{
-					serialize(ar, s.first);
-					serialize(ar, s.second);
+					ar.put(mem);
 				}
 				else
 				{
-					serialize(ar, s);
+					serialize(ar, mem);
 				}
 			}
+
 		}
 
 		template <typename _Archive, optional_t _Ty>

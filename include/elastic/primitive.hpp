@@ -1,6 +1,7 @@
 #pragma once
+#include "flex_buffer.hpp"
+
 #include <exception>
-#include <streambuf>
 #include <iostream>
 
 namespace elastic
@@ -11,7 +12,7 @@ namespace elastic
 		class basic_primitive
 		{
 		public:
-			explicit basic_primitive(std::basic_streambuf<_Elem, _Traits>& bs)
+			explicit basic_primitive(flex_buffer<_Elem, _Traits>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
 				, my_state_(0)
@@ -59,7 +60,7 @@ namespace elastic
 			}
 
 		protected:
-			std::basic_streambuf<_Elem, _Traits>& streambuf_;
+			flex_buffer<_Elem, _Traits>& streambuf_;
 
 		private:
 			int32_t start_pos_;
@@ -71,8 +72,10 @@ namespace elastic
 	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_iprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
+		using element_type = _Elem;
+
 	protected:
-		binary_iprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+		binary_iprimitive(flex_buffer<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
 		{}
 
@@ -83,20 +86,22 @@ namespace elastic
 		template <typename _Ty>
 		void load(_Ty& t)
 		{
-			load_binary(&t, sizeof(_Ty));
+			constexpr auto array_size = sizeof(_Ty);
+
+			element_type buffer[array_size] = { 0 };
+
+			this->load(&buffer[0], array_size);
+
+			t = *reinterpret_cast<_Ty*>(buffer);
 		}
 
-	protected:
-		_Archive* _this()
+		template <typename _Ty>
+		void load(_Ty* address, std::size_t size)
 		{
-			return static_cast<_Archive*>(this);
-		}
+			std::streamsize s = static_cast<std::streamsize>(size / sizeof(_Elem));
 
-	private:
-		void load_binary(void* address, std::size_t count)
-		{
-			std::streamsize s = static_cast<std::streamsize>(count / sizeof(_Elem));
 			std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
+
 			if (scount != 0)
 			{
 				this->complete();
@@ -108,13 +113,26 @@ namespace elastic
 
 			throw std::exception("input stream error!");
 		}
+
+		std::size_t get(element_type* c)
+		{
+			return this->streambuf_.sgetc(c);
+		}
+
+	protected:
+		_Archive* _this()
+		{
+			return static_cast<_Archive*>(this);
+		}
 	};
 
 	template <typename _Archive, typename _Elem, typename _Traits>
 	class binary_oprimitive : public impl::basic_primitive<_Elem, _Traits>
 	{
+		using element_type = _Elem;
+
 	protected:
-		binary_oprimitive(std::basic_streambuf<_Elem, _Traits>& bs)
+		binary_oprimitive(flex_buffer<_Elem, _Traits>& bs)
 			: impl::basic_primitive<_Elem, _Traits>(bs)
 		{}
 
@@ -124,7 +142,22 @@ namespace elastic
 		template <typename _Ty>
 		void save(_Ty&& t)
 		{
-			save_binary(std::addressof(t), sizeof(_Ty));
+			constexpr auto array_size = sizeof(_Ty);
+
+			auto* elastic_fixed_ptr = reinterpret_cast<element_type*>(&t);
+
+			this->streambuf_.sputn(elastic_fixed_ptr, array_size);
+		}
+
+		template <typename _Ty>
+		void save(_Ty* begin, std::size_t size)
+		{
+			this->streambuf_.sputn(begin, size);
+		}
+
+		std::size_t put(const element_type& c)
+		{
+			return this->streambuf_.sputc(c);
 		}
 
 	protected:
@@ -134,11 +167,11 @@ namespace elastic
 		}
 
 	private:
-		void save_binary(const void* address, std::size_t count)
+		void save_binary(const element_type* address, std::size_t count)
 		{
-			count = (count + sizeof(_Elem) - 1) / sizeof(_Elem);
+			count = (count + sizeof(element_type) - 1) / sizeof(element_type);
 
-			this->streambuf_.sputn(static_cast<const _Elem*>(address), static_cast<std::streamsize>(count));
+			this->streambuf_.sputn(address, count);
 		}
 	};
 } // namespace elastic
