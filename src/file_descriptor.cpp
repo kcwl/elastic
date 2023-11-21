@@ -162,7 +162,7 @@ namespace elastic
 
 		bool file_descriptor::check_file_suffix(const std::string& file_name)
 		{
-			auto slash_pos = file_name.find_last_of('/\\');
+			auto slash_pos = file_name.find_last_of("/\\");
 
 			slash_pos == std::string::npos ? slash_pos = 0 : slash_pos += 1;
 
@@ -190,7 +190,7 @@ namespace elastic
 
 					if (keyword[i + 1] == '/')
 					{
-						pos = keyword.find_first_of('\r\n');
+						pos = keyword.find_first_of('\r');
 
 						if (pos == std::string::npos)
 							return false;
