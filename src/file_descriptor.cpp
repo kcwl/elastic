@@ -54,6 +54,16 @@ namespace elastic
 			return true;
 		}
 
+		std::string file_descriptor::file_name() const
+		{
+			return input_file_name_;
+		}
+
+		std::vector<reflactor_structure> file_descriptor::structs() const
+		{
+			return multi_key_words_;
+		}
+
 		bool file_descriptor::read_to_spilt(std::string& value, char sp)
 		{
 			std::array<char, 1024> temp_line;
@@ -69,7 +79,7 @@ namespace elastic
 			return true;
 		}
 
-		//bool file_descriptor::read_structure(reflactor_structure& impl)
+		// bool file_descriptor::read_structure(reflactor_structure& impl)
 		//{
 		//	bool result = read_struct_head(impl);
 
@@ -88,7 +98,7 @@ namespace elastic
 		//	return true;
 		//}
 
-		//bool file_descriptor::read_struct_head(reflactor_structure& impl)
+		// bool file_descriptor::read_struct_head(reflactor_structure& impl)
 		//{
 		//	while (!read_file_stream_.eof())
 		//	{
@@ -146,7 +156,7 @@ namespace elastic
 		//	return true;
 		//}
 
-		//bool file_descriptor::read_struct_body(reflactor_structure& impl)
+		// bool file_descriptor::read_struct_body(reflactor_structure& impl)
 		//{
 		//	while (!read_file_stream_.eof())
 		//	{
@@ -176,10 +186,10 @@ namespace elastic
 
 		bool file_descriptor::read_command(reflactor_structure& rs)
 		{
-			//if (!read_to_spilt(rs.type_, ' '))
+			// if (!read_to_spilt(rs.type_, ' '))
 			//	return false;
 
-			//if (!check_key_word(rs.type_))
+			// if (!check_key_word(rs.type_))
 			//	return false;
 
 			if (!read_to_spilt(rs.name_, ';'))
@@ -220,7 +230,7 @@ namespace elastic
 			return result;
 		}
 
-		//void file_descriptor::read_note_dir(reflactor_structure& rs, note_dir way)
+		// void file_descriptor::read_note_dir(reflactor_structure& rs, note_dir way)
 		//{
 		//	switch (way)
 		//	{
@@ -233,7 +243,7 @@ namespace elastic
 		//	default:
 		//		break;
 		//	}
-		//}
+		// }
 
 		note file_descriptor::read_note()
 		{
@@ -245,11 +255,15 @@ namespace elastic
 			{
 				auto cur = read_file_stream_.peek();
 
+				if (cur == '\r')
+					break;
+
 				read_file_stream_.get();
 
 				if (cur != '/')
 				{
 					space += static_cast<char>(cur);
+
 					continue;
 				}
 
@@ -275,18 +289,6 @@ namespace elastic
 				}
 
 				break;
-			}
-
-			while (true)
-			{
-				auto cur = read_file_stream_.peek();
-
-				if (cur != '\r' && cur != '\n')
-					break;
-
-				n.content_ += static_cast<char>(cur);
-
-				read_file_stream_.get();
 			}
 
 			return n;
@@ -324,7 +326,7 @@ namespace elastic
 		{
 			auto slash_pos = file_name.find_last_of('/\\');
 
-			slash_pos == std::string::npos ? slash_pos = 0 : slash_pos+=1;
+			slash_pos == std::string::npos ? slash_pos = 0 : slash_pos += 1;
 
 			auto pos = file_name.find_last_of(".");
 			if (pos == std::string::npos)
@@ -387,6 +389,8 @@ namespace elastic
 					keyword = keyword.substr(pos + 1);
 
 					i = 0;
+
+					trip(keyword, '\r', '\n', '\t', ' ');
 
 					size = keyword.size();
 

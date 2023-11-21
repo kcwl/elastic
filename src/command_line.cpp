@@ -45,7 +45,7 @@ namespace elastic
 			if (iter == generators_.end())
 				return 0;
 
-			iter->second.generator_->generate(input_file_, output_dir_);
+			iter->second.generator_->generate(&file, output_dir_);
 
 			return 1;
 		}

@@ -29,15 +29,6 @@ namespace xxx
 	{
 		impl.sex = sex;
 	}
-	int64_t person::money() const
-	{
-		return impl.money;
-	}
-	
-	void person::set_money(const int64_t& money)
-	{
-		impl.money = money;
-	}
 	uint32_t person::back_money() const
 	{
 		return impl.back_money;

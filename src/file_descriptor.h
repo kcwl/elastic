@@ -20,6 +20,10 @@ namespace elastic
 		public:
 			bool read_file(const std::string& file_name);
 
+			std::string file_name() const;
+
+			std::vector<reflactor_structure> structs() const;
+
 		private:
 			bool read_to_spilt(std::string& value, char sp);
 
