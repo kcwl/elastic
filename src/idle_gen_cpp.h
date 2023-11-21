@@ -25,24 +25,6 @@ namespace elastic
 				virtual bool generate(const std::string& input_file, const std::string& output_dir) override;
 
 			private:
-				bool read_file();
-
-				bool read_to_spilt(std::string& value, const char sp);
-
-				bool read_structure(reflactor_structure& impl);
-
-				bool read_struct_head(reflactor_structure& impl);
-
-				bool read_struct_body(reflactor_structure& impl);
-
-				bool read_commond(reflactor_structure& rs);
-
-				void choose_state(int current, reflactor_structure& rs);
-
-				void read_note_dir(reflactor_structure& rs, note_dir way);
-
-				note read_note();
-
 				bool write_file();
 
 				void write_struct_declare();
@@ -50,8 +32,6 @@ namespace elastic
 				void write_struct_declare_header();
 
 				void write_struct_def();
-
-				bool check_key_word(const std::string& value);
 
 				void begin_write_class(const reflactor_structure& rs);
 
@@ -72,9 +52,7 @@ namespace elastic
 				void real_write_file(std::ofstream& ofs);
 
 			private:
-				std::ifstream read_file_stream_;
-
-				std::string input_file_name_;
+				
 
 				std::string output_file_name_;
 
@@ -82,7 +60,7 @@ namespace elastic
 
 				std::ofstream write_cpp_stream_;
 
-				std::vector<reflactor_structure> multi_key_words_;
+				
 
 				std::vector<std::string> lines;
 			};

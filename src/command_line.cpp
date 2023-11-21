@@ -1,6 +1,7 @@
 #include "command_line.h"
 
 #include <vector>
+#include "file_descriptor.h"
 
 namespace elastic
 {
@@ -32,6 +33,13 @@ namespace elastic
 		int command_line::run(int argc, char** argv)
 		{
 			parse_argument(argc, argv);
+
+			file_descriptor file{};
+
+			if (!input_file_.empty())
+			{
+				file.read_file(input_file_);
+			}
 
 			auto iter = generators_.find(compile_flag_);
 			if (iter == generators_.end())
