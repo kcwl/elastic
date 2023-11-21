@@ -45,7 +45,7 @@ namespace elastic
 
 				//void write_member_func(const reflactor_structure& s);
 
-				void write_internal_func();
+				void write_internal_func_declare();
 
 				void write_parse_func(const std::string& func_name);
 
@@ -54,6 +54,8 @@ namespace elastic
 				void end_write_class();
 
 				void real_write_file(std::ofstream& ofs);
+
+				void write_internal_func_def(const reflactor_structure& rs, const std::string& func_name);
 
 			private:
 				file_descriptor* input_file_ptr_;
