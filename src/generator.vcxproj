@@ -121,6 +121,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,12 +133,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="command_line.cpp" />
+    <ClCompile Include="file_descriptor.cpp" />
     <ClCompile Include="generator.cpp" />
     <ClCompile Include="idle_gen_cpp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="command_line.h" />
     <ClInclude Include="common.hpp" />
+    <ClInclude Include="file_descriptor.h" />
     <ClInclude Include="idle_gen_cpp.h" />
     <ClInclude Include="defines.h" />
   </ItemGroup>

@@ -40,11 +40,9 @@ namespace elastic
 
 		std::string type_;
 
+		std::string sub_type_;
+
 		std::string name_;
-
-		note left_note_;
-
-		note right_note_;
 
 		std::vector<reflactor_structure> structs_;
 	};
@@ -57,5 +55,5 @@ namespace elastic
 	};
 
 	inline static const std::string tab = "\t";
-	inline static  std::string crlf = "\r\n";
+	inline static const std::string crlf = "\r\n";
 } // namespace elastic

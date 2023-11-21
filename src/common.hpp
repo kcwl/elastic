@@ -32,4 +32,41 @@ namespace elastic
 		return str;
 	}
 
+	template<typename _Stream, typename... _Args>
+	bool skip_if(_Stream& stream, _Args&&... args)
+	{
+		while (!stream.eof())
+		{
+			auto cur = stream.peek();
+
+			if (is_spilt(static_cast<char>(cur), std::forward<_Args>(args)...))
+				break;
+
+			stream.get();
+		}
+
+		return stream.good();
+	}
+
+	inline bool spilt_by(const std::string& keywords, const char sp, std::string& first, std::string& second)
+	{
+		auto pos = keywords.find_first_of(sp);
+
+		if (pos == std::string::npos)
+			return false;
+
+		first = keywords.substr(0, pos);
+
+		second = keywords.substr(pos + 1);
+
+		pos = second.find_first_of('/');
+
+		if (pos != std::string::npos)
+		{
+			second = second.substr(0, pos);
+		}
+
+		return true;
+	}
+
 } // namespace elastic

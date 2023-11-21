@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+#include "file_descriptor.h"
+
 namespace elastic
 {
 	namespace compiler
@@ -15,7 +17,7 @@ namespace elastic
 			virtual ~code_generator() = default;
 
 		public:
-			virtual bool generate(const std::string& input_file, const std::string& output_dir) = 0;
+			virtual bool generate(file_descriptor* input_file, const std::string& output_dir) = 0;
 		};
 	} // namespace compiler
 } // namespace elastic

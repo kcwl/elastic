@@ -92,11 +92,5 @@ message Test2 {
 
 bytes字段以相同的方式编码。
 
-## optional类型
-标记字段是否会被忽略，如未赋值，则赋默认值，输出到数据流中。
-
 ## repeated
 可以重复添加数据的类型，属于`length-body`编码类型，首先编码数据数量(采用varint编码模式)，然后按照数据的顺序进行编码。
-
-## map类型
-与repeated同属`length-body`编码类型，首先编码数据数量(采用varint编码模式),然后再以（key，value）的顺序进行编码。

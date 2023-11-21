@@ -1,10 +1,9 @@
 #pragma once
 #include "code_generator.h"
-#include "defines.h"
 
-#include <fstream>
 #include <map>
 #include <queue>
+#include <vector>
 
 using namespace std::string_view_literals;
 
@@ -22,67 +21,51 @@ namespace elastic
 				virtual ~generate_cpp() = default;
 
 			public:
-				virtual bool generate(const std::string& input_file, const std::string& output_dir) override;
+				virtual bool generate(file_descriptor* input_file, const std::string& output_dir) override;
 
 			private:
-				bool read_file();
-
-				bool read_to_spilt(std::string& value, const char sp);
-
-				bool read_structure(reflactor_structure& impl);
-
-				bool read_struct_head(reflactor_structure& impl);
-
-				bool read_struct_body(reflactor_structure& impl);
-
-				bool read_commond(reflactor_structure& rs);
-
-				void choose_state(int current, reflactor_structure& rs);
-
-				void read_note_dir(reflactor_structure& rs, note_dir way);
-
-				note read_note();
-
 				bool write_file();
 
 				void write_struct_declare();
 
 				void write_struct_declare_header();
 
-				void write_struct_def();
+				void write_struct_define();
 
-				bool check_key_word(const std::string& value);
+				void begin_write_package(const std::string& name);
+
+				void end_write_package();
 
 				void begin_write_class(const reflactor_structure& rs);
 
-				void write_friend_class(const std::string& class_name);
-
-				void write_struct_impl(const reflactor_structure& s);
-
-				void write_pod_t();
-
 				void write_construct(const std::string& class_name);
 
-				void write_member_func(const reflactor_structure& s);
+				void write_internal_func_declare();
 
-				void write_member_impl();
+				void write_parse_func(const std::string& func_name);
 
-				void end_write_class(const reflactor_structure& rs);
+				void write_members(const std::vector<reflactor_structure>& rss);
+
+				void end_write_class();
 
 				void real_write_file(std::ofstream& ofs);
 
-			private:
-				std::ifstream read_file_stream_;
+				void write_internal_func_def(const reflactor_structure& rs, const std::string& func_name);
 
-				std::string input_file_name_;
+				void pragma(const std::string& name);
+
+				void include_file(const std::string& file_name);
+
+				void line_feed();
+
+			private:
+				file_descriptor* input_file_ptr_;
 
 				std::string output_file_name_;
 
 				std::ofstream write_h_stream_;
 
 				std::ofstream write_cpp_stream_;
-
-				std::vector<reflactor_structure> multi_key_words_;
 
 				std::vector<std::string> lines;
 			};
