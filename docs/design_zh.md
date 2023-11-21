@@ -76,28 +76,5 @@ message QueryRequest = 1000
 }
 ```
 
-### 嵌套类型
-```
-message Test3
-{
-    message Test4
-    {
-        uint32 id;
-    }
-
-    Test4 tt;
-}
-```
-我们可以在`Test3`里面继续声明`message`类型，即为嵌套类型。嵌套类型需要通过其从属类型进行访问，即`Test3::Test4`。
-
-### map类型
-```
-message Test5
-{
-    map<uint32,string> key_values;
-}
-```
-map类型后面紧接`<>`, 键值对的由逗号分隔，逗号左边为键类型，逗号右侧为值类型。
-
 ## 注释类型
 如添加注释，请采用c++样式风格的注释，即：`//` 或`/**/`
