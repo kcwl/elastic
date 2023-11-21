@@ -15,14 +15,22 @@ namespace
 		{ "double", "double" },	  { "fixed32", "fixed32_t" }, { "fixed64", "fixed64_t" },
 	};
 
-	std::string get_type_name(const std::string& type)
+	std::string get_type_name(const std::string& type, const std::string& sub_type = {})
 	{
-		auto iter = type_pair.find(type);
+		std::string temp_type = type;
+
+		temp_type == "repeated" ? temp_type = sub_type : std::string{};
+
+		auto iter = type_pair.find(temp_type);
 
 		if (iter == type_pair.end())
 			return {};
 
-		return iter->second;
+		std::string result{};
+
+		type == "repeated" ? result = std::string("std::vector<") + sub_type + ">" : result = iter->second;
+
+		return result;
 	}
 
 } // namespace
@@ -191,7 +199,7 @@ namespace elastic
 
 				for (auto& rs : rss)
 				{
-					auto type = get_type_name(rs.type_);
+					auto type = get_type_name(rs.type_, rs.sub_type_);
 
 					if (type.empty())
 						continue;
@@ -251,7 +259,7 @@ namespace elastic
 					if (mem.type_.empty())
 						continue;
 
-					auto type = get_type_name(mem.type_);
+					auto type = get_type_name(mem.type_, mem.sub_type_);
 
 					if (type.empty())
 						continue;

@@ -22,7 +22,7 @@ namespace xxx
 	public:
 		int32_t age;		//年龄
 		std::string name;	//姓名
-		bool sex;
+		std::vector<bool> sex;
 		int64_t money;	//钱
 		uint32_t back_money; //仓库里的钱
 		uint64_t crc; //crc验证码

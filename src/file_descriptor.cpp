@@ -66,9 +66,7 @@ namespace elastic
 
 		bool file_descriptor::read_to_spilt(std::string& value, char sp)
 		{
-			std::array<char, 1024> temp_line;
-
-			auto cur = read_file_stream_.peek();
+			std::array<char, 1024> temp_line{};
 
 			read_file_stream_.get(&temp_line[0], 1024, sp);
 
@@ -197,8 +195,6 @@ namespace elastic
 					}
 					else if (keyword[i + 1] == '*')
 					{
-						std::size_t pos{};
-
 						while (pos < keyword.size())
 						{
 							pos = keyword.find('*', pos);
@@ -288,6 +284,9 @@ namespace elastic
 					rs.structs_.pop_back();
 					break;
 				}
+
+				if (impl.type_ == "repeated")
+					read_keyword(impl.sub_type_);
 
 				read_command(impl);
 			}

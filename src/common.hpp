@@ -39,7 +39,7 @@ namespace elastic
 		{
 			auto cur = stream.peek();
 
-			if (is_spilt(cur, std::forward<_Args>(args)...))
+			if (is_spilt(static_cast<char>(cur), std::forward<_Args>(args)...))
 				break;
 
 			stream.get();

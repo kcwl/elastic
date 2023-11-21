@@ -9,7 +9,7 @@ message person = 10001  //注释
 { //begin
 	int32 age;		//年龄
 	string name;	//姓名
-	bool sex;
+	repeated bool sex;
 	int64 money;	//钱
 	uint32 back_money; //仓库里的钱
 	uint64 crc; //crc验证码

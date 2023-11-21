@@ -40,6 +40,8 @@ namespace elastic
 
 		std::string type_;
 
+		std::string sub_type_;
+
 		std::string name_;
 
 		std::vector<reflactor_structure> structs_;
