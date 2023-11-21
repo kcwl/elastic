@@ -5,6 +5,7 @@
 #include <fstream>
 #include <map>
 #include <queue>
+#include <vector>
 
 using namespace std::string_view_literals;
 
@@ -31,19 +32,15 @@ namespace elastic
 
 				void write_struct_declare_header();
 
-				void write_struct_def();
+				void write_struct_define();
+
+				void begin_write_package(const std::string& name);
+
+				void end_write_package();
 
 				void begin_write_class(const reflactor_structure& rs);
 
-				//void write_friend_class(const std::string& class_name);
-
-				//void write_struct_impl(const reflactor_structure& s);
-
-				//void write_pod_t();
-
 				void write_construct(const std::string& class_name);
-
-				//void write_member_func(const reflactor_structure& s);
 
 				void write_internal_func_declare();
 
@@ -56,6 +53,12 @@ namespace elastic
 				void real_write_file(std::ofstream& ofs);
 
 				void write_internal_func_def(const reflactor_structure& rs, const std::string& func_name);
+
+				void pragma(const std::string& name);
+
+				void include_file(const std::string& file_name);
+
+				void line_feed();
 
 			private:
 				file_descriptor* input_file_ptr_;

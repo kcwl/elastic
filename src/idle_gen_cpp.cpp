@@ -17,26 +17,12 @@ namespace
 
 	std::string get_type_name(const std::string& type)
 	{
-		auto pos = type.find("map");
+		auto iter = type_pair.find(type);
 
-		if (pos == std::string::npos)
-			return type_pair.at(type);
-
-		pos = type.find_first_of("<");
-		auto d_pos = type.find_first_of(",");
-
-		if (d_pos == std::string::npos)
+		if (iter == type_pair.end())
 			return {};
 
-		auto left_type = type.substr(pos + 1, d_pos - pos - 1);
-		auto right_type = type.substr(d_pos + 1);
-
-		if (left_type.empty() || right_type.empty())
-			return {};
-
-		right_type = right_type.substr(0, right_type.size() - 1);
-
-		return "std::map<" + type_pair.at(left_type) + "," + type_pair.at(right_type) + ">";
+		return iter->second;
 	}
 
 } // namespace
@@ -71,17 +57,11 @@ namespace elastic
 
 			bool generate_cpp::write_file()
 			{
-				if (!write_h_stream_.is_open())
-					return false;
-
 				write_struct_declare();
 
 				real_write_file(write_h_stream_);
 
-				if (!write_cpp_stream_.is_open())
-					return false;
-
-				write_struct_def();
+				write_struct_define();
 
 				real_write_file(write_cpp_stream_);
 
@@ -100,8 +80,7 @@ namespace elastic
 					{
 						has_namespace = true;
 
-						lines.push_back("namespace " + s.name_ + s.note_.content_);
-						lines.push_back("{");
+						begin_write_package(s.name_);
 					}
 					else if (s.type_ == "message")
 					{
@@ -113,14 +92,6 @@ namespace elastic
 
 						write_members(s.structs_);
 
-						// write_friend_class(s.name_);
-
-						// write_struct_impl(s);
-
-						// write_pod_t();
-
-						// write_member_func(s);
-
 						end_write_class();
 					}
 					else
@@ -131,23 +102,23 @@ namespace elastic
 
 				if (has_namespace)
 				{
-					lines.push_back("}");
+					end_write_package();
 				}
 			}
 
 			void generate_cpp::write_struct_declare_header()
 			{
-				lines.push_back("#pragma once");
-				lines.push_back("#include <elastic.hpp>");
-				lines.push_back({});
+				pragma("once");
+				include_file("elastic.hpp");
+				line_feed();
 			}
 
-			void generate_cpp::write_struct_def()
+			void generate_cpp::write_struct_define()
 			{
 				lines.clear();
 
-				lines.push_back("#include \"" + input_file_ptr_->file_name() + ".mpr.h\"");
-				lines.push_back({});
+				include_file(input_file_ptr_->file_name() + ".mpr.h");
+				line_feed();
 
 				bool has_namespace = false;
 
@@ -155,8 +126,7 @@ namespace elastic
 				{
 					if (s.type_ == "package")
 					{
-						lines.push_back("namespace " + s.name_);
-						lines.push_back("{");
+						begin_write_package(s.name_);
 
 						has_namespace = true;
 					}
@@ -170,8 +140,19 @@ namespace elastic
 
 				if (has_namespace)
 				{
-					lines.push_back("}");
+					end_write_package();
 				}
+			}
+
+			void generate_cpp::begin_write_package(const std::string& name)
+			{
+				lines.push_back("namespace " + name);
+				lines.push_back("{");
+			}
+
+			void generate_cpp::end_write_package()
+			{
+				lines.push_back("}");
 			}
 
 			void generate_cpp::begin_write_class(const reflactor_structure& rs)
@@ -183,127 +164,13 @@ namespace elastic
 				lines.push_back("{");
 			}
 
-			// void generate_cpp::write_friend_class(const std::string& class_name)
-			//{
-			//	auto base_type = std::format("elastic::message_lite<{}>", class_name);
-
-			//	lines.push_back("friend class " + base_type + ";");
-			//}
-
-			// void generate_cpp::write_struct_impl(const reflactor_structure& s)
-			//{
-			//	lines.push_back("struct member_impl : elastic::message_pod");
-			//	lines.push_back("{");
-			//	lines.push_back("REFLECT_DEFINE");
-			//	lines.push_back("(");
-
-			//	for (auto& mem : s.structs_)
-			//	{
-			//		if (mem.type_.empty())
-			//		{
-			//			lines.push_back(mem.note_.content_);
-
-			//			continue;
-			//		}
-
-			//		auto type = get_type_name(mem.type_);
-
-			//		if (type.empty())
-			//			continue;
-
-			//		lines.push_back(type + " " + mem.name_ + ";" + mem.note_.content_);
-			//	}
-
-			//	lines.push_back(")");
-			//	lines.push_back({});
-			//	lines.push_back("bool operator==(const member_impl& other) const");
-			//	lines.push_back("{");
-			//	lines.push_back("return");
-
-			//	int count = 0;
-			//	for (auto& mem : s.structs_)
-			//	{
-			//		if (mem.name_.empty() || mem.type_.empty())
-			//			continue;
-
-			//		count++;
-
-			//		std::string line = tab + mem.name_ + " == other." + mem.name_;
-
-			//		if (count != s.structs_.size())
-			//			line += " &&";
-			//		else
-			//		{
-			//			line += ";";
-			//		}
-
-			//		lines.push_back(line);
-			//	}
-
-			//	lines.push_back("}");
-
-			//	lines.push_back("private:");
-
-			//	lines.push_back(tab + "friend class elastic::access;");
-			//	lines.push_back({});
-			//	lines.push_back(tab + "template<typename _Archive>");
-			//	lines.push_back(tab + "void serialize(_Archive& ar)");
-			//	lines.push_back(tab + "{");
-
-			//	for (auto& mem : s.structs_)
-			//	{
-			//		if (mem.name_.empty() || mem.type_.empty())
-			//			continue;
-
-			//		lines.push_back(tab + tab + "ar& " + mem.name_ + ";");
-			//	}
-			//	lines.push_back(tab + "}");
-
-			//	lines.push_back("};");
-			//	lines.push_back({});
-			//}
-
-			// void generate_cpp::write_pod_t()
-			//{
-			//	lines.push_back("public:");
-			//	lines.push_back(tab + "using pod_t = member_impl;");
-			//	lines.push_back({});
-			// }
-
 			void generate_cpp::write_construct(const std::string& class_name)
 			{
 				lines.push_back("public:");
 				lines.push_back(class_name + "() = default;");
 				lines.push_back("virtual ~" + class_name + "() = default;");
-				lines.push_back({});
-
-				// lines.push_back("public:");
-				// lines.push_back(tab + "bool operator==(const " + class_name + "& other) const");
-				// lines.push_back(tab + "{");
-				// lines.push_back(tab + tab + "return impl == other.impl;");
-				// lines.push_back(tab + "}");
-				// lines.push_back({});
+				line_feed();
 			}
-
-			// void generate_cpp::write_member_func(const reflactor_structure& s)
-			//{
-			//	lines.push_back("public:");
-
-			//	for (auto& mem : s.structs_)
-			//	{
-			//		if (mem.type_.empty())
-			//			continue;
-
-			//		auto type = get_type_name(mem.type_);
-
-			//		if (type.empty())
-			//			continue;
-
-			//		lines.push_back(tab + type + " " + mem.name_ + "() const;" + crlf);
-			//		lines.push_back(tab + "void set_" + mem.name_ + "(const " + type + "& " + mem.name_ + ");" + crlf);
-			//		lines.push_back(tab + "void clear_" + mem.name_ + "();" + crlf);
-			//	}
-			//}
 
 			void generate_cpp::write_internal_func_declare()
 			{
@@ -315,7 +182,7 @@ namespace elastic
 			void generate_cpp::write_parse_func(const std::string& func_name)
 			{
 				lines.push_back("virtual bool internal_" + func_name + "(elastic::flex_buffer_t& buffer) final;");
-				lines.push_back({});
+				line_feed();
 			}
 
 			void generate_cpp::write_members(const std::vector<reflactor_structure>& rss)
@@ -324,7 +191,12 @@ namespace elastic
 
 				for (auto& rs : rss)
 				{
-					lines.push_back(rs.type_ + " " + rs.name_ + ";" + rs.note_.content_);
+					auto type = get_type_name(rs.type_);
+
+					if (type.empty())
+						continue;
+
+					lines.push_back(type + " " + rs.name_ + ";" + rs.note_.content_);
 				}
 			}
 
@@ -384,15 +256,31 @@ namespace elastic
 					if (type.empty())
 						continue;
 
-					lines.push_back("if (!elastic::" + func_name + "(" + mem.name_ + ",buffer))");
+					lines.push_back("if (!elastic::" + func_name + "(" + mem.name_ + ", buffer))");
 					lines.push_back("{");
 					lines.push_back("return false;");
 					lines.push_back("}");
-					lines.push_back({});
+					line_feed();
 				}
 
 				lines.push_back("return true;");
 				lines.push_back("}");
+			}
+
+			void generate_cpp::pragma(const std::string& name)
+			{
+				lines.push_back("#pragma " + name);
+			}
+
+			void generate_cpp::include_file(const std::string& file_name)
+			{
+				lines.push_back("#include <" + file_name + ">");
+				line_feed();
+			}
+
+			void generate_cpp::line_feed()
+			{
+				lines.push_back({});
 			}
 
 		} // namespace cpp

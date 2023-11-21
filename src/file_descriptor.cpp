@@ -79,133 +79,14 @@ namespace elastic
 			return true;
 		}
 
-		// bool file_descriptor::read_structure(reflactor_structure& impl)
-		//{
-		//	bool result = read_struct_head(impl);
-
-		//	if (!result)
-		//		return false;
-
-		//	read_note_dir(impl, note_dir::left);
-
-		//	result = read_struct_body(impl);
-
-		//	if (!result)
-		//		return false;
-
-		//	read_note_dir(impl, note_dir::right);
-
-		//	return true;
-		//}
-
-		// bool file_descriptor::read_struct_head(reflactor_structure& impl)
-		//{
-		//	while (!read_file_stream_.eof())
-		//	{
-		//		auto cur = read_file_stream_.peek();
-
-		//		if (cur == ' ')
-		//		{
-		//			read_file_stream_.get();
-
-		//			continue;
-		//		}
-
-		//		if (cur != '\r' && cur != '\n' && cur != '\t')
-		//			break;
-
-		//		read_file_stream_.get();
-		//	}
-
-		//	if (!read_to_spilt(impl.type_, ' '))
-		//		return false;
-
-		//	if (!check_key_word(impl.type_))
-		//		return false;
-
-		//	std::string name_and_number{};
-
-		//	read_to_spilt(name_and_number, '{');
-
-		//	trip(name_and_number, '\r', '\n', '\t', ' ');
-
-		//	auto pos = name_and_number.find('=');
-
-		//	if (pos == std::string::npos)
-		//	{
-		//		impl.name_ = name_and_number;
-		//	}
-		//	else
-		//	{
-		//		impl.name_ = name_and_number.substr(0, pos);
-
-		//		auto note_pos = name_and_number.find('/');
-
-		//		if (note_pos == std::string::npos)
-		//			impl.number_ = name_and_number.substr(pos + 1);
-		//		else
-		//		{
-		//			impl.number_ = name_and_number.substr(pos + 1, note_pos - pos - 1);
-
-		//			impl.note_.content_ = std::string(" // ") + name_and_number.substr(note_pos + 2);
-
-		//			impl.note_.type_ = note_type::double_slash;
-		//		}
-		//	}
-
-		//	return true;
-		//}
-
-		// bool file_descriptor::read_struct_body(reflactor_structure& impl)
-		//{
-		//	while (!read_file_stream_.eof())
-		//	{
-		//		auto cur = read_file_stream_.peek();
-		//		if (cur == '}')
-		//		{
-		//			read_file_stream_.get();
-		//			break;
-		//		}
-
-		//		if (cur == '\t' || cur == '\n' || cur == ' ')
-		//		{
-		//			read_file_stream_.get();
-
-		//			continue;
-		//		}
-
-		//		impl.structs_.push_back({});
-
-		//		auto& i = impl.structs_.back();
-
-		//		choose_state(cur, i);
-		//	}
-
-		//	return !read_file_stream_.eof();
-		//}
-
 		bool file_descriptor::read_command(reflactor_structure& rs)
 		{
-			// if (!read_to_spilt(rs.type_, ' '))
-			//	return false;
-
-			// if (!check_key_word(rs.type_))
-			//	return false;
-
 			if (!read_to_spilt(rs.name_, ';'))
 				return false;
 
 			rs.note_ = read_note();
 
-			while (!read_file_stream_.eof())
-			{
-				auto cur = read_file_stream_.peek();
-
-				if (cur != '\r' && cur != '\n' && cur != '\t')
-					break;
-
-				read_file_stream_.get();
-			}
+			skip_if(read_file_stream_, '\r', '\n','\t');
 
 			return true;
 		}
@@ -229,21 +110,6 @@ namespace elastic
 
 			return result;
 		}
-
-		// void file_descriptor::read_note_dir(reflactor_structure& rs, note_dir way)
-		//{
-		//	switch (way)
-		//	{
-		//	case elastic::note_dir::left:
-		//		rs.left_note_ = read_note();
-		//		break;
-		//	case elastic::note_dir::right:
-		//		rs.right_note_ = read_note();
-		//		break;
-		//	default:
-		//		break;
-		//	}
-		// }
 
 		note file_descriptor::read_note()
 		{
@@ -292,34 +158,6 @@ namespace elastic
 			}
 
 			return n;
-		}
-
-		bool file_descriptor::check_key_word(const std::string& value)
-		{
-			if (value.empty())
-				return false;
-
-			if (value[0] == '/')
-				return false;
-
-			std::string temp_value = value;
-
-			if (temp_value.find("map") != std::string::npos)
-				temp_value = "map";
-
-			auto iter_multi = std::find_if(multi_key_words.begin(), multi_key_words.end(),
-										   [&](auto&& key) { return key == temp_value; });
-
-			if (iter_multi != multi_key_words.end())
-				return true;
-
-			auto iter_single = std::find_if(single_key_words.begin(), single_key_words.end(),
-											[&](auto&& key) { return key == temp_value; });
-
-			if (iter_single != single_key_words.end())
-				return true;
-
-			return false;
 		}
 
 		bool file_descriptor::check_file_suffix(const std::string& file_name)
@@ -413,23 +251,26 @@ namespace elastic
 
 			trip(name_and_number, '\r', '\n', '\t', ' ');
 
-			auto pos = name_and_number.find('=');
+			//auto pos = name_and_number.find('=');
 
-			if (pos == std::string::npos)
-			{
+			//if (pos == std::string::npos)
+			//{
+			//	return false;
+			//}
+
+			//rs.name_ = name_and_number.substr(0, pos);
+
+			//auto note_pos = name_and_number.find('/');
+
+			//if (note_pos == std::string::npos)
+			//	rs.number_ = name_and_number.substr(pos + 1);
+			//else
+			//{
+			//	rs.number_ = name_and_number.substr(pos + 1, note_pos - pos - 1);
+			//}
+
+			if (!spilt_by(name_and_number, '=', rs.name_, rs.number_))
 				return false;
-			}
-
-			rs.name_ = name_and_number.substr(0, pos);
-
-			auto note_pos = name_and_number.find('/');
-
-			if (note_pos == std::string::npos)
-				rs.number_ = name_and_number.substr(pos + 1);
-			else
-			{
-				rs.number_ = name_and_number.substr(pos + 1, note_pos - pos - 1);
-			}
 
 			read_file_stream_.get();
 
