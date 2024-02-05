@@ -1,6 +1,6 @@
 #pragma once
 #include <elastic.hpp>
-
+#include <optional>
 #include <boost/test/unit_test_suite.hpp>
 
 BOOST_AUTO_TEST_SUITE(prop)
@@ -22,39 +22,7 @@ BOOST_AUTO_TEST_CASE(elastic_property)
 
 		BOOST_TEST(value.value() == value1.value());
 	}
-	{
-		elastic::fixed<uint32_t> value{};
-		value = 2;
 
-		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
-
-		oa << value;
-
-		elastic::fixed<uint32_t> value1{};
-
-		elastic::binary_iarchive ia(buf);
-		ia >> value1;
-
-		BOOST_TEST(*value == *value1);
-	}
-
-	{
-		elastic::fixed<uint64_t> value{};
-		value = 2;
-
-		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
-
-		oa << value;
-
-		elastic::fixed<uint64_t> value1{};
-
-		elastic::binary_iarchive ia(buf);
-		ia >> value1;
-
-		BOOST_CHECK_EQUAL(*value, *value1);
-	}
 	{
 		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);

@@ -20,14 +20,15 @@ namespace elastic
 		constexpr static std::size_t water_line = 32;
 
 	public:
-		using iterator = typename std::vector<_Elem, allocator_type>::iterator;
-		using const_iterator = typename std::vector<_Elem, allocator_type>::const_iterator;
-		using value_type = typename std::vector<_Elem, allocator_type>::value_type;
-		using size_type = typename std::vector<_Elem, allocator_type>::size_type;
-		using reference = typename std::vector<_Elem, allocator_type>::reference;
-		using const_reference = typename std::vector<_Elem, allocator_type>::const_reference;
-		using pointer = typename std::vector<_Elem, allocator_type>::pointer;
-		using const_pointer = std::vector<_Elem, allocator_type>::const_pointer;
+		using elem_type = _Elem;
+		using iterator = typename std::vector<elem_type, allocator_type>::iterator;
+		using const_iterator = typename std::vector<elem_type, allocator_type>::const_iterator;
+		using value_type = typename std::vector<elem_type, allocator_type>::value_type;
+		using size_type = typename std::vector<elem_type, allocator_type>::size_type;
+		using reference = typename std::vector<elem_type, allocator_type>::reference;
+		using const_reference = typename std::vector<elem_type, allocator_type>::const_reference;
+		using pointer = typename std::vector<elem_type, allocator_type>::pointer;
+		using const_pointer = std::vector<elem_type, allocator_type>::const_pointer;
 
 		using off_type = typename traits_type::off_type;
 		using pos_type = typename traits_type::pos_type;
@@ -66,7 +67,7 @@ namespace elastic
 		{
 			if (this != std::addressof(other))
 			{
-				flex_buffer().swap(other);
+				swap(other);
 			}
 		}
 
@@ -77,7 +78,7 @@ namespace elastic
 
 			sz > active_sz ? sz = active_sz : 0;
 
-			traits_type::copy(rdata(), buffer, sz);
+			traits_type::copy(rdata(), (elem_type*)buffer, sz);
 
 			commit(static_cast<int>(sz));
 		}
@@ -87,7 +88,7 @@ namespace elastic
 
 		bool operator==(const flex_buffer& other) const
 		{
-			return buffer_ == other.buffer_ && pptr_ = other.pptr_ && gptr_ == other.gptr_;
+			return buffer_ == other.buffer_ && pptr_ == other.pptr_ && gptr_ == other.gptr_;
 		}
 
 	public:
@@ -161,12 +162,12 @@ namespace elastic
 
 		constexpr iterator end() noexcept
 		{
-			return buffer_.end();
+			return begin() + size();
 		}
 
 		constexpr const_iterator end() const noexcept
 		{
-			return buffer_.end();
+			return begin() + size();
 		}
 
 		void clear() noexcept
@@ -180,7 +181,11 @@ namespace elastic
 
 		void resize(size_type bytes)
 		{
-			clear();
+			off_type pos = static_cast<off_type>(bytes - 1);
+
+			pptr_ > pos ? pptr_ = pos : 0;
+
+			gptr_ > pos ? gptr_ = pos : 0;
 
 			buffer_.resize(bytes);
 		}
@@ -189,9 +194,9 @@ namespace elastic
 		{
 			buffer_.swap(other.buffer_);
 
-			pptr_ = other.pptr_;
+			std::swap(pptr_, other.pptr_);
 
-			gptr_ = other.gptr_;
+			std::swap(gptr_ , other.gptr_);
 		}
 
 		size_type size() noexcept
@@ -223,7 +228,7 @@ namespace elastic
 			if (active() > water_line)
 				return;
 
-			buffer_.resize(max_size() * 3);
+			buffer_.resize(max_size() + capacity);
 		}
 
 		size_type max_size()
@@ -275,7 +280,11 @@ namespace elastic
 
 			if (mode & std::ios::in)
 			{
-				off > buffer_.size() ? pptr_ = buffer_.size() : pptr_ = off;
+				auto cur_pos = static_cast<off_type>(buffer_.size());
+
+				off > cur_pos ? off = cur_pos - 1 : 0;
+
+				pptr_ = off;
 			}
 			else if (mode & std::ios::out)
 			{

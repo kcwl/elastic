@@ -105,14 +105,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\boost_1_81_0;$(SolutionDir)../include;$(SolutionDir)../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\boost_1_83_0;$(SolutionDir)../include;$(SolutionDir)../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>F:\boost_1_81_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\boost_1_83_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
     </Link>
@@ -139,24 +139,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\test_proto.els.cpp" />
     <ClCompile Include="Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\elastic.hpp" />
     <ClInclude Include="..\include\elastic\access.hpp" />
     <ClInclude Include="..\include\elastic\flex_buffer.hpp" />
-    <ClInclude Include="..\include\elastic\message_lite.hpp" />
     <ClInclude Include="..\include\elastic\primitive.hpp" />
     <ClInclude Include="..\include\elastic\archive.hpp" />
     <ClInclude Include="..\include\elastic\serialize.hpp" />
     <ClInclude Include="..\include\elastic\type_traits.hpp" />
     <ClInclude Include="..\include\elastic\interface.hpp" />
-    <ClInclude Include="..\include\elastic\fixed.hpp" />
     <ClInclude Include="..\include\elastic\reflect.hpp" />
-    <ClInclude Include="..\src\test_proto.els.h" />
     <ClInclude Include="attr.h" />
-    <ClInclude Include="els.h" />
+    <ClInclude Include="flex_buffer.h" />
     <ClInclude Include="generate.h" />
     <ClInclude Include="type.h" />
     <ClInclude Include="inherit.h" />

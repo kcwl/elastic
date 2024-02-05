@@ -32,9 +32,9 @@ namespace elastic
 			{
 				this->roll_back();
 
-				//_Ty error{};
+				_Ty error{};
 
-				//std::swap(t, error);
+				std::swap(t, error);
 
 				result = false;
 			}
@@ -58,7 +58,11 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			binary::template serialize(*this, std::forward<_Ty>(t));
+			try
+			{
+				binary::template serialize(*this, std::forward<_Ty>(t));
+			}
+			catch (...) {}
 		}
 	};
 

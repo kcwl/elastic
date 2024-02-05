@@ -1,6 +1,4 @@
 #pragma once
-#include "fixed.hpp"
-
 #include <forward_list>
 #include <list>
 #include <string>
@@ -35,14 +33,6 @@ namespace elastic
 
 	template <typename _Ty, std::size_t N>
 	struct is_aggregate_initialize : is_aggregate_initalize_impl<_Ty, std::make_index_sequence<N>>
-	{};
-
-	template <typename _Ty>
-	struct is_fixed : std::false_type
-	{};
-
-	template <typename _Ty>
-	struct is_fixed<fixed<_Ty>> : std::true_type
 	{};
 
 	template <typename _Ty, typename... _Args>
@@ -141,9 +131,6 @@ namespace elastic
 	concept integer_t = signed_numric_t<_Ty> || other_numric_t<_Ty> || multi_numric_v<_Ty>;
 
 	template <typename _Ty>
-	concept fixed_t = is_fixed<_Ty>::value || multi_numric_v<_Ty>;
-
-	template <typename _Ty>
 	concept optional_t = requires(_Ty value) {
 		value.has_value();
 		*value;
@@ -174,7 +161,7 @@ namespace elastic
 	concept map_t = is_map<_Ty>::value;
 
 	template <typename _Ty>
-	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || fixed_t<_Ty> || map_t<_Ty>;
+	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || map_t<_Ty>;
 
 	template <typename _Ty>
 	concept inherit_t = !non_inherit_t<_Ty>;
