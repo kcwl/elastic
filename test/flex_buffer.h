@@ -71,6 +71,8 @@ BOOST_AUTO_TEST_CASE(construct)
 		BOOST_CHECK(*buffer.wdata() == '0');
 		buffer.consume(1);
 		BOOST_CHECK(*buffer.wdata() == '5');
+
+		delete[] a;
 	}
 }
 
