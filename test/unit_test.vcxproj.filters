@@ -35,9 +35,6 @@
     <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="attr.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="inherit.h">
       <Filter>头文件</Filter>
     </ClInclude>

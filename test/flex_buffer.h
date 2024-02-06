@@ -12,8 +12,7 @@ BOOST_AUTO_TEST_CASE(construct)
 
 		int a = 5;
 
-		elastic::binary_oarchive oa(buffer);
-		oa << a;
+		elastic::to_binary(a, buffer);
 
 		elastic::flex_buffer_t buffer_c(buffer.begin(), buffer.end());
 
@@ -43,8 +42,7 @@ BOOST_AUTO_TEST_CASE(construct)
 
 		int a = 5;
 
-		elastic::binary_oarchive oa(buffer);
-		oa << a;
+		elastic::to_binary(a, buffer);
 
 		elastic::flex_buffer_t buffer_c(std::move(buffer));
 
@@ -103,12 +101,11 @@ BOOST_AUTO_TEST_CASE(function)
 
 		BOOST_CHECK(m_buffer.max_size() == 8192);
 
-		elastic::binary_oarchive oa(m_buffer);
-		oa << 1;
-		oa << 2;
-		oa << 3;
-		oa << 4;
-		oa << 5;
+		elastic::to_binary(1, m_buffer);
+		elastic::to_binary(2, m_buffer);
+		elastic::to_binary(3, m_buffer);
+		elastic::to_binary(4, m_buffer);
+		elastic::to_binary(5, m_buffer);
 
 		m_buffer.consume(4);
 
@@ -124,14 +121,11 @@ BOOST_AUTO_TEST_CASE(function)
 	{
 		elastic::flex_buffer_t buffer{};
 
-		elastic::binary_oarchive oa(buffer);
-
-		oa << 1;
+		elastic::to_binary(1, buffer);
 
 		int a = 0;
 
-		elastic::binary_iarchive ia(buffer);
-		ia >> a;
+		elastic::from_binary(a, buffer);
 
 		BOOST_CHECK(a == 1);
 
@@ -162,11 +156,7 @@ BOOST_AUTO_TEST_CASE(function)
 
 		char a = '2';
 
-		elastic::binary_oarchive oa(buffer);
-
-		oa << a;
-
-		BOOST_CHECK(oa.fail());
+		BOOST_CHECK(!elastic::to_binary(a, buffer));
 	}
 
 	{
@@ -199,10 +189,7 @@ BOOST_AUTO_TEST_CASE(function)
 		elastic::flex_buffer_t buffer{};
 		int a = 0;
 
-		elastic::binary_iarchive ia(buffer);
-		ia >> a;
-
-		BOOST_CHECK(ia.fail());
+		BOOST_CHECK(!elastic::from_binary(a, buffer));
 	}
 }
 

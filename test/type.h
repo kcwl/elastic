@@ -8,146 +8,129 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 {
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		char a_in = (std::numeric_limits<char>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		char a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		int8_t a_in = (std::numeric_limits<int8_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		int8_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		uint8_t a_in = (std::numeric_limits<uint8_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		uint8_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		int16_t a_in = (std::numeric_limits<int16_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		int16_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		uint16_t a_in = (std::numeric_limits<uint16_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		uint16_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		int32_t a_in = (std::numeric_limits<int32_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		int32_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		uint32_t a_in = (std::numeric_limits<uint32_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		uint32_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		int64_t a_in = (std::numeric_limits<int64_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		int64_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
 
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		uint64_t a_in = (std::numeric_limits<uint64_t>::max)();
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		uint64_t a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
+
 	{
 		enum class color
 		{
@@ -156,93 +139,111 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 		};
 
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
-		oa << color::red;
+		elastic::to_binary(color::red, buf);
 
 		color cr{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> cr;
+		elastic::from_binary(cr, buf);
 
 		BOOST_CHECK(cr == color::red);
 	}
+
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		std::string a_in = "hello world!";
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		std::string a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
+
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		bool a_in = false;
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		bool a_out = true;
 
-		elastic::binary_iarchive ia(buf);
-
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
+
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
 										std::byte('5') };
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		std::vector<std::byte> a_out{};
 
-		elastic::binary_iarchive ia(buf);
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
+
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		double a_in = 1.2;
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		double a_out;
 
-		elastic::binary_iarchive ia(buf);
-
-		ia >> a_out;
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
+
 	{
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
 		float a_in = 2.4f;
 
-		oa << a_in;
+		elastic::to_binary(a_in, buf);
 
 		float a_out;
 
-		elastic::binary_iarchive ia(buf);
+		elastic::from_binary(a_out, buf);
 
-		ia >> a_out;
+		BOOST_TEST(a_in == a_out);
+	}
+
+	{
+		std::optional<int> value{ 1 };
+
+		elastic::flex_buffer_t buf;
+
+		elastic::to_binary(value, buf);
+
+		std::optional<int> value1;
+
+		elastic::from_binary(value1, buf);
+
+		BOOST_TEST(value.value() == value1.value());
+	}
+
+	{
+		elastic::flex_buffer_t buf;
+
+		std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
+
+		elastic::to_binary(a_in, buf);
+
+		std::vector<std::byte> a_out{};
+
+		elastic::from_binary(a_out, buf);
 
 		BOOST_TEST(a_in == a_out);
 	}
