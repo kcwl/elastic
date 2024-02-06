@@ -36,13 +36,12 @@ BOOST_AUTO_TEST_CASE(inherit)
 		d.d = 4;
 
 		elastic::flex_buffer_t buf;
-		elastic::binary_oarchive oa(buf);
 
-		oa << d;
+		elastic::to_binary(d, buf);
 
 		deri dd{};
-		elastic::binary_iarchive ia(buf);
-		ia >> dd;
+
+		elastic::from_binary(dd, buf);
 
 		BOOST_CHECK(d.a == dd.a && d.b == dd.b && d.c == dd.c && d.d == dd.d);
 	}
@@ -65,11 +64,11 @@ BOOST_AUTO_TEST_CASE(inherit)
 
 		person p_in{ 1, 2, { 3 } };
 
-		oa << p_in;
+		elastic::to_binary(p_in, buf);
 
-		elastic::binary_iarchive ia(buf);
 		person p_out{};
-		ia >> p_out;
+
+		elastic::from_binary(p_out, buf);
 
 		BOOST_TEST(p_in.a_ == p_out.a_);
 		BOOST_TEST(p_in.b_ == p_out.b_);
@@ -91,20 +90,12 @@ BOOST_AUTO_TEST_CASE(inherit)
 
 		elastic::flex_buffer_t buf;
 
-		elastic::binary_oarchive oa(buf);
-
-		person p{};
-		p.a_ = 1;
-		p.b_ = 2;
-
-		oa << p.a_;
-		oa << p.b_;
-
-		elastic::binary_iarchive ia(buf);
+		elastic::to_binary(1, buf);
+		elastic::to_binary(2, buf);
 
 		person p1{};
 
-		ia >> p1;
+		elastic::from_binary(p1, buf);
 
 		BOOST_CHECK_EQUAL(p1.a_, 0);
 		BOOST_CHECK_EQUAL(p1.b_, 0);

@@ -15,7 +15,7 @@ namespace elastic
 			explicit basic_primitive(flex_buffer<_Elem, _Traits>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
-				, my_state_(0)
+				, my_state_(0xff)
 			{}
 
 		public:
@@ -38,23 +38,23 @@ namespace elastic
 
 			void complete()
 			{
-				if (good())
-					return;
-
-				my_state_ = std::ios::iostate{};
-
 				my_state_ |= std::ios::goodbit;
 			}
 
 			bool good()
 			{
-				return (my_state_ & std::ios::goodbit) == std::ios::goodbit;
+				return my_state_ & std::ios::goodbit;
+			}
+
+			bool fail()
+			{
+				return my_state_ & std::ios::failbit;
 			}
 
 		protected:
-			void fail()
+			void failed()
 			{
-				my_state_ |= ~std::ios::goodbit;
+				my_state_ &= ~std::ios::goodbit;
 
 				my_state_ |= std::ios::failbit;
 			}
@@ -109,14 +109,9 @@ namespace elastic
 				return;
 			}
 
-			this->fail();
+			this->failed();
 
 			throw std::exception("input stream error!");
-		}
-
-		std::size_t get(element_type* c)
-		{
-			return this->streambuf_.sgetc(c);
 		}
 
 	protected:
@@ -146,18 +141,24 @@ namespace elastic
 
 			auto* elastic_fixed_ptr = reinterpret_cast<element_type*>(&t);
 
-			this->streambuf_.sputn(elastic_fixed_ptr, array_size);
+			this->save(elastic_fixed_ptr, array_size);
 		}
 
 		template <typename _Ty>
 		void save(_Ty* begin, std::size_t size)
 		{
-			this->streambuf_.sputn(begin, size);
-		}
+			auto res = this->streambuf_.sputn(begin, size);
 
-		std::size_t put(const element_type& c)
-		{
-			return this->streambuf_.sputc(c);
+			if (res != 0)
+			{
+				this->complete();
+
+				return;
+			}
+
+			this->failed();
+
+			throw std::exception("output stream error!");
 		}
 
 	protected:

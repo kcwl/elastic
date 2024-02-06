@@ -1,10 +1,27 @@
 #pragma once
 #include "elastic/access.hpp"
 #include "elastic/archive.hpp"
-#include "elastic/flex_buffer.hpp"
-#include "elastic/message_lite.hpp"
-#include "elastic/reflect.hpp"
 
-using fixed32_t = elastic::fixed<uint32_t>;
-using fixed64_t = elastic::fixed<uint64_t>;
-using bytes = std::string;
+
+namespace elastic
+{
+	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
+	bool to_binary(_Ty&& t, flex_buffer<_Elem, _Traits>& buffer)
+	{
+		binary_oarchive oa(buffer);
+
+		oa << std::forward<_Ty>(t);
+
+		return !oa.fail();
+	}
+
+	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
+	bool from_binary(_Ty& t, flex_buffer<_Elem, _Traits>& buffer)
+	{
+		binary_iarchive ia(buffer);
+
+		ia >> t;
+
+		return !ia.fail();
+	}
+}
