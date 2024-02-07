@@ -193,6 +193,26 @@ BOOST_AUTO_TEST_CASE(function)
 
 		BOOST_CHECK(!elastic::from_binary(a, buffer));
 	}
+
+	{
+		elastic::flex_buffer_t buffer{1};
+
+		elastic::to_binary(1, buffer);
+
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(2, buf);
+
+		buffer.append(std::move(buf));
+
+		int a = 0;
+		int b = 0;
+
+		elastic::from_binary(a, buffer);
+		elastic::from_binary(b, buffer);
+
+		BOOST_CHECK(a == 1 && b == 2);
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -11,16 +11,20 @@ namespace elastic
 	template <typename _Elem, typename _Traits, typename _Alloc = std::allocator<_Elem>>
 	class flex_buffer
 	{
+		using elem_type = _Elem;
+
 		using allocator_type = _Alloc;
 
 		using traits_type = _Traits;
+
+		using this_type = flex_buffer<elem_type, traits_type, allocator_type>;
 
 		constexpr static std::size_t capacity = 4096;
 
 		constexpr static std::size_t water_line = 32;
 
 	public:
-		using elem_type = _Elem;
+		
 		using iterator = typename std::vector<elem_type, allocator_type>::iterator;
 		using const_iterator = typename std::vector<elem_type, allocator_type>::const_iterator;
 		using value_type = typename std::vector<elem_type, allocator_type>::value_type;
@@ -357,6 +361,22 @@ namespace elastic
 		size_type sgetc(value_type* c)
 		{
 			return sgetn(c, 1);
+		}
+
+		void append(this_type&& buffer)
+		{
+			auto size = buffer.size();
+
+			auto act = active();
+
+			if (size > act)
+				resize(max_size() + (size - act));
+
+			std::memcpy(rdata(), buffer.wdata(), size);
+
+			commit(size);
+
+			this_type{ 0 }.swap(buffer);
 		}
 
 	private:
