@@ -15,7 +15,7 @@ namespace elastic
 			explicit basic_primitive(flex_buffer<_Elem, _Traits>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
-				, my_state_(0xff)
+				, my_state_(0)
 			{}
 
 		public:
