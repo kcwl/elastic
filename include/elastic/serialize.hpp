@@ -208,7 +208,8 @@ namespace elastic
 				}
 				else
 				{
-					serialize(ar, mem);
+					//serialize(ar, mem);
+					ar << mem;
 				}
 			}
 		}
