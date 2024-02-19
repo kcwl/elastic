@@ -7,7 +7,7 @@
 
 namespace
 {
-	static constexpr int32_t bit = 7;
+	static constexpr int32_t elastic_bit = 7;
 
 	template <typename _Ty, typename _Func, std::size_t... I>
 	constexpr void for_each(_Ty&& val, _Func&& func, std::index_sequence<I...>)
@@ -61,14 +61,14 @@ namespace elastic
 			{
 				t -= 0x80;
 
-				int8_t temp_bit = bit;
+				int8_t temp_bit = elastic_bit;
 
 				while (ar.load(c), (c & 0x80) != 0)
 				{
 					t += static_cast<zig_type>(c) << temp_bit;
 					t -= static_cast<zig_type>(0x80u) << temp_bit;
 
-					temp_bit += bit;
+					temp_bit += elastic_bit;
 				}
 
 				t += static_cast<zig_type>(c) << temp_bit;
@@ -92,14 +92,14 @@ namespace elastic
 			{
 				result -= 0x80;
 
-				int8_t temp_bit = bit;
+				int8_t temp_bit = elastic_bit;
 
 				while (ar.load(c), (c & 0x80) != 0)
 				{
 					result += static_cast<uint64_t>(c) << temp_bit;
 					result -= static_cast<uint64_t>(0x80) << temp_bit;
 
-					temp_bit += bit;
+					temp_bit += elastic_bit;
 				}
 
 				result += static_cast<uint64_t>(c) << temp_bit;
@@ -161,7 +161,7 @@ namespace elastic
 			while (result >= 0x80)
 			{
 				ar.save(static_cast<uint8_t>(result | 0x80));
-				result >>= bit;
+				result >>= elastic_bit;
 			}
 
 			ar.save(static_cast<uint8_t>(result));
@@ -175,7 +175,7 @@ namespace elastic
 			while (result >= 0x80)
 			{
 				ar.save(static_cast<uint8_t>(result | 0x80));
-				result >>= bit;
+				result >>= elastic_bit;
 			}
 
 			ar.save(static_cast<uint8_t>(result));
