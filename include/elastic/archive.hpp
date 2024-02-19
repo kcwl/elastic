@@ -26,6 +26,8 @@ namespace elastic
 
 			try
 			{
+				this->transfer();
+
 				binary::template deserialize(*this, t);
 			}
 			catch (...)
