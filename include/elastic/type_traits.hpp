@@ -146,6 +146,8 @@ namespace elastic
 		std::begin(value);
 		std::end(value);
 		value.data();
+		value.push_back({});
+
 		typename std::remove_cvref_t<_Ty>::value_type;
 	};
 

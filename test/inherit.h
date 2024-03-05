@@ -103,4 +103,45 @@ BOOST_AUTO_TEST_CASE(inherit)
 	}
 }
 
+struct person
+{
+	int a;
+	char b;
+	std::string c;
+
+private:
+	friend class elastic::access;
+
+	template <typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar& a;
+		ar& b;
+		ar& c;
+	}
+};
+
+
+
+BOOST_AUTO_TEST_CASE(complex)
+{
+	std::vector<person> persons{};
+	persons.push_back({ 1,'2',"3" });
+	persons.push_back({ 4,'5',"6" });
+	persons.push_back({ 7,'8',"9" });
+
+	elastic::flex_buffer_t buffer{};
+
+	elastic::to_binary(persons, buffer);
+
+	std::vector<person> pers{};
+
+	elastic::from_binary(pers, buffer);
+
+	//BOOST_CHECK(persons. pers);
+	BOOST_CHECK(pers[0].a == 1 && pers[0].b == '2' && pers[0].c == "3");
+	BOOST_CHECK(pers[1].a == 4 && pers[1].b == '5' && pers[1].c == "6");
+	BOOST_CHECK(pers[2].a == 7 && pers[2].b == '8' && pers[2].c == "9");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

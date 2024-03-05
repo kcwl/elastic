@@ -131,13 +131,14 @@ namespace elastic
 
 			deserialize(ar, bytes);
 
-			t.resize(bytes);
-
-			std::size_t count = bytes;
-
 			while (bytes--)
 			{
-				ar.load((uint8_t*)(t.data() + count - bytes - 1), 1);
+				using type = typename _Ty::value_type;
+				type back{};
+
+				ar >> back;
+
+				t.push_back(back);
 			}
 		}
 
