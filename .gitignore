@@ -37,3 +37,6 @@
 
 #linux
 build/
+Debug/
+Release/
+build/
