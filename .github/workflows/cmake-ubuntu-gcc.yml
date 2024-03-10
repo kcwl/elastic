@@ -41,16 +41,16 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: install gcc-c++13
+    - name: install gcc-c++12
       shell: sh
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt update
-        sudo apt install gcc-13 g++-13
+        sudo apt install gcc-12 g++-12
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12
         gcc --version
         g++ --version
 
