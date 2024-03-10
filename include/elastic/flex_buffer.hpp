@@ -32,7 +32,7 @@ namespace elastic
 		using reference = typename std::vector<elem_type, allocator_type>::reference;
 		using const_reference = typename std::vector<elem_type, allocator_type>::const_reference;
 		using pointer = typename std::vector<elem_type, allocator_type>::pointer;
-		using const_pointer = std::vector<elem_type, allocator_type>::const_pointer;
+		using const_pointer = typename std::vector<elem_type, allocator_type>::const_pointer;
 
 		using off_type = typename traits_type::off_type;
 		using pos_type = typename traits_type::pos_type;
