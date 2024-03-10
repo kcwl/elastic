@@ -41,12 +41,6 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: install gcovr
-      shell: bash
-      run: |
-         sudo apt-get install -y pip
-         pip install gcovr
-
     - name: install gcc-c++13
       shell: sh
       run: |
@@ -59,6 +53,12 @@ jobs:
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
         gcc --version
         g++ --version
+
+    - name: install gcovr
+      shell: bash
+      run: |
+         sudo apt-get install -y pip
+         pip install gcovr
 
     - name: install gtest
       shell: bash
@@ -100,17 +100,6 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
-
-   
-    - name: change to gcc-11
-      shell: bash
-      run: |
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 13
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 11
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 13
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 11
-        gcc --version
-        g++ --version
 
     - name: generate codecov report
       working-directory: ${{github.workspace}}/build
