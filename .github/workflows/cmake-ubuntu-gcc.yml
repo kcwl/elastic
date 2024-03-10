@@ -1,6 +1,6 @@
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: Ubuntu(gcc)
+name: ubuntu(gcc)
 
 on:
   push:
@@ -37,12 +37,24 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set reusable strings
+    - name: set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: install gtest
+      shell: bash
+      run: |
+        cd ${{ github.workspace }}/build
+        git clone https://github.com/google/googletest.git
+        cd googletest
+        mkdir build
+        cd build
+        cmake ../
+        make
+        cp -r lib/ ${{ github.workspace }}/build/lib
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

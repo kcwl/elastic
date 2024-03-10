@@ -15,7 +15,7 @@ namespace elastic
 			explicit basic_primitive(flex_buffer<_Elem, _Traits>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
-				, my_state_(0xff)
+				, my_state_()
 			{}
 
 		public:
@@ -111,7 +111,7 @@ namespace elastic
 
 			this->failed();
 
-			throw std::exception("input stream error!");
+			throw std::runtime_error("input stream error!");
 		}
 
 	protected:
@@ -158,7 +158,7 @@ namespace elastic
 
 			this->failed();
 
-			throw std::exception("output stream error!");
+			throw std::runtime_error("output stream error!");
 		}
 
 	protected:

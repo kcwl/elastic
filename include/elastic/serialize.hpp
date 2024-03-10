@@ -9,19 +9,6 @@ namespace
 {
 	static constexpr int32_t bit = 7;
 
-	template <typename _Ty, typename _Func, std::size_t... I>
-	constexpr void for_each(_Ty&& val, _Func&& func, std::index_sequence<I...>)
-	{
-		return (std::forward<_Func>(func)(elastic::get<I>(std::forward<_Ty>(val))), ...);
-	}
-
-	template <typename _Ty, typename _Func, std::size_t N = elastic::tuple_size_v<_Ty>,
-			  typename Indices = std::make_index_sequence<N>>
-	constexpr void for_each(_Ty&& val, _Func&& func)
-	{
-		return for_each(std::forward<_Ty>(val), std::forward<_Func>(func), Indices{});
-	}
-
 	template <elastic::signed_numric_t _Ty>
 	elastic::zig_zag_t<_Ty> zigzag_encode(_Ty value)
 	{
@@ -117,11 +104,11 @@ namespace elastic
 		template <typename _Archive, pod_t _Ty>
 		void deserialize(_Archive& ar, _Ty& t)
 		{
-			constexpr auto N = elastic::tuple_size_v<_Ty>;
+			constexpr auto N = reflect::tuple_size_v<_Ty>;
 
 			using Indices = std::make_index_sequence<N>;
 
-			for_each(t, [&](auto&& v) { deserialize(ar, v); });
+			reflect::for_each(t, [&](auto&& v) { deserialize(ar, v); });
 		}
 
 		template <typename _Archive, sequence_t _Ty>
@@ -190,7 +177,7 @@ namespace elastic
 		template <typename _Archive, pod_t _Ty>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
+			reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
 		}
 
 		template <typename _Archive, sequence_t _Ty>

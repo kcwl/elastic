@@ -1,8 +1,5 @@
 #pragma once
-#include <boost/test/unit_test_suite.hpp>
 #include <elastic.hpp>
-
-BOOST_AUTO_TEST_SUITE(inherit)
 
 struct base
 {
@@ -21,12 +18,12 @@ private:
 	void serialize(_Archive& ar)
 	{
 		ar& elastic::base_object<base>(*this);
-		ar& c;
-		ar& d;
+		ar & c;
+		ar & d;
 	}
 };
 
-BOOST_AUTO_TEST_CASE(inherit)
+TEST(inherit, inherits)
 {
 	{
 		deri d{};
@@ -43,7 +40,7 @@ BOOST_AUTO_TEST_CASE(inherit)
 
 		elastic::from_binary(dd, buf);
 
-		BOOST_CHECK(d.a == dd.a && d.b == dd.b && d.c == dd.c && d.d == dd.d);
+		EXPECT_TRUE(d.a == dd.a && d.b == dd.b && d.c == dd.c && d.d == dd.d);
 	}
 
 	{
@@ -70,9 +67,9 @@ BOOST_AUTO_TEST_CASE(inherit)
 
 		elastic::from_binary(p_out, buf);
 
-		BOOST_TEST(p_in.a_ == p_out.a_);
-		BOOST_TEST(p_in.b_ == p_out.b_);
-		BOOST_TEST(p_in.s_.b_ == p_out.s_.b_);
+		EXPECT_TRUE(p_in.a_ == p_out.a_);
+		EXPECT_TRUE(p_in.b_ == p_out.b_);
+		EXPECT_TRUE(p_in.s_.b_ == p_out.s_.b_);
 	}
 
 	{
@@ -97,10 +94,8 @@ BOOST_AUTO_TEST_CASE(inherit)
 
 		elastic::from_binary(p1, buf);
 
-		BOOST_CHECK_EQUAL(p1.a_, 0);
-		BOOST_CHECK_EQUAL(p1.b_, 0);
-		BOOST_CHECK_EQUAL(p1.s_.b_, 0);
+		EXPECT_EQ(p1.a_, 0);
+		EXPECT_EQ(p1.b_, 0);
+		EXPECT_EQ(p1.s_.b_, 0);
 	}
 }
-
-BOOST_AUTO_TEST_SUITE_END()
