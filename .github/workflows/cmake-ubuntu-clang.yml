@@ -25,7 +25,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         build_type: [Debug, Release]
-        c_compiler: [gcc, clang]
+        c_compiler: [clang]
         include:
           - os: ubuntu-latest
             c_compiler: clang
@@ -44,13 +44,14 @@ jobs:
     - name: install gtest
       shell: bash
       run: |
-        git clone https://github.com/google/googletest.git
+        sudo git clone https://github.com/google/googletest.git
         cd googletest
-        mkdir build
+        sudo mkdir build
         cd build
-        cmake ../
-        make
-        cp -r lib/ ${{ github.workspace }}/build/lib
+        sudo cmake ../
+        sudo make
+        sudo mkdir ${{ github.workspace }}/build/lib
+        sudo cp -r lib/ ${{ github.workspace }}/build/lib
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
