@@ -18,6 +18,11 @@ set(ELASTIC_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 project(elastic)
 
+if(CMAKE_COVERAGE)
+include(cmake/CodeCoverage.cmake)
+APPEND_COVERAGE_COMPILER_FLAGS()
+endif()
+
 enable_testing()
 
 add_subdirectory(test)
