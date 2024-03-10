@@ -47,9 +47,6 @@ jobs:
     - name: install gtest
       shell: bash
       run: |
-        cd ${{ github.workspace }}
-        mkdir build
-        cd build
         git clone https://github.com/google/googletest.git
         cd googletest
         mkdir build
