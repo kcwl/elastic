@@ -104,9 +104,7 @@ jobs:
     - name: generate codecov report
       working-directory: ${{ github.workspace }}/build
       run: |
-          make clean
-          make 
-          make test
+          gcov --version
           make coverage
 
     - name: upload coverage reports to codecov
