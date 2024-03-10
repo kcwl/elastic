@@ -5,8 +5,8 @@ cmake_policy(SET CMP0091 NEW)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-set(GTEST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/build/googletest/googletest/include)
-set(GTEST_LIB ${CMAKE_CURRENT_SOURCE_DIR}/build/lib)
+set(GTEST_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include)
+set(GTEST_LIB ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 if(WIN32)
 set(LIBS gtest.lib gtest_main.lib)
