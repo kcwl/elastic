@@ -41,6 +41,12 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: install gcovr
+      shell: bash
+      run: |
+         sudo apt-get install -y pip
+         pip install gcovr
+
     - name: install gcc-c++13
       shell: sh
       run: |
@@ -53,12 +59,6 @@ jobs:
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
         gcc --version
         g++ --version
-
-    - name: install gcovr
-      shell: bash
-      run: |
-        sudo apt-get install -y pip
-        pip install gcovr
 
     - name: install gtest
       shell: bash
