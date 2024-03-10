@@ -109,6 +109,8 @@ jobs:
       uses: codecov/codecov-action@v4.0.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        files: ${{github.workspace}}/build/coverage.xml
+        fail_ci_if_error: true
         slug: kcwl/elastic
 
   gcc-build:
