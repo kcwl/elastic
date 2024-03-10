@@ -46,11 +46,11 @@ jobs:
       run: |
         git clone https://github.com/google/googletest.git
         cd googletest
-        sudo mkdir build
+        mkdir build
         cd build
-        sudo cmake ../
-        sudo cmake --build . --config ${{ matrix.build_type }}
-        sudo mkdir ${{ github.workspace }}/lib
+        cmake ../
+        cmake --build . --config ${{ matrix.build_type }}
+        mkdir ${{ github.workspace }}/lib
         cp -r lib/${{ matrix.build_type }}/* ${{ github.workspace }}/lib
 
     - name: update 3rd
