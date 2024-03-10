@@ -68,11 +68,11 @@ namespace elastic
 		}
 
 		flex_buffer(flex_buffer&& other)
+			: buffer_(other.buffer_)
+			, pptr_(other.pptr_)
+			, gptr_(other.gptr_)
 		{
-			if (this != std::addressof(other))
-			{
-				swap(other);
-			}
+			flex_buffer{}.swap(other);
 		}
 
 		flex_buffer(const void* buffer, size_type sz)
@@ -89,6 +89,13 @@ namespace elastic
 
 		flex_buffer(const flex_buffer&) = delete;
 		flex_buffer& operator=(const flex_buffer&) = delete;
+
+		flex_buffer& operator=(flex_buffer&& other)
+		{
+			flex_buffer{ std::move(other) }.swap(*this);
+
+			return *this;
+		}
 
 		bool operator==(const flex_buffer& other) const
 		{
