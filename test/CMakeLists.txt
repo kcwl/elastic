@@ -36,3 +36,4 @@ if(CMAKE_COVARAGE)
 setup_target_for_coverage_gcovr_xml(
 	${PROJECT_NAME}_cover NAME coverage
 )
+endif()
