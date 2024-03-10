@@ -53,6 +53,13 @@ jobs:
         sudo mkdir ${{ github.workspace }}/lib
         sudo cp -r lib/ ${{ github.workspace }} /lib
 
+    - name: update 3rd
+      shell: bash
+      run: |
+        cd ${{ github.workspace }}
+        git submodule init
+        git submodule update
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
