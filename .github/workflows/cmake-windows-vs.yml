@@ -44,6 +44,8 @@ jobs:
     - name: install gtest
       shell: powershell
       run: |
+        sudo mkdir ${{ github.workspace }}/build
+        cd build
         git clone https://github.com/google/googletest.git
         cd googletest
         sudo mkdir build
