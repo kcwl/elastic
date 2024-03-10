@@ -54,6 +54,12 @@ jobs:
         gcc --version
         g++ --version
 
+    - name: install gcovr
+      shell: bash
+      run: |
+        sudo apt-get install -y pip
+        pip install gcovr
+
     - name: install gtest
       shell: bash
       run: |
