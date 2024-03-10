@@ -105,6 +105,16 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: make coverage
 
+    - name: change to gcc-11
+      shell: bash
+      run: |
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
+        gcc --version
+        g++ --version
+
     - name: upload coverage reports to codecov
       uses: codecov/codecov-action@v4
       with:
