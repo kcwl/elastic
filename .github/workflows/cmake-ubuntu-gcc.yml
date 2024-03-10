@@ -44,16 +44,15 @@ jobs:
     - name: install gcc-c++13
       shell: bach
       run: |
-        sudo apt-get install build-essential
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        sudo apt-get install gcc-13
-        sudo apt-get install g++-13
+        sudo apt update
+        sudo apt install gcc-13 g++-13
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
-        gcc -v
-        g++ -v
+        gcc --version
+        g++ --version
 
     - name: install gtest
       shell: bash
