@@ -48,10 +48,9 @@ jobs:
         sudo apt update
         sudo apt install gcc-13 g++-13
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/gcov gcov /usr/bin/gcov-13
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13 
-        sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
         gcc --version
         g++ --version
         gcov --version
