@@ -42,7 +42,7 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: install gcc-c++13
-      shell: bach
+      shell: sh
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt update
