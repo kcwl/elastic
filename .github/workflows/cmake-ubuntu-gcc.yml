@@ -44,16 +44,14 @@ jobs:
     - name: install gtest
       shell: bash
       run: |
-        sudo mkdir ${{ github.workspace }}/build
-        cd build
         sudo git clone https://github.com/google/googletest.git
         cd googletest
         sudo mkdir build
         cd build
         sudo cmake ../
         sudo make
-        sudo mkdir ${{ github.workspace }}/build/lib
-        sudo cp -r lib/ ${{ github.workspace }}/build/lib
+        sudo mkdir ${{ github.workspace }}/lib
+        sudo cp -r lib/ ${{ github.workspace }}/lib
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
