@@ -101,10 +101,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
 
-    - name: generate codecov report
-      working-directory: ${{github.workspace}}/build
-      run: make coverage
-
+   
     - name: change to gcc-11
       shell: bash
       run: |
@@ -114,6 +111,11 @@ jobs:
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
         gcc --version
         g++ --version
+
+    - name: generate codecov report
+      working-directory: ${{github.workspace}}/build
+      run: make coverage
+
 
     - name: upload coverage reports to codecov
       uses: codecov/codecov-action@v4
