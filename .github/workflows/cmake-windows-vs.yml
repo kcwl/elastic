@@ -51,7 +51,7 @@ jobs:
         sudo cmake ../
         sudo cmake --build . --config ${{ matrix.build_type }}
         sudo mkdir ${{ github.workspace }}/lib
-        cp -r lib/${{ matrix.build_type }}/ ${{ github.workspace }}/lib
+        cp -r lib/${{ matrix.build_type }}/* ${{ github.workspace }}/lib
 
     - name: update 3rd
       shell: bash
