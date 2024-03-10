@@ -102,9 +102,8 @@ jobs:
       run: ctest --build-config ${{ matrix.build_type }}
 
     - name: generate codecov report
-      working-directory: ${{github.workspace}}/build
-      run: sudo make coverage
-
+      working-directory: ${{ github.workspace }}/build
+      run: make coverage
 
     - name: upload coverage reports to codecov
       uses: codecov/codecov-action@v4
