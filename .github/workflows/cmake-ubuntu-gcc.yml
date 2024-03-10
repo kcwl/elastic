@@ -65,7 +65,7 @@ jobs:
         sudo make
         sudo mkdir ${{ github.workspace }}/lib
         sudo cp -r lib/ ${{ github.workspace }}/lib
-        ll ${{ github.workspace }}/lib
+        ls -l ${{ github.workspace }}/lib
 
     - name: update 3rd
       shell: bash
