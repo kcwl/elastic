@@ -1,10 +1,7 @@
 #pragma once
-#include <boost/test/unit_test_suite.hpp>
 #include <elastic.hpp>
 
-BOOST_AUTO_TEST_SUITE(io)
-
-BOOST_AUTO_TEST_CASE(elastic_type)
+TEST(io, elastic_type)
 {
 	{
 		elastic::flex_buffer_t buf;
@@ -17,7 +14,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -31,7 +28,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -45,7 +42,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -59,7 +56,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 	{
 		elastic::flex_buffer_t buf;
@@ -72,7 +69,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -86,7 +83,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -100,7 +97,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -114,7 +111,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -128,7 +125,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -146,7 +143,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(cr, buf);
 
-		BOOST_CHECK(cr == color::red);
+		EXPECT_TRUE(cr == color::red);
 	}
 
 	{
@@ -160,7 +157,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -174,7 +171,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -189,7 +186,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -203,7 +200,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -217,7 +214,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -231,7 +228,7 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(value1, buf);
 
-		BOOST_TEST(value.value() == value1.value());
+		EXPECT_TRUE(value.value() == value1.value());
 	}
 
 	{
@@ -245,8 +242,6 @@ BOOST_AUTO_TEST_CASE(elastic_type)
 
 		elastic::from_binary(a_out, buf);
 
-		BOOST_TEST(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
 	}
 }
-
-BOOST_AUTO_TEST_SUITE_END()

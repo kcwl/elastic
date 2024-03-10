@@ -32,7 +32,7 @@ namespace elastic
 		using reference = typename std::vector<elem_type, allocator_type>::reference;
 		using const_reference = typename std::vector<elem_type, allocator_type>::const_reference;
 		using pointer = typename std::vector<elem_type, allocator_type>::pointer;
-		using const_pointer = std::vector<elem_type, allocator_type>::const_pointer;
+		using const_pointer = typename std::vector<elem_type, allocator_type>::const_pointer;
 
 		using off_type = typename traits_type::off_type;
 		using pos_type = typename traits_type::pos_type;
@@ -68,11 +68,11 @@ namespace elastic
 		}
 
 		flex_buffer(flex_buffer&& other)
+			: buffer_(other.buffer_)
+			, pptr_(other.pptr_)
+			, gptr_(other.gptr_)
 		{
-			if (this != std::addressof(other))
-			{
-				swap(other);
-			}
+			flex_buffer{}.swap(other);
 		}
 
 		flex_buffer(const void* buffer, size_type sz)
@@ -89,6 +89,13 @@ namespace elastic
 
 		flex_buffer(const flex_buffer&) = delete;
 		flex_buffer& operator=(const flex_buffer&) = delete;
+
+		flex_buffer& operator=(flex_buffer&& other)
+		{
+			flex_buffer{ std::move(other) }.swap(*this);
+
+			return *this;
+		}
 
 		bool operator==(const flex_buffer& other) const
 		{

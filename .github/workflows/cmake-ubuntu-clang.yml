@@ -1,6 +1,6 @@
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: CMake on multiple platforms
+name: ubuntu(clang)
 
 on:
   push:
@@ -23,26 +23,13 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
-        c_compiler: [gcc, clang, cl]
+        os: [ubuntu-latest]
+        build_type: [Debug, Release]
+        c_compiler: [clang]
         include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: ubuntu-latest
-            c_compiler: cl
 
     steps:
     - uses: actions/checkout@v3
@@ -54,11 +41,24 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: install 3rd libs
+    - name: install gtest
       shell: bash
       run: |
-        sudo chmod +x shell/install_3rd.sh
-        sudo bash ./shell/install_3rd.sh
+        sudo git clone https://github.com/google/googletest.git
+        cd googletest
+        sudo mkdir build
+        cd build
+        sudo cmake ../
+        sudo make
+        sudo mkdir ${{ github.workspace }}/lib
+        sudo cp -r lib/* ${{ github.workspace }}/lib
+
+    - name: update 3rd
+      shell: bash
+      run: |
+        cd ${{ github.workspace }}
+        git submodule init
+        git submodule update
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
