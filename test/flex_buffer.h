@@ -41,9 +41,10 @@ TEST(buffer, construct)
 
 		elastic::to_binary(a, buffer);
 
-		elastic::flex_buffer_t buffer_c(std::move(buffer));
+		elastic::flex_buffer_t buffer_c{};
+		buffer_c = std::move(buffer);
 
-		EXPECT_TRUE(buffer == elastic::flex_buffer_t{ 0 });
+		EXPECT_TRUE(buffer.size() == 0);
 
 		EXPECT_TRUE(buffer_c.size() == 1);
 
