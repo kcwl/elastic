@@ -103,7 +103,7 @@ jobs:
 
     - name: generate codecov report
       working-directory: ${{github.workspace}}/build
-      run: make coverage
+      run: sudo make coverage
 
 
     - name: upload coverage reports to codecov
