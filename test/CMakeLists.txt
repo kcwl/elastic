@@ -32,7 +32,7 @@ add_test(
 	COMMAND $<TARGET_FILE:elastic_test>
 	)
 
-if(CMAKE_COVARAGE)
+if(CMAKE_COVERAGE)
 setup_target_for_coverage_gcovr_xml(
 	${PROJECT_NAME}_cover NAME coverage
 )
