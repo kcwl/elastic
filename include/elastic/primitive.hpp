@@ -1,5 +1,6 @@
 #pragma once
 #include "flex_buffer.hpp"
+#include "type_traits.hpp"
 #include <exception>
 #include <iostream>
 #include <string>
@@ -12,7 +13,7 @@ namespace elastic
 		class basic_primitive
 		{
 		public:
-			using element_t = _Elem;
+			using value_type = _Elem;
 
 			using traits_t = _Traits;
 
@@ -20,7 +21,7 @@ namespace elastic
 			class primitive_guard
 			{
 			public:
-				primitive_guard(basic_primitive<element_t, traits_t>& primitive)
+				primitive_guard(basic_primitive<value_type, traits_t>& primitive)
 					: primitive_(primitive)
 				{
 					primitive_.start();
@@ -32,13 +33,13 @@ namespace elastic
 				}
 
 			private:
-				basic_primitive<element_t, traits_t>& primitive_;
+				basic_primitive<value_type, traits_t>& primitive_;
 			};
 
 			friend class primitive_guard;
 
 		public:
-			explicit basic_primitive(flex_buffer<element_t, traits_t>& bs)
+			explicit basic_primitive(flex_buffer<value_type, traits_t>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
 				, my_state_()
@@ -128,32 +129,33 @@ namespace elastic
 		{
 			using base_type = detail::basic_primitive<_Elem, _Traits>;
 
-			using element_t = typename base_type::element_t;
+		public:
+			using value_type = typename base_type::value_type;
 
 			using traits_t = typename base_type::traits_t;
 
 		protected:
-			binary_iprimitive(flex_buffer<element_t, traits_t>& bs)
-				: detail::basic_primitive<element_t, traits_t>(bs)
+			binary_iprimitive(flex_buffer<value_type, traits_t>& bs)
+				: detail::basic_primitive<value_type, traits_t>(bs)
 			{}
 
 			~binary_iprimitive()
 			{}
 
 		public:
-			template <pod_t _Ty>
+			template <pod_and_integer_t _Ty>
 			void load(_Ty& t)
 			{
 				constexpr auto array_size = sizeof(_Ty);
 
-				element_t buffer[array_size] = { 0 };
+				value_type buffer[array_size] = { 0 };
 
 				this->load(&buffer[0], array_size);
 
 				t = *reinterpret_cast<_Ty*>(buffer);
 			}
 
-			void load(element_t* address, std::size_t size)
+			void load(value_type* address, std::size_t size)
 			{
 				std::streamsize s = static_cast<std::streamsize>(size / sizeof(_Elem));
 
@@ -171,29 +173,30 @@ namespace elastic
 		{
 			using base_type = detail::basic_primitive<_Elem, _Traits>;
 
-			using element_t = typename base_type::element_t;
+		public:
+			using value_type = typename base_type::value_type;
 
 			using traits_t = typename base_type::traits_t;
 
 		protected:
-			binary_oprimitive(flex_buffer<element_t, traits_t>& bs)
-				: detail::basic_primitive<element_t, traits_t>(bs)
+			binary_oprimitive(flex_buffer<value_type, traits_t>& bs)
+				: detail::basic_primitive<value_type, traits_t>(bs)
 			{}
 
 			~binary_oprimitive() = default;
 
 		public:
-			template <pod_t _Ty>
+			template <pod_and_integer_t _Ty>
 			void save(_Ty&& t)
 			{
 				constexpr auto array_size = sizeof(_Ty);
 
-				auto* elastic_fixed_ptr = reinterpret_cast<element_t*>(&t);
+				auto* elastic_fixed_ptr = reinterpret_cast<value_type*>(&t);
 
 				this->save(elastic_fixed_ptr, array_size);
 			}
 
-			void save(element_t* begin, std::size_t size)
+			void save(value_type* begin, std::size_t size)
 			{
 				auto res = this->streambuf_.sputn(begin, size);
 
