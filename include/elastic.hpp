@@ -1,6 +1,6 @@
 #pragma once
 #include "elastic/access.hpp"
-#include "elastic/archive.hpp"
+#include "elastic/binary_archive.hpp"
 
 
 namespace elastic

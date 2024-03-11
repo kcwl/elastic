@@ -105,16 +105,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\boost_1_83_0;$(SolutionDir)../include;$(SolutionDir)../src;E:\常用软件\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\boost_1_83_0;$(SolutionDir)../include;$(SolutionDir)../src;E:\常用软件\Visual Leak Detector\include;$(SolutionDir)../googletest/googletest/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>F:\boost_1_83_0\stage\lib;E:\常用软件\Visual Leak Detector\lib\Win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\boost_1_83_0\stage\lib;E:\常用软件\Visual Leak Detector\lib\Win64;$(SolutionDir)../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
+      <AdditionalDependencies>gtest.lib;gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +148,7 @@
     <ClInclude Include="..\include\elastic\access.hpp" />
     <ClInclude Include="..\include\elastic\flex_buffer.hpp" />
     <ClInclude Include="..\include\elastic\primitive.hpp" />
-    <ClInclude Include="..\include\elastic\archive.hpp" />
+    <ClInclude Include="..\include\elastic\binary_archive.hpp" />
     <ClInclude Include="..\include\elastic\serialize.hpp" />
     <ClInclude Include="..\include\elastic\type_traits.hpp" />
     <ClInclude Include="..\include\elastic\interface.hpp" />

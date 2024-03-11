@@ -1,7 +1,6 @@
 #pragma once
 #include "access.hpp"
 #include "reflect.hpp"
-#include "type_traits.hpp"
 
 #include <vector>
 
@@ -31,7 +30,7 @@ namespace
 
 namespace elastic
 {
-	namespace impl
+	namespace detail
 	{
 		template <typename _Archive, signed_numric_t _Ty>
 		_Ty deserialize(_Archive& ar)
@@ -229,7 +228,7 @@ namespace elastic
 		{
 			serialize(ar, *value);
 		}
-	} // namespace impl
+	} // namespace detail
 
 	namespace binary
 	{
@@ -238,7 +237,7 @@ namespace elastic
 		{
 			if constexpr (non_inherit_t<_Ty>)
 			{
-				t = impl::template deserialize<_Archive, _Ty>(ar);
+				t = detail::template deserialize<_Archive, _Ty>(ar);
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{
@@ -256,7 +255,7 @@ namespace elastic
 
 			if constexpr (non_inherit_t<type>)
 			{
-				impl::template serialize(ar, std::forward<_Ty>(t));
+				detail::template serialize(ar, std::forward<_Ty>(t));
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{

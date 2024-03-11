@@ -1,40 +1,13 @@
 #pragma once
 #include <forward_list>
 #include <list>
+#include <map>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <map>
 
 namespace elastic
 {
-	namespace impl
-	{
-		struct any_type
-		{
-			std::size_t ignore_;
-
-			template <typename _Ty>
-			constexpr operator _Ty() const noexcept
-			{
-				return _Ty{};
-			};
-		};
-	} // namespace impl
-
-	template <typename _Ty, typename Indices, typename = void>
-	struct is_aggregate_initalize_impl : std::false_type
-	{};
-
-	template <typename _Ty, size_t... I>
-	struct is_aggregate_initalize_impl<_Ty, std::index_sequence<I...>,
-									   std::void_t<decltype(_Ty{ impl::any_type{ I }... })>> : std::true_type
-	{};
-
-	template <typename _Ty, std::size_t N>
-	struct is_aggregate_initialize : is_aggregate_initalize_impl<_Ty, std::make_index_sequence<N>>
-	{};
-
 	template <typename _Ty, typename... _Args>
 	inline constexpr bool is_any_of_v = std::disjunction_v<std::is_same<std::remove_cvref_t<_Ty>, _Args>...>;
 
@@ -94,9 +67,6 @@ namespace elastic
 	template <typename _Ty>
 	using zig_zag_t = typename zig_zag<std::remove_cvref_t<_Ty>>::type;
 
-	template <typename _Ty, std::size_t N>
-	concept aggregate_inialize_t = is_aggregate_initialize<_Ty, N>::value;
-
 	template <typename _Ty>
 	concept copable_t = std::is_copy_constructible_v<std::remove_all_extents_t<_Ty>> &&
 						std::is_move_constructible_v<std::remove_all_extents_t<_Ty>>;
@@ -137,8 +107,7 @@ namespace elastic
 	};
 
 	template <typename _Ty>
-	concept pod_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> &&
-					std::is_standard_layout_v<std::remove_cvref_t<_Ty>> && !integer_t<std::remove_cvref_t<_Ty>>;
+	concept pod_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
 	concept sequence_t = requires(_Ty value) {
@@ -149,15 +118,15 @@ namespace elastic
 		typename std::remove_cvref_t<_Ty>::value_type;
 	};
 
-	template<typename _Ty>
+	template <typename _Ty>
 	struct is_map : public std::false_type
 	{};
 
-	template<typename _Key, typename _Value>
+	template <typename _Key, typename _Value>
 	struct is_map<std::map<_Key, _Value>> : std::true_type
 	{};
 
-	template<typename _Ty>
+	template <typename _Ty>
 	concept map_t = is_map<_Ty>::value;
 
 	template <typename _Ty>
@@ -165,5 +134,8 @@ namespace elastic
 
 	template <typename _Ty>
 	concept inherit_t = !non_inherit_t<_Ty>;
+
+	template <typename _Ty>
+	concept swap_t = requires(_Ty value) { value.swap(value); };
 
 } // namespace elastic
