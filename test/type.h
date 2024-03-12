@@ -129,6 +129,20 @@ TEST(io, elastic_type)
 	}
 
 	{
+		elastic::flex_buffer_t buf;
+
+		int64_t a_in =  -10;
+
+		elastic::to_binary(a_in, buf);
+
+		int64_t a_out{};
+
+		elastic::from_binary(a_out, buf);
+
+		EXPECT_TRUE(a_in == a_out);
+	}
+
+	{
 		//enum class color
 		//{
 		//	red = 1,
