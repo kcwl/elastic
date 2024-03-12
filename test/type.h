@@ -6,15 +6,7 @@ struct person
 	int age;
 	std::string name;
 
-private:
-	friend class elastic::access;
-
-	template<typename _Archive>
-	void serialize(_Archive& ar)
-	{
-		ar& age;
-		ar& name;
-	}
+	ELASTIC_ACCESS(age, name);
 };
 
 struct animal

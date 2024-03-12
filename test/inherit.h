@@ -12,15 +12,7 @@ struct deri : base
 	int c;
 	int d;
 
-private:
-	friend class elastic::access;
-	template <typename _Archive>
-	void serialize(_Archive& ar)
-	{
-		ar& elastic::base_object<base>(*this);
-		ar & c;
-		ar & d;
-	}
+	ELASTIC_ACCESS_IF(base, c, d)
 };
 
 TEST(inherit, inherits)
