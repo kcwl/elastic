@@ -148,6 +148,7 @@ namespace elastic
 		std::end(value);
 		value.data();
 		typename std::remove_cvref_t<_Ty>::value_type;
+		value.push_back({});
 	};
 
 	template <typename _Ty>

@@ -1,6 +1,30 @@
 #pragma once
 #include <elastic.hpp>
 
+struct person
+{
+	int age;
+	std::string name;
+
+private:
+	friend class elastic::access;
+
+	template<typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar& age;
+		ar& name;
+	}
+};
+
+struct animal
+{
+	int a;
+	char b;
+	bool c;
+};
+
+
 TEST(io, elastic_type)
 {
 	{
@@ -189,18 +213,69 @@ TEST(io, elastic_type)
 	}
 
 	{
-		//elastic::flex_buffer_t buf;
+		elastic::flex_buffer_t buf;
 
-		//std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
-		//								std::byte('5') };
+		std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
+										std::byte('5') };
 
-		//elastic::to_binary(a_in, buf);
+		elastic::to_binary(a_in, buf);
 
-		//std::vector<std::byte> a_out{};
+		std::vector<std::byte> a_out{};
 
-		//elastic::from_binary(a_out, buf);
+		elastic::from_binary(a_out, buf);
 
-		//EXPECT_TRUE(a_in == a_out);
+		EXPECT_TRUE(a_in == a_out);
+	}
+
+	{
+		std::vector<person> pers{};
+		person per = { 1,"Lancy" };
+
+		pers.push_back(per);
+		pers.push_back(per);
+		pers.push_back(per);
+
+
+		elastic::flex_buffer_t buf;
+
+		elastic::to_binary(pers, buf);
+
+		std::vector<person>  pers_copy{};
+
+		elastic::from_binary(pers_copy, buf);
+
+		auto size = pers_copy.size();
+
+		EXPECT_TRUE(size == pers.size());
+
+		for (std::size_t i = 0; i < size; ++i)
+		{
+			EXPECT_TRUE(pers_copy[i].age == pers[i].age && pers_copy[i].name == pers[i].name);
+		}
+	}
+
+	{
+		std::vector<animal> animals{};
+		animals.push_back({ 1,'2',0 });
+		animals.push_back({ 2,'2',0 });
+		animals.push_back({ 3,'2',0 });
+
+		std::vector<animal> animal_copys{};
+
+		elastic::flex_buffer_t buf;
+
+		elastic::to_binary(animals, buf);
+
+		elastic::from_binary(animal_copys, buf);
+
+		auto size = animal_copys.size();
+
+		EXPECT_TRUE(size == animals.size());
+
+		for (std::size_t i = 0; i < size; ++i)
+		{
+			EXPECT_TRUE(animal_copys[i].a == animals[i].a && animal_copys[i].b == animals[i].b && animal_copys[i].c == animals[i].c);
+		}
 	}
 
 	{
@@ -244,18 +319,4 @@ TEST(io, elastic_type)
 
 		EXPECT_TRUE(value.value() == value1.value());
 	}
-
-	//{
-	//	elastic::flex_buffer_t buf;
-
-	//	std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
-
-	//	elastic::to_binary(a_in, buf);
-
-	//	std::vector<std::byte> a_out{};
-
-	//	elastic::from_binary(a_out, buf);
-
-	//	EXPECT_TRUE(a_in == a_out);
-	//}
 }

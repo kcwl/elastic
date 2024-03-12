@@ -67,7 +67,7 @@ namespace elastic
 			return zigzag_decode<_Ty>(t);
 		}
 
-		template<float_point_t _Ty,typename _Archive>
+		template <float_point_t _Ty, typename _Archive>
 		_Ty deserialize(_Archive& ar)
 		{
 			_Ty t{};
@@ -86,10 +86,8 @@ namespace elastic
 
 			using Indices = std::make_index_sequence<N>;
 
-			auto func = []<std::size_t... I>(_Archive & ar, std::index_sequence<I...>)
-			{
-				return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... };
-			};
+			auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>)
+			{ return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
 
 			t = func(ar, Indices{});
 
@@ -105,13 +103,25 @@ namespace elastic
 
 			std::size_t bytes = deserialize<std::size_t>(ar);
 
-			t.resize(bytes);
-
 			std::size_t count = bytes;
 
-			while (bytes--)
+			while (count--)
 			{
-				ar.load((value_type*)(t.data() + count - bytes - 1), 1);
+				using type = typename _Ty::value_type;
+
+				if constexpr (!class_t<type>)
+				{
+					t.resize(bytes);
+
+					ar.load((value_type*)(t.data() + bytes - count - 1), sizeof(type));
+				}
+				else
+				{
+					type value{};
+					ar >> value;
+
+					t.push_back(value);
+				}
 			}
 
 			return t;
@@ -149,7 +159,7 @@ namespace elastic
 			ar.save(static_cast<type>(result));
 		}
 
-		template<float_point_t _Ty, typename _Archive>
+		template <float_point_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
 			ar.save(value);
@@ -166,19 +176,21 @@ namespace elastic
 		{
 			using type = std::remove_cvref_t<_Ty>;
 
+			using value_type = typename type::value_type;
+
 			auto bytes = value.size();
 
 			serialize(ar, bytes);
 
 			for (auto& mem : value)
 			{
-				if constexpr (std::same_as<std::string, type>)
+				if constexpr (!class_t<value_type>)
 				{
 					ar.save(mem);
 				}
 				else
 				{
-					serialize(ar, mem);
+					ar << mem;
 				}
 			}
 		}
