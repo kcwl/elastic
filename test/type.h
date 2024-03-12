@@ -143,21 +143,21 @@ TEST(io, elastic_type)
 	}
 
 	{
-		//enum class color
-		//{
-		//	red = 1,
-		//	blue = 2
-		//};
+		enum class color
+		{
+			red = 1,
+			blue = 2
+		};
 
-		//elastic::flex_buffer_t buf;
+		elastic::flex_buffer_t buf;
 
-		//elastic::to_binary(color::red, buf);
+		elastic::to_binary(color::red, buf);
 
-		//color cr{};
+		color cr{};
 
-		//elastic::from_binary(cr, buf);
+		elastic::from_binary(cr, buf);
 
-		//EXPECT_TRUE(cr == color::red);
+		EXPECT_TRUE(cr == color::red);
 	}
 
 	{

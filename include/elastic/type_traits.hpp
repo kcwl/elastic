@@ -11,8 +11,11 @@ namespace elastic
 	template<typename _Ty>
 	concept float_point_t = std::is_floating_point_v<std::remove_reference_t<_Ty>>;
 
+	template<typename _Ty>
+	concept enum_t = std::is_enum_v<_Ty>;;
+
 	template <typename _Ty>
-	concept integer_t = std::is_integral_v<std::remove_reference_t<_Ty>>;
+	concept integer_t = std::is_integral_v<std::remove_reference_t<_Ty>> || enum_t<std::remove_cvref_t<_Ty>>;
 
 	namespace detail
 	{
@@ -58,6 +61,12 @@ namespace elastic
 			using type = uint64_t;
 		};
 
+		template<enum_t _Ty>
+		struct zig_zag<_Ty>
+		{
+			using type = int32_t;
+		};
+
 		template<typename _Ty>
 		struct remove_unsigned
 		{
@@ -87,6 +96,13 @@ namespace elastic
 		{
 			using type = int64_t;
 		};
+
+		template<enum_t _Ty>
+		struct remove_unsigned<_Ty>
+		{
+			using type = int32_t;
+		};
+
 	}
 
 	template<typename _Ty>
