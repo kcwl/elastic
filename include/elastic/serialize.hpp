@@ -86,7 +86,7 @@ namespace elastic
 
 			using Indices = std::make_index_sequence<N>;
 
-			auto func = []<typename _Archive, std::size_t... I>(_Archive & ar, std::index_sequence<I...>)
+			auto func = []<std::size_t... I>(_Archive & ar, std::index_sequence<I...>)
 			{
 				return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... };
 			};
