@@ -305,18 +305,4 @@ TEST(io, elastic_type)
 
 		EXPECT_TRUE(a_in == a_out);
 	}
-
-	{
-		std::optional<int> value{ 1 };
-
-		elastic::flex_buffer_t buf;
-
-		elastic::to_binary(value, buf);
-
-		std::optional<int> value1;
-
-		elastic::from_binary(value1, buf);
-
-		EXPECT_TRUE(value.value() == value1.value());
-	}
 }

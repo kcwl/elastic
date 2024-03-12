@@ -127,22 +127,6 @@ namespace elastic
 			return t;
 		}
 
-		template <optional_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
-		{
-			_Ty t{};
-
-			using type = typename _Ty::value_type;
-
-			type val{};
-
-			val = deserialize<type>(ar);
-
-			t.emplace(std::move(val));
-
-			return t;
-		}
-
 		template <integer_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
@@ -193,12 +177,6 @@ namespace elastic
 					ar << mem;
 				}
 			}
-		}
-
-		template <optional_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
-		{
-			serialize(ar, *value);
 		}
 	} // namespace detail
 

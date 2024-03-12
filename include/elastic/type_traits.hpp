@@ -128,12 +128,6 @@ namespace elastic
 	template <typename _Ty>
 	concept class_t = std::is_class_v<std::remove_reference_t<_Ty>>;
 
-	template <typename _Ty>
-	concept optional_t = requires(_Ty value) {
-		value.has_value();
-		*value;
-	};
-
 	template<typename _Ty>
 	concept pod_and_integer_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
 
@@ -163,7 +157,7 @@ namespace elastic
 	concept map_t = is_map<_Ty>::value;
 
 	template <typename _Ty>
-	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || map_t<_Ty> || float_point_t<_Ty>;
+	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || map_t<_Ty> || float_point_t<_Ty>;
 
 	template <typename _Ty>
 	concept inherit_t = !non_inherit_t<_Ty>;
