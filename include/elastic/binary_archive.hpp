@@ -24,14 +24,7 @@ namespace elastic
 
 			if (!result)
 			{
-				if constexpr (swap_t<_Ty>)
-				{
-					_Ty{}.swap(t);
-				}
-				else
-				{
-					t = _Ty{};
-				}
+				t = _Ty{};
 			}
 
 			return result;
