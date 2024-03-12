@@ -61,7 +61,7 @@ namespace elastic
 					need_rollback_ = true;
 				}
 
-				return need_rollback_;
+				return !need_rollback_;
 			}
 
 			bool good()

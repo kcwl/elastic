@@ -53,7 +53,7 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			this->transcation([&] { binary::template serialize(*this, std::forward<_Ty>(t)); });
+			this->transcation([&] { binary::template serialize(*this, t); });
 		}
 	};
 } // namespace elastic

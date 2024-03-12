@@ -1,6 +1,7 @@
 #pragma once
 #include "access.hpp"
 #include "reflect.hpp"
+#include "type_traits.hpp"
 
 #include <vector>
 
@@ -9,17 +10,21 @@ namespace
 	static constexpr int32_t zig_zag_bit = 7;
 
 	template <elastic::integer_t _Ty>
-	_Ty zigzag_encode(_Ty value)
+	elastic::zig_zag_t<_Ty> zigzag_encode(_Ty value)
 	{
+		using value_type = elastic::zig_zag_t<_Ty>;
+
+		using remove_unsigned_type = elastic::remove_unsigned_t<_Ty>;
+
 		constexpr auto size = sizeof(_Ty) * 8 - 1;
 
-		return value << 1 ^ value >> size;
+		return static_cast<remove_unsigned_type>(value) << 1 ^ static_cast<remove_unsigned_type>(value) >> size;
 	}
 
 	template <elastic::integer_t _Ty>
-	_Ty zigzag_decode(_Ty value)
+	_Ty zigzag_decode(elastic::zig_zag_t<_Ty> value)
 	{
-		return value >> 1 ^ (~(value & 1) + 1);
+		return static_cast<_Ty>((value >> 1) ^ (~(value & 1) + 1));
 	}
 
 } // namespace
@@ -31,7 +36,8 @@ namespace elastic
 		template <integer_t _Ty, typename _Archive>
 		_Ty deserialize(_Archive& ar)
 		{
-			uint64_t t{};
+			using zig_t = zig_zag_t<_Ty>;
+			zig_t t{};
 
 			using value_type = typename _Archive::value_type;
 
@@ -49,16 +55,26 @@ namespace elastic
 
 				while (ar.load(c), (c & 0x80) != 0)
 				{
-					t += static_cast<uint64_t>(c) << temp_bit;
-					t -= static_cast<uint64_t>(0x80u) << temp_bit;
+					t += static_cast<zig_t>(c) << temp_bit;
+					t -= static_cast<zig_t>(0x80u) << temp_bit;
 
 					temp_bit += zig_zag_bit;
 				}
 
-				t += static_cast<uint64_t>(c) << temp_bit;
+				t += static_cast<zig_t>(c) << temp_bit;
 			}
 
-			return static_cast<_Ty>(zigzag_decode<uint64_t>(t));
+			return zigzag_decode<_Ty>(t);
+		}
+
+		template<float_point_t _Ty,typename _Archive>
+		_Ty deserialize(_Archive& ar)
+		{
+			_Ty t{};
+
+			ar.load(t);
+
+			return t;
 		}
 
 		template <pod_t _Ty, typename _Archive>
@@ -133,6 +149,12 @@ namespace elastic
 			ar.save(static_cast<type>(result));
 		}
 
+		template<float_point_t _Ty, typename _Archive>
+		void serialize(_Archive& ar, _Ty&& value)
+		{
+			ar.save(value);
+		}
+
 		template <pod_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
@@ -142,13 +164,15 @@ namespace elastic
 		template <sequence_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
+			using type = std::remove_cvref_t<_Ty>;
+
 			auto bytes = value.size();
 
 			serialize(ar, bytes);
 
 			for (auto& mem : value)
 			{
-				if constexpr (std::same_as<std::string, _Ty>)
+				if constexpr (std::same_as<std::string, type>)
 				{
 					ar.save(mem);
 				}

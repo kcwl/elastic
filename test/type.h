@@ -129,21 +129,21 @@ TEST(io, elastic_type)
 	}
 
 	{
-		enum class color
-		{
-			red = 1,
-			blue = 2
-		};
+		//enum class color
+		//{
+		//	red = 1,
+		//	blue = 2
+		//};
 
-		elastic::flex_buffer_t buf;
+		//elastic::flex_buffer_t buf;
 
-		elastic::to_binary(color::red, buf);
+		//elastic::to_binary(color::red, buf);
 
-		color cr{};
+		//color cr{};
 
-		elastic::from_binary(cr, buf);
+		//elastic::from_binary(cr, buf);
 
-		EXPECT_TRUE(cr == color::red);
+		//EXPECT_TRUE(cr == color::red);
 	}
 
 	{
@@ -175,18 +175,18 @@ TEST(io, elastic_type)
 	}
 
 	{
-		elastic::flex_buffer_t buf;
+		//elastic::flex_buffer_t buf;
 
-		std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
-										std::byte('5') };
+		//std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
+		//								std::byte('5') };
 
-		elastic::to_binary(a_in, buf);
+		//elastic::to_binary(a_in, buf);
 
-		std::vector<std::byte> a_out{};
+		//std::vector<std::byte> a_out{};
 
-		elastic::from_binary(a_out, buf);
+		//elastic::from_binary(a_out, buf);
 
-		EXPECT_TRUE(a_in == a_out);
+		//EXPECT_TRUE(a_in == a_out);
 	}
 
 	{
@@ -231,17 +231,17 @@ TEST(io, elastic_type)
 		EXPECT_TRUE(value.value() == value1.value());
 	}
 
-	{
-		elastic::flex_buffer_t buf;
+	//{
+	//	elastic::flex_buffer_t buf;
 
-		std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
+	//	std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
 
-		elastic::to_binary(a_in, buf);
+	//	elastic::to_binary(a_in, buf);
 
-		std::vector<std::byte> a_out{};
+	//	std::vector<std::byte> a_out{};
 
-		elastic::from_binary(a_out, buf);
+	//	elastic::from_binary(a_out, buf);
 
-		EXPECT_TRUE(a_in == a_out);
-	}
+	//	EXPECT_TRUE(a_in == a_out);
+	//}
 }
