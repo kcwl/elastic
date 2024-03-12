@@ -44,7 +44,7 @@ private:                                                                        
 	template <typename _Archive>                                                                                       \
 	void serialize(_Archive& ar)                                                                                       \
 	{                                                                                                                  \
-		ar& elastic::base_object<base>(*this);                                                                            \
+		ar& elastic::base_object<base>(*this);                                                                         \
 		ELASTIC_BIND_WITH(ar&, __VA_ARGS__);                                                                           \
 	}
 #endif
