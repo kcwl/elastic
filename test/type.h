@@ -1,6 +1,22 @@
 #pragma once
 #include <elastic.hpp>
 
+struct person
+{
+	int age;
+	std::string name;
+
+	ELASTIC_ACCESS(age, name);
+};
+
+struct animal
+{
+	int a;
+	char b;
+	bool c;
+};
+
+
 TEST(io, elastic_type)
 {
 	{
@@ -129,6 +145,20 @@ TEST(io, elastic_type)
 	}
 
 	{
+		elastic::flex_buffer_t buf;
+
+		int64_t a_in =  -10;
+
+		elastic::to_binary(a_in, buf);
+
+		int64_t a_out{};
+
+		elastic::from_binary(a_out, buf);
+
+		EXPECT_TRUE(a_in == a_out);
+	}
+
+	{
 		enum class color
 		{
 			red = 1,
@@ -190,6 +220,57 @@ TEST(io, elastic_type)
 	}
 
 	{
+		std::vector<person> pers{};
+		person per = { 1,"Lancy" };
+
+		pers.push_back(per);
+		pers.push_back(per);
+		pers.push_back(per);
+
+
+		elastic::flex_buffer_t buf;
+
+		elastic::to_binary(pers, buf);
+
+		std::vector<person>  pers_copy{};
+
+		elastic::from_binary(pers_copy, buf);
+
+		auto size = pers_copy.size();
+
+		EXPECT_TRUE(size == pers.size());
+
+		for (std::size_t i = 0; i < size; ++i)
+		{
+			EXPECT_TRUE(pers_copy[i].age == pers[i].age && pers_copy[i].name == pers[i].name);
+		}
+	}
+
+	{
+		std::vector<animal> animals{};
+		animals.push_back({ 1,'2',0 });
+		animals.push_back({ 2,'2',0 });
+		animals.push_back({ 3,'2',0 });
+
+		std::vector<animal> animal_copys{};
+
+		elastic::flex_buffer_t buf;
+
+		elastic::to_binary(animals, buf);
+
+		elastic::from_binary(animal_copys, buf);
+
+		auto size = animal_copys.size();
+
+		EXPECT_TRUE(size == animals.size());
+
+		for (std::size_t i = 0; i < size; ++i)
+		{
+			EXPECT_TRUE(animal_copys[i].a == animals[i].a && animal_copys[i].b == animals[i].b && animal_copys[i].c == animals[i].c);
+		}
+	}
+
+	{
 		elastic::flex_buffer_t buf;
 
 		double a_in = 1.2;
@@ -211,34 +292,6 @@ TEST(io, elastic_type)
 		elastic::to_binary(a_in, buf);
 
 		float a_out;
-
-		elastic::from_binary(a_out, buf);
-
-		EXPECT_TRUE(a_in == a_out);
-	}
-
-	{
-		std::optional<int> value{ 1 };
-
-		elastic::flex_buffer_t buf;
-
-		elastic::to_binary(value, buf);
-
-		std::optional<int> value1;
-
-		elastic::from_binary(value1, buf);
-
-		EXPECT_TRUE(value.value() == value1.value());
-	}
-
-	{
-		elastic::flex_buffer_t buf;
-
-		std::vector<std::byte> a_in = { std::byte(1), std::byte(2), std::byte(3), std::byte(4), std::byte(5) };
-
-		elastic::to_binary(a_in, buf);
-
-		std::vector<std::byte> a_out{};
 
 		elastic::from_binary(a_out, buf);
 

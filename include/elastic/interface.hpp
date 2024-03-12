@@ -2,58 +2,68 @@
 
 namespace elastic
 {
-	template <typename _Archive>
-	class interface_iarchive
+	namespace detail
 	{
-	protected:
-		interface_iarchive() = default;
-
-	public:
-		template <typename _Ty>
-		_Archive& operator>>(_Ty& t)
+		template <typename _Archive>
+		class interface_iarchive
 		{
-			this->_this()->load_override(t);
+		public:
+			virtual ~interface_iarchive() = default;
 
-			return *this->_this();
-		}
+		protected:
+			interface_iarchive() = default;
 
-		template <typename _Ty>
-		_Archive& operator&(_Ty& t)
+		public:
+			template <typename _Ty>
+			_Archive& operator>>(_Ty& t)
+			{
+				_this()->load_override(t);
+
+				return *_this();
+			}
+
+			template <typename _Ty>
+			_Archive& operator&(_Ty& t)
+			{
+				return *this >> t;
+			}
+
+		private:
+			_Archive* _this()
+			{
+				return static_cast<_Archive*>(this);
+			}
+		};
+
+		template <typename _Archive>
+		class interface_oarchive
 		{
-			return *(this->_this()) >> t;
-		}
+		public:
+			virtual ~interface_oarchive() = default;
 
-	private:
-		_Archive* _this()
-		{
-			return static_cast<_Archive*>(this);
-		}
-	};
+		protected:
+			interface_oarchive() = default;
 
-	template <typename _Archive>
-	class interface_oarchive
-	{
-	protected:
-		interface_oarchive() = default;
+		public:
+			template <typename _Ty>
+			_Archive& operator<<(_Ty&& t)
+			{
+				_this()->save_override(std::forward<_Ty>(t));
 
-	public:
-		template <typename _Ty>
-		_Archive& operator<<(_Ty&& t)
-		{
-			this->_this()->save_override(std::forward<_Ty>(t));
-			return *this->_this();
-		}
+				return *_this();
+			}
 
-		template <typename _Ty>
-		_Archive& operator&(_Ty&& t)
-		{
-			return *this->_this() << std::forward<_Ty>(t);
-		}
+			template <typename _Ty>
+			_Archive& operator&(_Ty&& t)
+			{
+				return *this << std::forward<_Ty>(t);
+			}
 
-	private:
-		_Archive* _this()
-		{
-			return static_cast<_Archive*>(this);
-		}
-	};
+		private:
+			_Archive* _this()
+			{
+				return static_cast<_Archive*>(this);
+			}
+		};
+	} // namespace detail
 } // namespace elastic

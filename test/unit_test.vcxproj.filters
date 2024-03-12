@@ -41,7 +41,7 @@
     <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\archive.hpp">
+    <ClInclude Include="..\include\elastic\binary_archive.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\flex_buffer.hpp">

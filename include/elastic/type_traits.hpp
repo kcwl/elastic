@@ -1,101 +1,118 @@
 #pragma once
 #include <forward_list>
 #include <list>
+#include <map>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <map>
 
 namespace elastic
 {
-	namespace impl
+	template<typename _Ty>
+	concept float_point_t = std::is_floating_point_v<std::remove_reference_t<_Ty>>;
+
+	template<typename _Ty>
+	concept enum_t = std::is_enum_v<_Ty>;;
+
+	template <typename _Ty>
+	concept integer_t = std::is_integral_v<std::remove_reference_t<_Ty>> || enum_t<std::remove_cvref_t<_Ty>>;
+
+	namespace detail
 	{
-		struct any_type
+		template<typename _Ty>
+		struct zig_zag
 		{
-			std::size_t ignore_;
-
-			template <typename _Ty>
-			constexpr operator _Ty() const noexcept
-			{
-				return _Ty{};
-			};
+			using type = _Ty;
 		};
-	} // namespace impl
 
-	template <typename _Ty, typename Indices, typename = void>
-	struct is_aggregate_initalize_impl : std::false_type
-	{};
+		template<>
+		struct zig_zag<int8_t>
+		{
+			using type = uint8_t;
+		};
 
-	template <typename _Ty, size_t... I>
-	struct is_aggregate_initalize_impl<_Ty, std::index_sequence<I...>,
-									   std::void_t<decltype(_Ty{ impl::any_type{ I }... })>> : std::true_type
-	{};
+		template<>
+		struct zig_zag<char>
+		{
+			using type = uint8_t;
+		};
 
-	template <typename _Ty, std::size_t N>
-	struct is_aggregate_initialize : is_aggregate_initalize_impl<_Ty, std::make_index_sequence<N>>
-	{};
+		template<>
+		struct zig_zag<bool>
+		{
+			using type = uint8_t;
+		};
+
+		template<>
+		struct zig_zag<int16_t>
+		{
+			using type = uint16_t;
+		};
+
+		template<>
+		struct zig_zag<int32_t>
+		{
+			using type = uint32_t;
+		};
+
+		template<>
+		struct zig_zag<int64_t>
+		{
+			using type = uint64_t;
+		};
+
+		template<enum_t _Ty>
+		struct zig_zag<_Ty>
+		{
+			using type = int32_t;
+		};
+
+		template<typename _Ty>
+		struct remove_unsigned
+		{
+			using type = _Ty;
+		};
+
+		template<>
+		struct remove_unsigned<uint8_t>
+		{
+			using type = int8_t;
+		};
+
+		template<>
+		struct remove_unsigned<uint16_t>
+		{
+			using type = int16_t;
+		};
+
+		template<>
+		struct remove_unsigned<uint32_t>
+		{
+			using type = int32_t;
+		};
+
+		template<>
+		struct remove_unsigned<uint64_t>
+		{
+			using type = int64_t;
+		};
+
+		template<enum_t _Ty>
+		struct remove_unsigned<_Ty>
+		{
+			using type = int32_t;
+		};
+
+	}
+
+	template<typename _Ty>
+	using zig_zag_t = typename detail::zig_zag<std::remove_cvref_t<_Ty>>::type;
+
+	template<typename _Ty>
+	using remove_unsigned_t = typename detail::remove_unsigned<std::remove_cvref_t<_Ty>>::type;
 
 	template <typename _Ty, typename... _Args>
 	inline constexpr bool is_any_of_v = std::disjunction_v<std::is_same<std::remove_cvref_t<_Ty>, _Args>...>;
-
-	template <typename _Ty>
-	struct zig_zag
-	{
-		using type = _Ty;
-	};
-
-	template <>
-	struct zig_zag<int8_t>
-	{
-		using type = uint8_t;
-	};
-	template <>
-
-	struct zig_zag<uint8_t>
-	{
-		using type = int8_t;
-	};
-
-	template <>
-	struct zig_zag<int16_t>
-	{
-		using type = uint16_t;
-	};
-
-	template <>
-	struct zig_zag<uint16_t>
-	{
-		using type = int16_t;
-	};
-
-	template <>
-	struct zig_zag<int32_t>
-	{
-		using type = uint32_t;
-	};
-	template <>
-	struct zig_zag<uint32_t>
-	{
-		using type = int32_t;
-	};
-
-	template <>
-	struct zig_zag<int64_t>
-	{
-		using type = uint64_t;
-	};
-
-	template <>
-	struct zig_zag<uint64_t>
-	{
-		using type = int64_t;
-	};
-
-	template <typename _Ty>
-	using zig_zag_t = typename zig_zag<std::remove_cvref_t<_Ty>>::type;
-
-	template <typename _Ty, std::size_t N>
-	concept aggregate_inialize_t = is_aggregate_initialize<_Ty, N>::value;
 
 	template <typename _Ty>
 	concept copable_t = std::is_copy_constructible_v<std::remove_all_extents_t<_Ty>> &&
@@ -111,34 +128,12 @@ namespace elastic
 	template <typename _Ty>
 	concept class_t = std::is_class_v<std::remove_reference_t<_Ty>>;
 
-	template <typename _Ty>
-	concept signed_numric_t = is_any_of_v<_Ty, int8_t, int16_t, int32_t, int64_t>;
+	template<typename _Ty>
+	concept pod_and_integer_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
-	concept unsigned_numric_t = std::is_unsigned_v<std::remove_cvref_t<_Ty>>;
+	concept pod_t = class_t<_Ty> && pod_and_integer_t<_Ty> && !integer_t<_Ty>;
 
-	template <typename _Ty>
-	concept other_numric_t = is_any_of_v<std::remove_cvref_t<_Ty>, bool, std::byte, char> ||
-							 std::is_enum_v<std::remove_cvref_t<_Ty>> || unsigned_numric_t<_Ty>;
-
-	template <typename _Ty>
-	concept multi_numric_v = is_any_of_v<_Ty, double, float>;
-
-	template <typename _Ty>
-	concept varint_t = signed_numric_t<std::remove_cvref_t<_Ty>> || other_numric_t<std::remove_cvref_t<_Ty>>;
-
-	template <typename _Ty>
-	concept integer_t = signed_numric_t<_Ty> || other_numric_t<_Ty> || multi_numric_v<_Ty>;
-
-	template <typename _Ty>
-	concept optional_t = requires(_Ty value) {
-		value.has_value();
-		*value;
-	};
-
-	template <typename _Ty>
-	concept pod_t = std::is_trivial_v<std::remove_cvref_t<_Ty>> &&
-					std::is_standard_layout_v<std::remove_cvref_t<_Ty>> && !integer_t<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
 	concept sequence_t = requires(_Ty value) {
@@ -147,23 +142,27 @@ namespace elastic
 		std::end(value);
 		value.data();
 		typename std::remove_cvref_t<_Ty>::value_type;
+		value.push_back({});
 	};
 
-	template<typename _Ty>
+	template <typename _Ty>
 	struct is_map : public std::false_type
 	{};
 
-	template<typename _Key, typename _Value>
+	template <typename _Key, typename _Value>
 	struct is_map<std::map<_Key, _Value>> : std::true_type
 	{};
 
-	template<typename _Ty>
+	template <typename _Ty>
 	concept map_t = is_map<_Ty>::value;
 
 	template <typename _Ty>
-	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || optional_t<_Ty> || map_t<_Ty>;
+	concept non_inherit_t = integer_t<_Ty> || pod_t<_Ty> || sequence_t<_Ty> || map_t<_Ty> || float_point_t<_Ty>;
 
 	template <typename _Ty>
 	concept inherit_t = !non_inherit_t<_Ty>;
+
+	template <typename _Ty>
+	concept swap_t = requires(_Ty value) { value.swap(value); };
 
 } // namespace elastic

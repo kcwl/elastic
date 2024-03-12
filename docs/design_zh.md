@@ -1,80 +1,82 @@
-﻿本文说明如何使用elastic语言来构建elastic数据，包括.elc文件语法以及如何从.elc文件生成数据访问类。 
+﻿# elastic
+c++20 序列化库，支持二进制序列化(未来会考虑支持json和xml)
 
-这是一份参考指南 - 有关使用本文档中描述的许多功能的分步示例，请参阅对应语言的教程。
+## 构建状态
+[![codecov](https://codecov.io/gh/kcwl/elastic/graph/badge.svg?token=2A4MZ0NDWU)](https://codecov.io/gh/kcwl/elastic)
+[![ubuntu(gcc)](https://github.com/kcwl/elastic/actions/workflows/cmake-ubuntu-gcc.yml/badge.svg)](https://github.com/kcwl/elastic/actions/workflows/cmake-ubuntu-gcc.yml)
+[![ubuntu(clang)](https://github.com/kcwl/elastic/actions/workflows/cmake-ubuntu-clang.yml/badge.svg)](https://github.com/kcwl/elastic/actions/workflows/cmake-ubuntu-clang.yml)
+[![visual stadio](https://github.com/kcwl/elastic/actions/workflows/cmake-windows-vs.yml/badge.svg)](https://github.com/kcwl/elastic/actions/workflows/cmake-windows-vs.yml)
 
-## elastic支持哪些语言？
-+ c++: 会生成 .h和.cpp文件
-+ java: 会生成.java文件
-+ c#: 会生成一个.cs文件
-+ lua： 会生成一个.lua文件
+## 简介
+elastic 是一个用c++20标准编写的序列化库. 支持多种类型的序列化, elastic 依赖于 [[reflect](https://github.com/kcwl/reflect.git)] 反射成员变量。
+elastic是只包含头文件的, 所以只要包含头文件就可以轻松的使用。
 
-## 关键字
-|名称|用途|是否启用|
-|----|----|--------|
-|package|命名空间|启用|
-|package...package|多级命名空间|未启用|
-|import|导入文件|启用|
-|syntax|版本标识|未启用|
-|enum|声明枚举变量|启用|
-|message|声明对象集合|启用|
+## 数据类型
+以下类型是目前所支持的：
 
-## 定义消息类型
-定义一个简单的查询消息格式，其中包括一个工厂名的字符串，工厂车间的数量以及每个车间的员工数。以下是对应定义：
+### basic type
+
+|类型| 注释|
+|--|--|
+|char| 标量类型 |
+|bool| 标量类型 |
+|intN| int8, int16, int32, int64|
+|uintN| uint8_t, uint16_t. uint32_t. uint64_t|
+|double| 双精度类型|
+|float| 单精度类型|
+|enum/enum class| 枚举类型|
+|string| 字符串|
+|vector<T>| 连续序列|
+
+### 复杂类型
++ 继承类型需要添加`ELASTIC_ACCESS_IF`注册序列化访问权限。
++ 非POD类型需要添加`ELASTIC_ACCESS`注册序列化访问权限。
+
+## core
+elastic中的一个核心组件flex_buffer是用来做序列化的数据承载. flex_buffer 定义如下:
+
 ```
-message QueryRequest = 1000
-{
-  string factory_name;
-  int32 home_number;
-  uint32 number_of_home;
-}
-```
-+ `message`为集合声明关键字,后续大括号中的内容为一个集合。第一行结尾的数字为集合的唯一编号， 此编号可选，如不使用此序号，则不提供消息注册
+flex_buffer<_Element, _Traits>::flex_buffer
 
-+ `QueryRequest` 定义了三个字段，每个字段都由`类型+字段名`组成，其中的类型有很多种，除标量类型外，还可以指定复合类型以及枚举类型。具体类型如下：
+flex_buffer();		//默认构造, 构造一个容量为4096的flex_buffer
+		
+flex_buffer(size_type number); // 构造一个容量为number的flex_buffer
 
-## 字段类型
-| 原型  | 注释| c++类型|java类型|c#类型|lua类型|默认值|
-|                                                     |
-| double||double|double|doule|double|0|
-| float |float|float|float|double|0|
-| int32 |使用可变长度编码。ZigZag编码格式|int32|int|int|int|0|
-| int64 |使用可变长度编码。ZigZag编码格式|int64|long|long|long|0|
-| uint32|使用可变长度编码。|uint32|int|uint|uint|0|
-| uint64|使用可变长度编码。|uint64|long|ulong|uint64|0|
-| fixed32|固定4字节长度，如果大于2^28,则比uint32高效。|uint32|int|uint|uint|0|
-| fixed64|固定8字节长度，如果大于2^56,则比uint64高效。|uint64|long|ulong|long|0|
-| bool | |bool|boolean|bool|bool|false|
-| string|字符串必须是utf8或者7-bit ASCII，并且长度不大于2^32|string|ByteString|ByteString|str|""|
-| bytes| | vector<uint8>|ByteString|ByteString|byte|""|
+template <typename _Iter>
+flex_buffer(_Iter begin, _Iter end);  // 通过迭代器构造一个flex_buffer
 
-## 复合字段类型
-消息字段可以是以下之一：
-  + optional: optional字段可能处于以下两种状态之一：
-    + 该字段已设置， 并且包含显示设置的值，则将会被执行序列化
-    + 该字段未设置，将返回默认值，但不会被序列化
-  + repeated: 此字段类型可以在类型正确的情况下，重复领次或多次，顺序不变
-  + 未知类型无法参与序列化
+template <typename _Ty, std::size_t N, 
+	typename = std::is_convertible<_Ty, _Elem>>
+flex_buffer(std::span<_Ty, N> data);    // 通过一段跨度构造一个flex_buffer
 
-## 使用其他类型
-### 枚举enum
-
-`enum`关键字可以非常简单的通过在消息定义中定义一个变量来枚举变量。下面示例中添加了一个枚举变量。
-```
-enum Kind
-{
-    Kind1;
-    Kind2;
-    Kind3;
-}
-
-message QueryRequest = 1000
-{
-  string factory_name;
-  int32 home_number;
-  uint32 number_of_home;
-  Kind k;
-}
+flex_buffer(const void* buffer, size_type sz); //通过C的方式构造一个flex_buffer_
 ```
 
-## 注释类型
-如添加注释，请采用c++样式风格的注释，即：`//` 或`/**/`
+## 用法
+elastic 提供了两个接口函数， `to_binary` 和 `from_binary`;
+
+```
+template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
+bool to_binary(_Ty&& t, flex_buffer<_Elem, _Traits>& buffer);                               // 把t序列化成二进制数据
+
+template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
+bool from_binary(_Ty& t, flex_buffer<_Elem, _Traits>& buffer);								// 把二进制数据反序列化成t					
+```
+
+## 示例
+
+```
+	elastic::flex_buffer_t buf;
+
+	int8_t a_in = (std::numeric_limits<int8_t>::max)();
+
+	elastic::to_binary(a_in, buf);
+
+	int8_t a_out{};
+
+	elastic::from_binary(a_out, buf);
+```
+
+在上述示例中， `a_in` 和 `a_out` 相等，更多的例子可以参考单元测试
+
+## wiki
