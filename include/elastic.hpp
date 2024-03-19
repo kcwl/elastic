@@ -2,6 +2,7 @@
 #include "elastic/access.hpp"
 #include "elastic/binary_archive.hpp"
 #include "elastic/macro_expand.hpp"
+#include "elastic/size.hpp"
 
 namespace elastic
 {
@@ -23,6 +24,12 @@ namespace elastic
 		ia >> t;
 
 		return !ia.fail();
+	}
+
+	template<typename _Ty>
+	std::size_t size(const _Ty& t)
+	{
+		return element_size(t);
 	}
 } // namespace elastic
 

@@ -16,7 +16,6 @@ struct animal
 	bool c;
 };
 
-
 TEST(io, elastic_type)
 {
 	{
@@ -25,6 +24,8 @@ TEST(io, elastic_type)
 		char a_in = (std::numeric_limits<char>::max)();
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		char a_out{};
 
@@ -40,6 +41,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(a_in, buf);
 
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
+
 		int8_t a_out{};
 
 		elastic::from_binary(a_out, buf);
@@ -53,6 +56,8 @@ TEST(io, elastic_type)
 		uint8_t a_in = (std::numeric_limits<uint8_t>::max)();
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		uint8_t a_out{};
 
@@ -68,6 +73,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(a_in, buf);
 
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
+
 		int16_t a_out{};
 
 		elastic::from_binary(a_out, buf);
@@ -80,6 +87,8 @@ TEST(io, elastic_type)
 		uint16_t a_in = (std::numeric_limits<uint16_t>::max)();
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		uint16_t a_out{};
 
@@ -94,6 +103,7 @@ TEST(io, elastic_type)
 		int32_t a_in = (std::numeric_limits<int32_t>::max)();
 
 		elastic::to_binary(a_in, buf);
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		int32_t a_out{};
 
@@ -108,6 +118,7 @@ TEST(io, elastic_type)
 		uint32_t a_in = (std::numeric_limits<uint32_t>::max)();
 
 		elastic::to_binary(a_in, buf);
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		uint32_t a_out{};
 
@@ -123,6 +134,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(a_in, buf);
 
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
+
 		int64_t a_out{};
 
 		elastic::from_binary(a_out, buf);
@@ -137,6 +150,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(a_in, buf);
 
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
+
 		uint64_t a_out{};
 
 		elastic::from_binary(a_out, buf);
@@ -147,9 +162,11 @@ TEST(io, elastic_type)
 	{
 		elastic::flex_buffer_t buf;
 
-		int64_t a_in =  -10;
+		int64_t a_in = -10;
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		int64_t a_out{};
 
@@ -169,6 +186,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(color::red, buf);
 
+		EXPECT_TRUE(elastic::size(color::red) == buf.size());
+
 		color cr{};
 
 		elastic::from_binary(cr, buf);
@@ -183,6 +202,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(a_in, buf);
 
+		EXPECT_TRUE(elastic::size(a_in) == 12);
+
 		std::string a_out{};
 
 		elastic::from_binary(a_out, buf);
@@ -196,6 +217,8 @@ TEST(io, elastic_type)
 		bool a_in = false;
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		bool a_out = true;
 
@@ -212,6 +235,8 @@ TEST(io, elastic_type)
 
 		elastic::to_binary(a_in, buf);
 
+		EXPECT_TRUE(elastic::size(a_in) == 5);
+
 		std::vector<std::byte> a_out{};
 
 		elastic::from_binary(a_out, buf);
@@ -221,18 +246,19 @@ TEST(io, elastic_type)
 
 	{
 		std::vector<person> pers{};
-		person per = { 1,"Lancy" };
+		person per = { 1, "Lancy" };
 
 		pers.push_back(per);
 		pers.push_back(per);
 		pers.push_back(per);
-
 
 		elastic::flex_buffer_t buf;
 
 		elastic::to_binary(pers, buf);
 
-		std::vector<person>  pers_copy{};
+		EXPECT_TRUE(elastic::size(pers) == 18);
+
+		std::vector<person> pers_copy{};
 
 		elastic::from_binary(pers_copy, buf);
 
@@ -248,15 +274,17 @@ TEST(io, elastic_type)
 
 	{
 		std::vector<animal> animals{};
-		animals.push_back({ 1,'2',0 });
-		animals.push_back({ 2,'2',0 });
-		animals.push_back({ 3,'2',0 });
+		animals.push_back({ 1, '2', 0 });
+		animals.push_back({ 2, '2', 0 });
+		animals.push_back({ 3, '2', 0 });
 
 		std::vector<animal> animal_copys{};
 
 		elastic::flex_buffer_t buf;
 
 		elastic::to_binary(animals, buf);
+
+		EXPECT_TRUE(elastic::size(animals) == 9);
 
 		elastic::from_binary(animal_copys, buf);
 
@@ -266,7 +294,8 @@ TEST(io, elastic_type)
 
 		for (std::size_t i = 0; i < size; ++i)
 		{
-			EXPECT_TRUE(animal_copys[i].a == animals[i].a && animal_copys[i].b == animals[i].b && animal_copys[i].c == animals[i].c);
+			EXPECT_TRUE(animal_copys[i].a == animals[i].a && animal_copys[i].b == animals[i].b &&
+						animal_copys[i].c == animals[i].c);
 		}
 	}
 
@@ -276,6 +305,8 @@ TEST(io, elastic_type)
 		double a_in = 1.2;
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		double a_out;
 
@@ -290,6 +321,8 @@ TEST(io, elastic_type)
 		float a_in = 2.4f;
 
 		elastic::to_binary(a_in, buf);
+
+		EXPECT_TRUE(elastic::size(a_in) == buf.size());
 
 		float a_out;
 

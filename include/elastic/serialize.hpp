@@ -2,32 +2,8 @@
 #include "access.hpp"
 #include "reflect.hpp"
 #include "type_traits.hpp"
-
+#include "zig_zag.hpp"
 #include <vector>
-
-namespace
-{
-	static constexpr int32_t zig_zag_bit = 7;
-
-	template <elastic::integer_t _Ty>
-	elastic::zig_zag_t<_Ty> zigzag_encode(_Ty value)
-	{
-		using value_type = elastic::zig_zag_t<_Ty>;
-
-		using remove_unsigned_type = elastic::remove_unsigned_t<_Ty>;
-
-		constexpr auto size = sizeof(_Ty) * 8 - 1;
-
-		return static_cast<remove_unsigned_type>(value) << 1 ^ static_cast<remove_unsigned_type>(value) >> size;
-	}
-
-	template <elastic::integer_t _Ty>
-	_Ty zigzag_decode(elastic::zig_zag_t<_Ty> value)
-	{
-		return static_cast<_Ty>((value >> 1) ^ (~(value & 1) + 1));
-	}
-
-} // namespace
 
 namespace elastic
 {
@@ -80,18 +56,14 @@ namespace elastic
 		template <pod_t _Ty, typename _Archive>
 		_Ty deserialize(_Archive& ar)
 		{
-			_Ty t{};
-
 			constexpr auto N = reflect::tuple_size_v<_Ty>;
 
 			using Indices = std::make_index_sequence<N>;
 
-			auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>)
+			auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>) mutable
 			{ return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
 
-			t = func(ar, Indices{});
-
-			return t;
+			return std::move(func(ar, Indices{}));
 		}
 
 		template <sequence_t _Ty, typename _Archive>
