@@ -26,12 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tuple_size.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="generate.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="type.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -70,6 +64,15 @@
     </ClInclude>
     <ClInclude Include="flex_buffer.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\size.hpp">
+      <Filter>elastic\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\macro_expand.hpp">
+      <Filter>elastic\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\elastic\zig_zag.hpp">
+      <Filter>elastic\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

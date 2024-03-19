@@ -165,4 +165,7 @@ namespace elastic
 	template <typename _Ty>
 	concept swap_t = requires(_Ty value) { value.swap(value); };
 
+	template<typename _Ty>
+	concept aggregate_class_t = class_t<std::remove_cvref_t<_Ty>> && std::is_aggregate_v<std::remove_cvref_t<_Ty>>;
+
 } // namespace elastic
