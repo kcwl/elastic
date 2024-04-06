@@ -148,14 +148,12 @@
     <ClInclude Include="..\include\elastic\access.hpp" />
     <ClInclude Include="..\include\elastic\flex_buffer.hpp" />
     <ClInclude Include="..\include\elastic\macro_expand.hpp" />
+    <ClInclude Include="..\include\elastic\power.hpp" />
     <ClInclude Include="..\include\elastic\primitive.hpp" />
     <ClInclude Include="..\include\elastic\binary_archive.hpp" />
     <ClInclude Include="..\include\elastic\serialize.hpp" />
     <ClInclude Include="..\include\elastic\type_traits.hpp" />
-    <ClInclude Include="..\include\elastic\interface.hpp" />
     <ClInclude Include="..\include\elastic\reflect.hpp" />
-    <ClInclude Include="..\include\elastic\size.hpp" />
-    <ClInclude Include="..\include\elastic\zig_zag.hpp" />
     <ClInclude Include="flex_buffer.h" />
     <ClInclude Include="type.h" />
     <ClInclude Include="inherit.h" />

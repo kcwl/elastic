@@ -85,37 +85,9 @@ TEST(buffer, function)
 
 		EXPECT_TRUE(buffer.size() == 0);
 
-		EXPECT_TRUE(*buffer.data() == 0);
-
 		EXPECT_TRUE(*buffer.wdata() == 0);
 
 		EXPECT_TRUE(*buffer.rdata() == 0);
-
-		EXPECT_TRUE(*buffer.begin() == *buffer.data());
-	}
-
-	{
-		elastic::flex_buffer_t m_buffer{};
-
-		m_buffer.resize(8192);
-
-		EXPECT_TRUE(m_buffer.max_size() == 8192);
-
-		elastic::to_binary(1, m_buffer);
-		elastic::to_binary(2, m_buffer);
-		elastic::to_binary(3, m_buffer);
-		elastic::to_binary(4, m_buffer);
-		elastic::to_binary(5, m_buffer);
-
-		m_buffer.consume(4);
-
-		m_buffer.resize(3);
-
-		EXPECT_TRUE(m_buffer.max_size() == 3);
-
-		m_buffer.clear();
-
-		EXPECT_TRUE(m_buffer.max_size() == 0);
 	}
 
 	{
@@ -193,7 +165,7 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{ 1 };
+		elastic::flex_buffer_t buffer;
 
 		elastic::to_binary(1, buffer);
 

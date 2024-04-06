@@ -24,7 +24,6 @@ namespace elastic
 		constexpr static std::size_t water_line = 32;
 
 	public:
-		
 		using iterator = typename std::vector<elem_type, allocator_type>::iterator;
 		using const_iterator = typename std::vector<elem_type, allocator_type>::const_iterator;
 		using value_type = typename std::vector<elem_type, allocator_type>::value_type;
@@ -39,22 +38,12 @@ namespace elastic
 		using int_type = typename traits_type::int_type;
 
 	public:
-		flex_buffer()
-			: flex_buffer(capacity)
-		{}
-
-		flex_buffer(size_type number)
-			: buffer_(number)
-			, pptr_(0)
-			, gptr_(0)
-		{}
+		flex_buffer() = default;
 
 		template <typename _Iter>
 		flex_buffer(_Iter begin, _Iter end)
 			: flex_buffer()
 		{
-			buffer_.clear();
-
 			std::copy(begin, end, std::back_inserter(buffer_));
 
 			commit(static_cast<int>(buffer_.size()));
@@ -113,39 +102,29 @@ namespace elastic
 			return buffer_.size() - pptr_;
 		}
 
-		pointer data() noexcept
-		{
-			return buffer_.data();
-		}
-
-		const_pointer data() const noexcept
-		{
-			return buffer_.data();
-		}
-
 		pointer wdata() noexcept
 		{
-			return data() + gptr_;
+			return buffer_.data() + gptr_;
 		}
 
 		const_pointer wdata() const noexcept
 		{
-			return data() + gptr_;
+			return buffer_.data() + gptr_;
 		}
 
 		pointer rdata() noexcept
 		{
-			return data() + pptr_;
+			return buffer_.data() + pptr_;
 		}
 
 		const_pointer rdata() const noexcept
 		{
-			return data() + pptr_;
+			return buffer_.data() + pptr_;
 		}
 
 		void commit(off_type bytes)
 		{
-			bytes = static_cast<off_type>(std::min<std::size_t>(bytes, buffer_.size() - pptr_));
+			bytes = std::min<off_type>(bytes, buffer_.size() - pptr_);
 
 			pptr_ += bytes;
 
@@ -190,24 +169,13 @@ namespace elastic
 			gptr_ = 0;
 		}
 
-		void resize(size_type bytes)
-		{
-			off_type pos = static_cast<off_type>(bytes - 1);
-
-			pptr_ > pos ? pptr_ = pos : 0;
-
-			gptr_ > pos ? gptr_ = pos : 0;
-
-			buffer_.resize(bytes);
-		}
-
 		void swap(flex_buffer& other)
 		{
 			buffer_.swap(other.buffer_);
 
 			std::swap(pptr_, other.pptr_);
 
-			std::swap(gptr_ , other.gptr_);
+			std::swap(gptr_, other.gptr_);
 		}
 
 		size_type size() noexcept
@@ -225,13 +193,11 @@ namespace elastic
 			if (pptr_ == 0)
 				return;
 
-			std::size_t seg = size();
-
-			std::memmove(buffer_.data(), wdata(), seg);
-
-			pptr_ = seg;
+			pptr_ = size();
 
 			gptr_ = 0;
+
+			traits_type::copy(buffer_.data(), wdata(), pptr_);
 		}
 
 		void ensure()
@@ -322,7 +288,7 @@ namespace elastic
 			{
 				pos > pptr_ ? gptr_ = pptr_ : 0;
 
-				pos < 0 ?  pos = 0 : (pos_type)0;
+				pos < 0 ? pos = 0 : (pos_type)0;
 
 				gptr_ = static_cast<off_type>(pos);
 			}
@@ -377,13 +343,13 @@ namespace elastic
 			auto act = active();
 
 			if (size > act)
-				resize(max_size() + (size - act));
+				buffer_.resize(max_size() + (size - act));
 
-			std::memcpy(rdata(), buffer.wdata(), size);
+			traits_type::copy(rdata(), buffer.wdata(), size);
 
 			commit(size);
 
-			this_type{ 0 }.swap(buffer);
+			this_type{}.swap(buffer);
 		}
 
 	private:

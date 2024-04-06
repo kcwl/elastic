@@ -1,46 +1,98 @@
 #pragma once
 #include "access.hpp"
+#include "power.hpp"
 #include "reflect.hpp"
 #include "type_traits.hpp"
-#include "zig_zag.hpp"
+#include <bitset>
 #include <vector>
 
 namespace elastic
 {
 	namespace detail
 	{
+		template <integer_t _Ty>
+		constexpr uint8_t get_symbol(_Ty&& t)
+		{
+			constexpr auto bit = sizeof(_Ty) * 8 - 1;
+
+			constexpr auto pow = power<2, bit>::value;
+
+			return static_cast<uint8_t>((t & pow) >> bit);
+		}
+
+		template <integer_t _Ty>
+		constexpr auto get_data(_Ty&& t)
+		{
+			using type = std::remove_cvref_t<_Ty>;
+
+			constexpr auto pow = power<2, sizeof(_Ty) * 8 - 1>::value - 1;
+
+			return static_cast<type>(t & pow);
+		}
+
+		inline uint8_t filter_symbol(uint8_t value)
+		{
+			constexpr auto bit = sizeof(uint8_t) * 8 - 1;
+
+			constexpr auto pow = power<2, bit>::value;
+
+			return (value & pow) >> bit;
+		}
+
+		inline uint8_t filter_negative(uint8_t value)
+		{
+			constexpr auto bit = sizeof(uint8_t) * 8 - 2;
+
+			constexpr auto pow = power<2, bit>::value;
+
+			return (value & pow) >> bit;
+		}
+
+		inline uint8_t filter_length(uint8_t value)
+		{
+			constexpr auto pow = power<2, 0>::value + power<2, 1>::value + power<2, 2>::value + power<2, 3>::value;
+
+			return value & pow;
+		}
+
 		template <integer_t _Ty, typename _Archive>
 		_Ty deserialize(_Archive& ar)
 		{
-			using zig_t = zig_zag_t<_Ty>;
-			zig_t t{};
-
 			using value_type = typename _Archive::value_type;
 
 			value_type c{};
-
 			ar.load(c);
 
-			t = c;
+			_Ty value{};
 
-			if (t >= 0x80)
+			auto symbol = filter_symbol(c);
+
+			auto length = filter_length(c);
+
+			auto negative = filter_negative(c);
+
+			int32_t temp_bit = 0;
+
+			while (length--)
 			{
-				t -= 0x80;
-
-				int32_t temp_bit = zig_zag_bit;
-
-				while (ar.load(c), (c & 0x80) != 0)
-				{
-					t += static_cast<zig_t>(c) << temp_bit;
-					t -= static_cast<zig_t>(0x80u) << temp_bit;
-
-					temp_bit += zig_zag_bit;
-				}
-
-				t += static_cast<zig_t>(c) << temp_bit;
+				ar.load(c);
+				value += (static_cast<_Ty>(c) << temp_bit);
+				temp_bit += 8;
 			}
 
-			return zigzag_decode<_Ty>(t);
+			return negative == 0 ? (static_cast<_Ty>(symbol) << (sizeof(_Ty) * 8 - 1)) | value : ~value + 1;
+		}
+
+		template <enum_t _Ty, typename _Archive>
+		_Ty deserialize(_Archive& ar)
+		{
+			return static_cast<_Ty>(deserialize<int>(ar));
+		}
+
+		template<boolean_t _Ty, typename _Archive>
+		_Ty deserialize(_Archive& ar)
+		{
+			return static_cast<_Ty>(deserialize<int>(ar));
 		}
 
 		template <float_point_t _Ty, typename _Archive>
@@ -53,7 +105,7 @@ namespace elastic
 			return t;
 		}
 
-		template <pod_t _Ty, typename _Archive>
+		template <struct_t _Ty, typename _Archive>
 		_Ty deserialize(_Archive& ar)
 		{
 			constexpr auto N = reflect::tuple_size_v<_Ty>;
@@ -64,6 +116,29 @@ namespace elastic
 			{ return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
 
 			return std::move(func(ar, Indices{}));
+		}
+
+		template <string_t _Ty, typename _Archive>
+		_Ty deserialize(_Archive& ar)
+		{
+			_Ty t{};
+
+			using value_type = typename _Archive::value_type;
+
+			std::size_t bytes = deserialize<std::size_t>(ar);
+
+			std::size_t count = bytes;
+
+			while (count--)
+			{
+				using type = typename _Ty::value_type;
+
+				t.resize(bytes);
+
+				ar.load((value_type*)(t.data() + bytes - count - 1), sizeof(type));
+			}
+
+			return t;
 		}
 
 		template <sequence_t _Ty, typename _Archive>
@@ -81,19 +156,11 @@ namespace elastic
 			{
 				using type = typename _Ty::value_type;
 
-				if constexpr (!class_t<type>)
-				{
-					t.resize(bytes);
+				type value{};
 
-					ar.load((value_type*)(t.data() + bytes - count - 1), sizeof(type));
-				}
-				else
-				{
-					type value{};
-					ar >> value;
+				ar >> value;
 
-					t.push_back(value);
-				}
+				t.push_back(value);
 			}
 
 			return t;
@@ -102,17 +169,61 @@ namespace elastic
 		template <integer_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			using type = typename _Archive::value_type;
+			using value_type = typename _Archive::value_type;
 
-			auto result = zigzag_encode<_Ty>(std::forward<_Ty>(value));
+			using result_t = std::remove_cvref_t<_Ty>;
 
-			while (result >= 0x80)
+			auto symbol = get_symbol(std::forward<_Ty>(value));
+
+			ar.commit(sizeof(value_type));
+
+			result_t temp;
+
+			int has_negative = 0;
+
+			if (value >= 0) [[likely]]
 			{
-				ar.save(static_cast<type>(result | 0x80));
-				result >>= zig_zag_bit;
+				temp = get_data(std::forward<_Ty>(value));
+			}
+			else
+			{
+				temp = ~value + 1;
+
+				has_negative = 1;
 			}
 
-			ar.save(static_cast<type>(result));
+			int bit = 0;
+
+			while (temp)
+			{
+				temp > 0xff ? temp = static_cast<value_type>(0xff) : 0;
+
+				ar.save(static_cast<value_type>(temp));
+
+				temp >>= 8;
+
+				++bit;
+			}
+
+			ar.commit(-bit - 1);
+
+			symbol = static_cast<uint8_t>((symbol << 7) | (has_negative << 6) | bit);
+
+			ar.save(symbol);
+
+			ar.commit(bit);
+		}
+
+		template <enum_t _Ty, typename _Archive>
+		void serialize(_Archive& ar, _Ty&& value)
+		{
+			return serialize(ar, static_cast<int>(value));
+		}
+
+		template <boolean_t _Ty, typename _Archive>
+		void serialize(_Archive& ar, _Ty&& value)
+		{
+			return serialize(ar, static_cast<int>(value));
 		}
 
 		template <float_point_t _Ty, typename _Archive>
@@ -121,10 +232,23 @@ namespace elastic
 			ar.save(value);
 		}
 
-		template <pod_t _Ty, typename _Archive>
+		template <struct_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
 			reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
+		}
+
+		template <string_t _Ty, typename _Archive>
+		void serialize(_Archive& ar, _Ty&& value)
+		{
+			auto bytes = value.size();
+
+			serialize(ar, bytes);
+
+			for (auto& mem : value)
+			{
+				ar.save(mem);
+			}
 		}
 
 		template <sequence_t _Ty, typename _Archive>
@@ -140,14 +264,7 @@ namespace elastic
 
 			for (auto& mem : value)
 			{
-				if constexpr (!class_t<value_type>)
-				{
-					ar.save(mem);
-				}
-				else
-				{
-					ar << mem;
-				}
+				ar << mem;
 			}
 		}
 	} // namespace detail
