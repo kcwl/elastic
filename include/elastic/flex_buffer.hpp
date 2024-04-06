@@ -40,6 +40,12 @@ namespace elastic
 	public:
 		flex_buffer() = default;
 
+		flex_buffer(std::size_t capa)
+			: buffer_(capa)
+		{
+
+		}
+
 		template <typename _Iter>
 		flex_buffer(_Iter begin, _Iter end)
 			: flex_buffer()
@@ -67,6 +73,8 @@ namespace elastic
 		flex_buffer(const void* buffer, size_type sz)
 			: flex_buffer()
 		{
+			buffer_.resize(sz);
+
 			auto active_sz = active();
 
 			sz > active_sz ? sz = active_sz : 0;
@@ -298,8 +306,13 @@ namespace elastic
 
 		size_type sputn(const value_type* begin, size_type size)
 		{
-			if (size > active())
+			if (size == 0)
 				return 0;
+
+			if (static_cast<std::size_t>(pptr_) == buffer_.size())
+			{
+				buffer_.resize(max_size() + size);
+			}
 
 			for (size_type i = 0; i < size; ++i)
 			{

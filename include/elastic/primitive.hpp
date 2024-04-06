@@ -198,12 +198,7 @@ namespace elastic
 
 			void save(value_type* begin, std::size_t size)
 			{
-				auto res = this->streambuf_.sputn(begin, size);
-
-				if (res == 0)
-				{
-					throw std::overflow_error("output stream error!");
-				}
+				this->streambuf_.sputn(begin, size);
 			}
 		};
 	} // namespace detail

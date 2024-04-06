@@ -13,9 +13,9 @@ TEST(buffer, construct)
 
 		elastic::flex_buffer_t buffer_c(buffer.begin(), buffer.end());
 
-		EXPECT_TRUE(buffer_c.size() == 1);
+		EXPECT_TRUE(buffer_c.size() == 2);
 
-		EXPECT_TRUE(*buffer_c.wdata() == 10);
+		EXPECT_TRUE(*buffer_c.wdata() == 1);
 	}
 
 	{
@@ -46,9 +46,9 @@ TEST(buffer, construct)
 
 		EXPECT_TRUE(buffer.size() == 0);
 
-		EXPECT_TRUE(buffer_c.size() == 1);
+		EXPECT_TRUE(buffer_c.size() == 2);
 
-		EXPECT_TRUE(*buffer_c.wdata() == 10);
+		EXPECT_TRUE(*buffer_c.wdata() == 1);
 	}
 
 	{
@@ -77,9 +77,7 @@ TEST(buffer, construct)
 TEST(buffer, function)
 {
 	{
-		const elastic::flex_buffer_t buffer{};
-
-		EXPECT_TRUE(buffer.max_size() == 4096);
+		const elastic::flex_buffer_t buffer{4096};
 
 		EXPECT_TRUE(buffer.active() == 4096);
 
@@ -91,7 +89,7 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 
 		elastic::to_binary(1, buffer);
 
@@ -108,7 +106,7 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 		buffer.commit(4090);
 
 		buffer.ensure();
@@ -117,22 +115,24 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 		buffer.normalize();
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 
 		buffer.commit(4096);
 
 		char a = '2';
 
-		EXPECT_TRUE(!elastic::to_binary(a, buffer));
+		EXPECT_TRUE(elastic::to_binary(a, buffer));
+
+		EXPECT_TRUE(buffer.max_size() == 4098);
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 
 		buffer.commit(5);
 
@@ -142,7 +142,7 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 
 		buffer.pubseekoff(5, std::ios::cur, std::ios::in);
 
@@ -158,7 +158,7 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{};
+		elastic::flex_buffer_t buffer{4096};
 		int a = 0;
 
 		EXPECT_TRUE(!elastic::from_binary(a, buffer));
@@ -182,5 +182,11 @@ TEST(buffer, function)
 		elastic::from_binary(b, buffer);
 
 		EXPECT_TRUE(a == 1 && b == 2);
+	}
+
+	{
+		elastic::flex_buffer_t buffer;
+
+		EXPECT_TRUE(buffer.sputn(nullptr, 0) == 0 );
 	}
 }

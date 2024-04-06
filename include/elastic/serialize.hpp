@@ -89,7 +89,7 @@ namespace elastic
 			return static_cast<_Ty>(deserialize<int>(ar));
 		}
 
-		template<boolean_t _Ty, typename _Archive>
+		template <boolean_t _Ty, typename _Archive>
 		_Ty deserialize(_Archive& ar)
 		{
 			return static_cast<_Ty>(deserialize<int>(ar));
@@ -175,7 +175,7 @@ namespace elastic
 
 			auto symbol = get_symbol(std::forward<_Ty>(value));
 
-			ar.commit(sizeof(value_type));
+			ar.save(static_cast<uint8_t>(symbol));
 
 			result_t temp;
 
@@ -196,9 +196,11 @@ namespace elastic
 
 			while (temp)
 			{
-				temp > 0xff ? temp = static_cast<value_type>(0xff) : 0;
+				value_type bit_data{};
 
-				ar.save(static_cast<value_type>(temp));
+				temp > 0xff ? bit_data = static_cast<value_type>(0xff) : bit_data = static_cast<value_type>(temp);
+
+				ar.save(bit_data);
 
 				temp >>= 8;
 
