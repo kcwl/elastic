@@ -84,7 +84,7 @@ namespace elastic
 
 			this->streambuf_.resize(byte);
 
-			this->transcation([value = std::move(t), *this]() mutable { binary::template serialize(*this, value); });
+			this->transcation([value = std::forward<_Ty>(t), *this]() mutable { binary::template serialize(*this, value); });
 		}
 	};
 } // namespace elastic

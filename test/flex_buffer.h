@@ -102,7 +102,7 @@ TEST(buffer, function)
 		buffer.ensure();
 		buffer.normalize();
 
-		EXPECT_TRUE(buffer.size() == 0 && buffer.active() == 4096);
+		EXPECT_TRUE(buffer.size() == 0 && buffer.active() == 4098);
 	}
 
 	{

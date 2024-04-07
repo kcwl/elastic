@@ -42,9 +42,7 @@ namespace elastic
 
 		flex_buffer(std::size_t capa)
 			: buffer_(capa)
-		{
-
-		}
+		{}
 
 		template <typename _Iter>
 		flex_buffer(_Iter begin, _Iter end)
@@ -209,11 +207,11 @@ namespace elastic
 			if (pptr_ == 0)
 				return;
 
+			traits_type::copy(buffer_.data(), wdata(), active());
+
 			pptr_ = size();
 
 			gptr_ = 0;
-
-			traits_type::copy(buffer_.data(), wdata(), pptr_);
 		}
 
 		void ensure()
