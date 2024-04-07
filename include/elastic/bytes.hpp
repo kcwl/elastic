@@ -5,102 +5,44 @@
 namespace elastic
 {
 	template <typename _Ty>
-	struct bytes
+	std::size_t bytes(const _Ty& value)
 	{
-		static std::size_t apply(const _Ty&)
-		{
-			return 0;
-		}
-	};
+		std::size_t byte = 0;
 
-	template <integer_t _Ty>
-	struct bytes<_Ty>
-	{
-		static auto apply(_Ty value)
+		if constexpr (integer_t<_Ty>)
 		{
-			std::remove_cvref_t<_Ty> temp{};
+			_Ty temp{};
 
 			value > 0 ? temp = value : temp = ~value + 1;
 
-			int bytes = 1;
+			byte++;
 
 			while (temp > 0)
 			{
 				temp >>= 8;
 
-				bytes++;
+				byte++;
 			}
-
-			return bytes;
 		}
-	};
-
-	template <enum_t _Ty>
-	struct bytes<_Ty>
-	{
-		static auto apply(_Ty value)
+		else if constexpr (enum_t<_Ty> || boolean_t<_Ty>)
 		{
-			return bytes<int>::apply(static_cast<int>(value));
+			byte = bytes<int>(static_cast<int>(value));
 		}
-	};
-
-	template <boolean_t _Ty>
-	struct bytes<_Ty>
-	{
-		static auto apply(_Ty value)
+		else if constexpr (float_point_t<_Ty>)
 		{
-			return bytes<int>::apply(value);
+			byte = sizeof(_Ty);
 		}
-	};
-
-	template <float_point_t _Ty>
-	struct bytes<_Ty>
-	{
-		constexpr static auto apply(_Ty)
+		else if constexpr (struct_t<_Ty>)
 		{
-			return sizeof(_Ty);
+			reflect::visit_each(value, [&byte](auto... values) { ((byte += bytes(values)), ...); });
 		}
-	};
-
-	template <struct_t _Ty>
-	struct bytes<_Ty>
-	{
-		static auto apply(const _Ty& value)
-		{
-			std::size_t byte = 0;
-
-			reflect::for_each(value,
-							  [&](auto&& v)
-							  {
-								  using type = decltype(v);
-
-								  byte += bytes<type>::apply(v);
-							  });
-
-			return byte;
-		}
-	};
-
-	template <string_t _Ty>
-	struct bytes<_Ty>
-	{
-		static auto apply(const _Ty& value)
+		else if constexpr (string_t<_Ty> || sequence_t<_Ty>)
 		{
 			auto sz = value.size();
 
-			return bytes<std::size_t>::apply(sz) + sz;
+			byte = bytes(sz) + sz;
 		}
-	};
 
-	template <sequence_t _Ty>
-	struct bytes<_Ty>
-	{
-		static auto apply(const _Ty& value)
-		{
-			auto sz = value.size();
-
-			return bytes<std::size_t>::apply(sz) + sz;
-		}
-	};
-
+		return byte;
+	}
 } // namespace elastic

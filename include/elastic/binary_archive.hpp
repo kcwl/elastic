@@ -80,7 +80,7 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			auto byte = bytes<std::remove_cvref_t<_Ty>>::apply(std::forward<_Ty>(t));
+			auto byte = bytes(std::forward<_Ty>(t));
 
 			this->streambuf_.resize(byte);
 

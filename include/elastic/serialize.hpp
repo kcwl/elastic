@@ -241,7 +241,11 @@ namespace elastic
 		template <struct_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
+			//reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
+			reflect::visit_each(std::forward<_Ty>(value), [&ar](auto... values)
+								{
+									(serialize(ar, values), ...);
+								});
 		}
 
 		template <string_t _Ty, typename _Archive>
