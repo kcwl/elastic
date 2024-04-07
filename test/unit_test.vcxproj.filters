@@ -68,6 +68,9 @@
     <ClInclude Include="..\include\elastic\power.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\elastic\bytes.hpp">
+      <Filter>elastic\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

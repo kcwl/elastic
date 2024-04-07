@@ -168,6 +168,14 @@ namespace elastic
 			return begin() + size();
 		}
 
+		void resize(size_type value)
+		{
+			if (value == 0)
+				return;
+
+			buffer_.resize(buffer_.size() + value);
+		}
+
 		void clear() noexcept
 		{
 			buffer_.clear();
@@ -308,11 +316,6 @@ namespace elastic
 		{
 			if (size == 0)
 				return 0;
-
-			if (static_cast<std::size_t>(pptr_) == buffer_.size())
-			{
-				buffer_.resize(max_size() + size);
-			}
 
 			for (size_type i = 0; i < size; ++i)
 			{

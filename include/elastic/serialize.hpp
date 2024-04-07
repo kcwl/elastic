@@ -56,14 +56,16 @@ namespace elastic
 		}
 
 		template <integer_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
 			using value_type = typename _Archive::value_type;
+
+			using result_t = std::remove_cvref_t<_Ty>;
 
 			value_type c{};
 			ar.load(c);
 
-			_Ty value{};
+			result_t value{};
 
 			auto symbol = filter_symbol(c);
 
@@ -76,27 +78,27 @@ namespace elastic
 			while (length--)
 			{
 				ar.load(c);
-				value += (static_cast<_Ty>(c) << temp_bit);
+				value += (static_cast<result_t>(c) << temp_bit);
 				temp_bit += 8;
 			}
 
-			return negative == 0 ? (static_cast<_Ty>(symbol) << (sizeof(_Ty) * 8 - 1)) | value : ~value + 1;
+			return negative == 0 ? (static_cast<result_t>(symbol) << (sizeof(result_t) * 8 - 1)) | value : ~value + 1;
 		}
 
 		template <enum_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar)  -> std::remove_cvref_t<_Ty>
 		{
 			return static_cast<_Ty>(deserialize<int>(ar));
 		}
 
 		template <boolean_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
-			return static_cast<_Ty>(deserialize<int>(ar));
+			return deserialize<int>(ar);
 		}
 
 		template <float_point_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
 			_Ty t{};
 
@@ -106,20 +108,22 @@ namespace elastic
 		}
 
 		template <struct_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
 			constexpr auto N = reflect::tuple_size_v<_Ty>;
 
 			using Indices = std::make_index_sequence<N>;
 
-			auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>) mutable
-			{ return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
+			using result_t = std::remove_cvref_t<_Ty>;
 
-			return std::move(func(ar, Indices{}));
+			auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>) mutable
+			{ return result_t{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
+
+			return func(ar, Indices{});
 		}
 
 		template <string_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
 			_Ty t{};
 
@@ -142,7 +146,7 @@ namespace elastic
 		}
 
 		template <sequence_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
 			_Ty t{};
 

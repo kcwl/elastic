@@ -1,4 +1,5 @@
 #pragma once
+#include "bytes.hpp"
 #include "primitive.hpp"
 #include "serialize.hpp"
 
@@ -24,7 +25,7 @@ namespace elastic
 		template <typename _Ty>
 		binary_iarchive& operator&(_Ty& t)
 		{
-			return operator>> (t);
+			return operator>>(t);
 		}
 
 		void consume(std::streamoff off)
@@ -67,7 +68,7 @@ namespace elastic
 		template <typename _Ty>
 		binary_oarchive& operator&(_Ty&& t)
 		{
-			return  operator<< (std::forward<_Ty>(t));
+			return operator<<(std::forward<_Ty>(t));
 		}
 
 		void commit(std::streamoff off)
@@ -79,7 +80,11 @@ namespace elastic
 		template <typename _Ty>
 		void save_override(_Ty&& t)
 		{
-			this->transcation([&] { binary::template serialize(*this, t); });
+			auto byte = bytes<std::remove_cvref_t<_Ty>>::apply(std::forward<_Ty>(t));
+
+			this->streambuf_.resize(byte);
+
+			this->transcation([value = std::move(t), *this]() mutable { binary::template serialize(*this, value); });
 		}
 	};
 } // namespace elastic
