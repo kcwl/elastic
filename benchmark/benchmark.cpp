@@ -3,6 +3,7 @@
 #include "benchmark/benchmark.h"
 #include <iostream>
 #include "elastic.hpp"
+#include "ylt/struct_pack.hpp"
 
 struct person_body_request
 {
@@ -91,6 +92,48 @@ static void elastic_deserialize(benchmark::State& state)
 }
 
 BENCHMARK(elastic_deserialize);
+
+static void ylt_serialize(benchmark::State& state)
+{
+	person_body_request req{};
+	req.sex = true;
+	req.role_data.push_back('a');
+	req.mana = 12.2;
+	req.hp = 100.1f;
+	req.age = 1;
+	req.money = -2;
+	req.name = "hello";
+	req.back_money = 10000000;
+	req.crc = 2;
+
+	std::vector<char> buffer{};
+
+	for (auto _ : state)
+		buffer = struct_pack::serialize(req);
+}
+
+BENCHMARK(ylt_serialize);
+
+static void ylt_deserialize(benchmark::State& state)
+{
+	person_body_request req{};
+	req.sex = true;
+	req.role_data.push_back('a');
+	req.mana = 12.2;
+	req.hp = 100.1f;
+	req.age = 1;
+	req.money = -2;
+	req.name = "hello";
+	req.back_money = 10000000;
+	req.crc = 2;
+
+	auto buffer = struct_pack::serialize(req);
+
+	for (auto _ : state)
+		auto v = struct_pack::deserialize<person_body_request>(buffer);
+}
+
+BENCHMARK(ylt_deserialize);
 
 BENCHMARK_MAIN();
 
