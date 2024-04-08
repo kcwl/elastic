@@ -1,5 +1,6 @@
 #pragma once
 #include "access.hpp"
+#include "integer.hpp"
 #include "power.hpp"
 #include "reflect.hpp"
 #include "type_traits.hpp"
@@ -36,7 +37,7 @@ namespace elastic
 
 			constexpr auto pow = power<2, bit>::value;
 
-			return (value & pow) >> bit;
+			return static_cast<uint8_t>((value & pow) >> bit);
 		}
 
 		inline uint8_t filter_negative(uint8_t value)
@@ -67,26 +68,37 @@ namespace elastic
 
 			result_t value{};
 
-			auto symbol = filter_symbol(c);
-
-			auto length = filter_length(c);
+			uint8_t symbol = 0;
 
 			auto negative = filter_negative(c);
 
-			int32_t temp_bit = 0;
-
-			while (length--)
+			if (negative == 1)
 			{
-				ar.load(c);
-				value += (static_cast<result_t>(c) << temp_bit);
-				temp_bit += 8;
+				symbol = 1;
 			}
+			else
+			{
+				symbol = filter_symbol(c);
+			}
+
+			auto length = filter_length(c);
+
+			//int32_t temp_bit = 0;
+
+			//while (length--)
+			//{
+			//	ar.load(c);
+			//	value += (static_cast<result_t>(c) << temp_bit);
+			//	temp_bit += 8;
+			//}
+
+			ar.load((value_type*)&value, length);
 
 			return negative == 0 ? (static_cast<result_t>(symbol) << (sizeof(result_t) * 8 - 1)) | value : ~value + 1;
 		}
 
 		template <enum_t _Ty, typename _Archive>
-		auto deserialize(_Archive& ar)  -> std::remove_cvref_t<_Ty>
+		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
 			return static_cast<_Ty>(deserialize<int>(ar));
 		}
@@ -177,47 +189,84 @@ namespace elastic
 
 			using result_t = std::remove_cvref_t<_Ty>;
 
-			auto symbol = get_symbol(std::forward<_Ty>(value));
+			integer<result_t> tag_integer{};
 
-			ar.save(static_cast<uint8_t>(symbol));
+			tag_integer.tag_ = get_symbol(std::forward<_Ty>(value));
+			
+			
 
-			result_t temp;
-
-			int has_negative = 0;
-
-			if (value >= 0) [[likely]]
+			if constexpr (std::is_unsigned_v<result_t>)
 			{
-				temp = get_data(std::forward<_Ty>(value));
+				if (tag_integer.tag_ == 1)
+				{
+					tag_integer.value_ = get_data(std::forward<_Ty>(value));
+
+					tag_integer.tag_ <<= 7;
+				}
+				else
+				{
+					tag_integer.value_ = value;
+				}
 			}
 			else
 			{
-				temp = ~value + 1;
+				tag_integer.value_ = value;
 
-				has_negative = 1;
+				if (tag_integer.tag_ == 1) [[unlikely]]
+				{
+					tag_integer.value_ = ~tag_integer.value_ + 1;
+
+					constexpr uint8_t symbol = 1 << 7 | 1 << 6;
+
+					tag_integer.tag_ = symbol;
+				}
 			}
 
-			int bit = 0;
+			uint8_t bit = 0;
+
+			auto temp = tag_integer.value_;
 
 			while (temp)
 			{
-				value_type bit_data{};
-
-				temp > 0xff ? bit_data = static_cast<value_type>(0xff) : bit_data = static_cast<value_type>(temp);
-
-				ar.save(bit_data);
-
 				temp >>= 8;
 
 				++bit;
 			}
 
-			ar.commit(-bit - 1);
+			tag_integer.tag_ |= bit;
 
-			symbol = static_cast<uint8_t>((symbol << 7) | (has_negative << 6) | bit);
+			tag_integer.write(ar, bit);
 
-			ar.save(symbol);
+			//ar.save(static_cast<uint8_t>(symbol));
 
-			ar.commit(bit);
+			//result_t temp;
+
+			//int has_negative = 0;
+
+			//
+
+			//int bit = 0;
+
+			//while (temp)
+			//{
+			//	value_type bit_data{};
+
+			//	temp > 0xff ? bit_data = static_cast<value_type>(0xff) : bit_data = static_cast<value_type>(temp);
+
+			//	ar.save(bit_data);
+
+			//	temp >>= 8;
+
+			//	++bit;
+			//}
+
+			//ar.commit(-bit - 1);
+
+			//symbol = static_cast<uint8_t>((symbol << 7) | (has_negative << 6) | bit);
+
+			//ar.save(symbol);
+
+			//ar.commit(bit);
 		}
 
 		template <enum_t _Ty, typename _Archive>
@@ -241,11 +290,8 @@ namespace elastic
 		template <struct_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			//reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
-			reflect::visit_each(std::forward<_Ty>(value), [&ar](auto... values)
-								{
-									(serialize(ar, values), ...);
-								});
+			// reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
+			reflect::visit_each(std::forward<_Ty>(value), [&ar](auto... values) { (serialize(ar, values), ...); });
 		}
 
 		template <string_t _Ty, typename _Archive>

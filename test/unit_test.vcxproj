@@ -150,6 +150,7 @@
     <ClInclude Include="..\include\elastic\access.hpp" />
     <ClInclude Include="..\include\elastic\bytes.hpp" />
     <ClInclude Include="..\include\elastic\flex_buffer.hpp" />
+    <ClInclude Include="..\include\elastic\integer.hpp" />
     <ClInclude Include="..\include\elastic\macro_expand.hpp" />
     <ClInclude Include="..\include\elastic\power.hpp" />
     <ClInclude Include="..\include\elastic\primitive.hpp" />
