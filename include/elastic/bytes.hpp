@@ -42,6 +42,10 @@ namespace elastic
 
 			byte = bytes(sz) + sz;
 		}
+		else if constexpr (sequence_t<_Ty>)
+		{
+			byte = bytes(value.size());
+		}
 
 		return byte;
 	}

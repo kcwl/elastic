@@ -196,7 +196,7 @@ namespace elastic
 				this->save(elastic_fixed_ptr, array_size);
 			}
 
-			void save(value_type* begin, std::size_t size)
+			void save(const value_type* begin, std::size_t size)
 			{
 				this->streambuf_.sputn(begin, size);
 			}

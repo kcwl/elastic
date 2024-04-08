@@ -315,12 +315,9 @@ namespace elastic
 			if (size == 0)
 				return 0;
 
-			for (size_type i = 0; i < size; ++i)
-			{
-				*rdata() = begin[i];
+			traits_type::copy(rdata(), begin, size);
 
-				commit(1);
-			}
+			commit(size);
 
 			return size;
 		}

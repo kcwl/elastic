@@ -143,6 +143,8 @@ namespace elastic
 
 			std::size_t bytes = deserialize<std::size_t>(ar);
 
+			t.resize(bytes);
+
 			ar.load((value_type*)t.data(), bytes);
 
 			return t;
