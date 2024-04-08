@@ -17,7 +17,7 @@ namespace elastic
 
 			using traits_t = _Traits;
 
-		private:
+		protected:
 			class primitive_guard
 			{
 			public:
@@ -116,12 +116,12 @@ namespace elastic
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
 
+			bool need_rollback_;
+
 		private:
 			int32_t start_pos_;
 
 			std::ios::iostate my_state_;
-
-			bool need_rollback_;
 		};
 
 		template <typename _Archive, typename _Elem, typename _Traits = std::char_traits<_Elem>>

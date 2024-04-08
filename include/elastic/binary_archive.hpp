@@ -17,7 +17,16 @@ namespace elastic
 		template <typename _Ty>
 		binary_iarchive& operator>>(_Ty& t)
 		{
-			load_override(t);
+			primitive_guard lk(*this);
+
+			try
+			{
+				binary::deserialize(*this, t);
+			}
+			catch (...)
+			{
+				need_rollback_ = true;
+			}
 
 			return *this;
 		}
@@ -26,25 +35,6 @@ namespace elastic
 		binary_iarchive& operator&(_Ty& t)
 		{
 			return operator>>(t);
-		}
-
-		void consume(std::streamoff off)
-		{
-			return this->streambuf_.consume(off);
-		}
-
-	private:
-		template <typename _Ty>
-		bool load_override(_Ty& t)
-		{
-			bool result = this->transcation([&] { binary::template deserialize(*this, t); });
-
-			if (!result)
-			{
-				t = _Ty{};
-			}
-
-			return result;
 		}
 	};
 
@@ -60,7 +50,20 @@ namespace elastic
 		template <typename _Ty>
 		binary_oarchive& operator<<(_Ty&& t)
 		{
-			save_override(std::forward<_Ty>(t));
+			auto byte = bytes(std::forward<_Ty>(t));
+
+			this->streambuf_.resize(byte);
+
+			primitive_guard lk(*this);
+
+			try
+			{
+				binary::template serialize(*this, std::forward<_Ty>(t));
+			}
+			catch (...)
+			{
+				need_rollback_ = true;
+			}
 
 			return *this;
 		}
@@ -69,22 +72,6 @@ namespace elastic
 		binary_oarchive& operator&(_Ty&& t)
 		{
 			return operator<<(std::forward<_Ty>(t));
-		}
-
-		void commit(std::streamoff off)
-		{
-			return this->streambuf_.commit(off);
-		}
-
-	private:
-		template <typename _Ty>
-		void save_override(_Ty&& t)
-		{
-			auto byte = bytes(std::forward<_Ty>(t));
-
-			this->streambuf_.resize(byte);
-
-			this->transcation([&t, *this]() mutable { binary::template serialize(*this, t); });
 		}
 	};
 } // namespace elastic
