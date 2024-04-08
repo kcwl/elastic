@@ -143,16 +143,7 @@ namespace elastic
 
 			std::size_t bytes = deserialize<std::size_t>(ar);
 
-			std::size_t count = bytes;
-
-			while (count--)
-			{
-				using type = typename _Ty::value_type;
-
-				t.resize(bytes);
-
-				ar.load((value_type*)(t.data() + bytes - count - 1), sizeof(type));
-			}
+			ar.load((value_type*)t.data(), bytes);
 
 			return t;
 		}
@@ -162,8 +153,6 @@ namespace elastic
 		{
 			_Ty t{};
 
-			using value_type = typename _Archive::value_type;
-
 			std::size_t bytes = deserialize<std::size_t>(ar);
 
 			std::size_t count = bytes;
@@ -172,9 +161,9 @@ namespace elastic
 			{
 				using type = typename _Ty::value_type;
 
-				type value{};
+				type value;
 
-				deserialize(ar, value);
+				ar >> value;
 
 				t.push_back(value);
 			}
@@ -295,14 +284,13 @@ namespace elastic
 		template <string_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
+			using value_type = typename _Archive::value_type;
+
 			auto bytes = value.size();
 
 			serialize(ar, bytes);
 
-			for (auto& mem : value)
-			{
-				ar.save(mem);
-			}
+			ar.save((value_type*)value.data(), bytes);
 		}
 
 		template <sequence_t _Ty, typename _Archive>
