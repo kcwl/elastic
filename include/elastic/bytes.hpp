@@ -36,7 +36,7 @@ namespace elastic
 		{
 			reflect::visit_each(value, [&byte](auto... values) { ((byte += bytes(values)), ...); });
 		}
-		else if constexpr (string_t<_Ty> || sequence_t<_Ty>)
+		else if constexpr (string_t<_Ty>)
 		{
 			auto sz = value.size();
 

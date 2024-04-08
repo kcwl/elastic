@@ -83,14 +83,14 @@ namespace elastic
 
 			auto length = filter_length(c);
 
-			//int32_t temp_bit = 0;
+			// int32_t temp_bit = 0;
 
-			//while (length--)
+			// while (length--)
 			//{
 			//	ar.load(c);
 			//	value += (static_cast<result_t>(c) << temp_bit);
 			//	temp_bit += 8;
-			//}
+			// }
 
 			ar.load((value_type*)&value, length);
 
@@ -174,7 +174,7 @@ namespace elastic
 
 				type value{};
 
-				ar >> value;
+				deserialize(ar, value);
 
 				t.push_back(value);
 			}
@@ -192,8 +192,6 @@ namespace elastic
 			integer<result_t> tag_integer{};
 
 			tag_integer.tag_ = get_symbol(std::forward<_Ty>(value));
-			
-			
 
 			if constexpr (std::is_unsigned_v<result_t>)
 			{
@@ -237,17 +235,17 @@ namespace elastic
 
 			tag_integer.write(ar, bit);
 
-			//ar.save(static_cast<uint8_t>(symbol));
+			// ar.save(static_cast<uint8_t>(symbol));
 
-			//result_t temp;
+			// result_t temp;
 
-			//int has_negative = 0;
+			// int has_negative = 0;
 
 			//
 
-			//int bit = 0;
+			// int bit = 0;
 
-			//while (temp)
+			// while (temp)
 			//{
 			//	value_type bit_data{};
 
@@ -260,13 +258,13 @@ namespace elastic
 			//	++bit;
 			//}
 
-			//ar.commit(-bit - 1);
+			// ar.commit(-bit - 1);
 
-			//symbol = static_cast<uint8_t>((symbol << 7) | (has_negative << 6) | bit);
+			// symbol = static_cast<uint8_t>((symbol << 7) | (has_negative << 6) | bit);
 
-			//ar.save(symbol);
+			// ar.save(symbol);
 
-			//ar.commit(bit);
+			// ar.commit(bit);
 		}
 
 		template <enum_t _Ty, typename _Archive>

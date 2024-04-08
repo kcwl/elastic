@@ -50,10 +50,13 @@ namespace elastic
 		template <typename _Ty>
 		binary_oarchive& operator<<(_Ty&& t)
 		{
-			auto byte = bytes(std::forward<_Ty>(t));
+			if constexpr (!sequence_t<_Ty>)
+			{
+				auto byte = bytes(std::forward<_Ty>(t));
 
-			this->streambuf_.resize(byte);
-
+				this->streambuf_.resize(byte);
+			}
+			
 			primitive_guard lk(*this);
 
 			try
