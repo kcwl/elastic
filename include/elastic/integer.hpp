@@ -12,7 +12,7 @@ namespace elastic
 
 	public:
 		template<typename _Archive>
-		void write(_Archive& ar, std::size_t length)
+		void write(_Archive& ar, const std::size_t length)
 		{
 			using type = typename _Archive::value_type;
 			ar.save(tag_);

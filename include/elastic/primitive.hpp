@@ -46,6 +46,11 @@ namespace elastic
 				, need_rollback_(false)
 			{}
 
+			virtual ~basic_primitive()
+			{
+
+			}
+
 		public:
 			template <typename _Func, typename... _Args>
 			bool transcation(_Func&& f, _Args&&... Args)
@@ -196,7 +201,7 @@ namespace elastic
 				this->save(elastic_fixed_ptr, array_size);
 			}
 
-			void save(const value_type* begin, std::size_t size)
+			void save(const value_type* begin, const std::size_t size)
 			{
 				this->streambuf_.sputn(begin, size);
 			}

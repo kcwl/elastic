@@ -97,6 +97,11 @@ namespace elastic
 			return buffer_ == other.buffer_ && pptr_ == other.pptr_ && gptr_ == other.gptr_;
 		}
 
+		virtual ~flex_buffer()
+		{
+
+		}
+
 	public:
 		size_type active() noexcept
 		{
@@ -128,20 +133,20 @@ namespace elastic
 			return buffer_.data() + pptr_;
 		}
 
-		void commit(off_type bytes)
+		void commit(const off_type bytes)
 		{
-			bytes = std::min<off_type>(bytes, buffer_.size() - pptr_);
+			auto byte = std::min<off_type>(bytes, buffer_.size() - pptr_);
 
-			pptr_ += bytes;
+			pptr_ += byte;
 
 			pptr_ < 0 ? pptr_ = 0 : 0;
 		}
 
-		void consume(off_type bytes)
+		void consume(const off_type bytes)
 		{
-			bytes = std::min<off_type>(bytes, pptr_ - gptr_);
+			auto byte = std::min<off_type>(bytes, pptr_ - gptr_);
 
-			gptr_ += bytes;
+			gptr_ += byte;
 
 			gptr_ < 0 ? gptr_ = 0 : 0;
 		}
@@ -310,12 +315,18 @@ namespace elastic
 			return static_cast<pos_type>(pos);
 		}
 
-		size_type sputn(const value_type* begin, size_type size)
+		size_type sputn(const value_type* begin, const size_type size)
 		{
 			if (size == 0)
 				return 0;
 
 			traits_type::copy(rdata(), begin, size);
+			//std::memcpy(rdata(), begin, size);
+
+			//for (std::size_t i = 0; i < size; ++i)
+			//{
+			//	*rdata() = begin[i];
+			//}
 
 			commit(size);
 
@@ -327,7 +338,7 @@ namespace elastic
 			return sputn(&c, 1);
 		}
 
-		size_type sgetn(value_type* begin, size_type size)
+		size_type sgetn(value_type* begin, const size_type size)
 		{
 			if (size > this->size())
 				return 0;
