@@ -98,9 +98,7 @@ namespace elastic
 		}
 
 		virtual ~flex_buffer()
-		{
-
-		}
+		{}
 
 	public:
 		size_type active() noexcept
@@ -135,20 +133,24 @@ namespace elastic
 
 		void commit(const off_type bytes)
 		{
-			auto byte = std::min<off_type>(bytes, buffer_.size() - pptr_);
-
-			pptr_ += byte;
+			pptr_ += std::min<off_type>(bytes, buffer_.size() - pptr_);
 
 			pptr_ < 0 ? pptr_ = 0 : 0;
+
+			if (pptr_ < 0) [[unlikely]]
+			{
+				pptr_ = 0;
+			}
 		}
 
 		void consume(const off_type bytes)
 		{
-			auto byte = std::min<off_type>(bytes, pptr_ - gptr_);
+			gptr_ += std::min<off_type>(bytes, pptr_ - gptr_);
 
-			gptr_ += byte;
-
-			gptr_ < 0 ? gptr_ = 0 : 0;
+			if (gptr_ < 0) [[unlikely]]
+			{
+				gptr_ = 0;
+			}
 		}
 
 		constexpr iterator begin() noexcept
@@ -321,12 +323,12 @@ namespace elastic
 				return 0;
 
 			traits_type::copy(rdata(), begin, size);
-			//std::memcpy(rdata(), begin, size);
+			// std::memcpy(rdata(), begin, size);
 
-			//for (std::size_t i = 0; i < size; ++i)
+			// for (std::size_t i = 0; i < size; ++i)
 			//{
 			//	*rdata() = begin[i];
-			//}
+			// }
 
 			commit(size);
 
