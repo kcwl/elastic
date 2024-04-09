@@ -42,91 +42,57 @@ namespace elastic
 			explicit basic_primitive(flex_buffer<value_type, traits_t>& bs)
 				: streambuf_(bs)
 				, start_pos_(0)
-				, my_state_()
-				, need_rollback_(false)
+				, has_success_(true)
 			{}
 
-			virtual ~basic_primitive()
-			{
-
-			}
+			virtual ~basic_primitive() = default;
 
 		public:
-			template <typename _Func, typename... _Args>
-			bool transcation(_Func&& f, _Args&&... Args)
+			bool success() const
 			{
-				primitive_guard lk(*this);
-
-				try
-				{
-					std::forward<_Func>(f)(std::forward<_Args>(Args)...);
-				}
-				catch (...)
-				{
-					need_rollback_ = true;
-				}
-
-				return !need_rollback_;
+				return has_success_;
 			}
 
-			bool good()
-			{
-				return my_state_ & std::ios::goodbit;
-			}
-
-			bool fail()
-			{
-				return my_state_ & std::ios::failbit;
-			}
-
-		private:
 			void complete()
 			{
-				my_state_ |= std::ios::goodbit;
+				has_success_ = true;
 			}
 
 			void failed()
 			{
-				my_state_ &= ~std::ios::goodbit;
-
-				my_state_ |= std::ios::failbit;
+				has_success_ = false;
 			}
 
+		private:
 			bool start()
 			{
 				if (start_pos_ != 0)
 					return false;
 
-				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
+				start_pos_ = this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in);
 
 				return true;
 			}
 
 			void close()
 			{
-				if (!need_rollback_)
+				if (has_success_) [[likely]]
 				{
-					this->complete();
-
 					return;
 				}
 
 				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
 
 				start_pos_ = 0;
-
-				this->failed();
 			}
 
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
 
-			bool need_rollback_;
-
 		private:
-			int32_t start_pos_;
+			int64_t start_pos_;
 
-			std::ios::iostate my_state_;
+			bool has_success_;
 		};
 
 		template <typename _Archive, typename _Elem, typename _Traits = std::char_traits<_Elem>>

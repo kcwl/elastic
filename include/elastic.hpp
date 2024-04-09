@@ -12,7 +12,7 @@ namespace elastic
 
 		oa << std::forward<_Ty>(t);
 
-		return !oa.fail();
+		return oa.success();
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
@@ -22,7 +22,7 @@ namespace elastic
 
 		ia >> t;
 
-		return !ia.fail();
+		return !ia.success();
 	}
 } // namespace elastic
 

@@ -25,7 +25,7 @@ namespace elastic
 			}
 			catch (...)
 			{
-				need_rollback_ = true;
+				this->failed();
 			}
 
 			return *this;
@@ -62,7 +62,7 @@ namespace elastic
 			}
 			catch (...)
 			{
-				need_rollback_ = true;
+				this->failed();
 			}
 
 			return *this;
