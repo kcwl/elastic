@@ -9,7 +9,9 @@ namespace elastic
 	template <typename _Ty>
 	flex_buffer_t to_binary(const _Ty& t)
 	{
-		flex_buffer_t buffer(bytes(t));
+		auto byte = bytes(t);
+
+		flex_buffer_t buffer(byte);
 
 		binary_oarchive oa(buffer);
 
@@ -19,13 +21,11 @@ namespace elastic
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
-	bool from_binary(_Ty& t, flex_buffer<_Elem, _Traits>& buffer)
+	void from_binary(_Ty& t, flex_buffer<_Elem, _Traits>& buffer)
 	{
 		binary_iarchive ia(buffer);
 
 		ia >> t;
-
-		return ia.success();
 	}
 } // namespace elastic
 

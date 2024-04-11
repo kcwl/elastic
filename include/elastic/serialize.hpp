@@ -62,18 +62,7 @@ namespace elastic
 
 			result_t value{};
 
-			uint8_t symbol = 0;
-
-			auto negative = filter_negative(c);
-
-			if (negative == 1)
-			{
-				symbol = 1;
-			}
-			else
-			{
-				symbol = filter_symbol(c);
-			}
+			uint8_t symbol = symbol = filter_symbol(c);
 
 			auto length = filter_length(c);
 
@@ -88,7 +77,7 @@ namespace elastic
 
 			ar.load((value_type*)&value, length);
 
-			return negative == 0 ? (static_cast<result_t>(symbol) << (sizeof(result_t) * 8 - 1)) | value : ~value + 1;
+			return symbol == 0 ? value : ~value + 1;
 		}
 
 		template <enum_t _Ty, typename _Archive>
@@ -191,7 +180,7 @@ namespace elastic
 				}
 			}
 
-			std::size_t bit = 0;
+			int8_t bit = 0;
 
 			auto temp = result;
 
@@ -210,7 +199,7 @@ namespace elastic
 		template <enum_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, const _Ty value)
 		{
-			return serialize<int>(ar, value);
+			return serialize<int>(ar, static_cast<int>(value));
 		}
 
 		template <boolean_t _Ty, typename _Archive>

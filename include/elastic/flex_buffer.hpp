@@ -40,12 +40,13 @@ namespace elastic
 	public:
 		flex_buffer() = default;
 
-		flex_buffer(std::size_t capa)
+		flex_buffer(const std::size_t capa)
 			: buffer_(capa)
 			, pptr_()
 			, gptr_()
 			, capacity_(capa)
-			, active_(capa)
+			, start_pos_(0)
+			, has_success_(true)
 		{}
 
 		template <typename _Iter>
@@ -66,12 +67,13 @@ namespace elastic
 			static_assert(N <= capacity, "maybe input is too large!");
 		}
 
-		flex_buffer(flex_buffer&& other)
-			: buffer_(other.buffer_)
-			, pptr_(other.pptr_)
-			, gptr_(other.gptr_)
-			, capacity_(other.capacity_)
-			, active_(other.active_)
+		flex_buffer(flex_buffer&& other) noexcept
+			: buffer_(std::move(other.buffer_))
+			, pptr_(std::move(other.pptr_))
+			, gptr_(std::move(other.gptr_))
+			, capacity_(std::move(other.capacity_))
+			, start_pos_(std::move(other.start_pos_))
+			, has_success_(std::move(other.has_success_))
 		{
 			flex_buffer{}.swap(other);
 		}
@@ -80,8 +82,6 @@ namespace elastic
 			: flex_buffer()
 		{
 			capacity_ = sz;
-
-			active_ = sz;
 
 			buffer_.resize(sz);
 
@@ -103,7 +103,7 @@ namespace elastic
 		bool operator==(const flex_buffer& other) const
 		{
 			return buffer_ == other.buffer_ && pptr_ == other.pptr_ && gptr_ == other.gptr_ && capacity_ =
-					   other.capacity_ && active_ == other.active_;
+					   other.capacity_;
 		}
 
 		virtual ~flex_buffer() = default;
@@ -111,7 +111,7 @@ namespace elastic
 	public:
 		const size_type active() const noexcept
 		{
-			return active_;
+			return capacity_ - pptr_;
 		}
 
 		pointer wdata() noexcept
@@ -134,19 +134,14 @@ namespace elastic
 			return buffer_.data() + pptr_;
 		}
 
-		void commit(const off_type bytes)
+		void commit(const size_type bytes)
 		{
 			pptr_ += bytes;
-
-			pptr_ < 0 ? pptr_ = 0 : active_ -= bytes;
 		}
 
-		void consume(const off_type bytes)
+		void consume(const size_type bytes)
 		{
 			gptr_ += bytes;
-
-			if (gptr_ < 0)
-				gptr_ = 0;
 		}
 
 		constexpr iterator begin() noexcept
@@ -188,8 +183,6 @@ namespace elastic
 			if (pptr_ == 0)
 				return;
 
-			active_ += gptr_;
-
 			traits_type::copy(buffer_.data(), wdata(), active());
 
 			pptr_ = size();
@@ -204,7 +197,7 @@ namespace elastic
 
 			buffer_.resize(max_size() + capacity);
 
-			active_ += capacity;
+			capacity_ += capacity;
 		}
 
 		size_type max_size() const
@@ -302,7 +295,9 @@ namespace elastic
 		size_type sgetn(value_type* begin, const size_type size)
 		{
 			if (size > this->size())
+			{
 				return 0;
+			}
 
 			for (size_type i = 0; i < size; ++i)
 			{
@@ -330,6 +325,43 @@ namespace elastic
 			this_type{}.swap(buffer);
 		}
 
+		bool success() const
+		{
+			return has_success_;
+		}
+
+		void complete()
+		{
+			has_success_ = true;
+		}
+
+		void failed()
+		{
+			has_success_ = false;
+		}
+
+		bool start()
+		{
+			if (start_pos_ != 0)
+				return false;
+
+			start_pos_ = pubseekoff(0, std::ios::cur, std::ios::in);
+
+			return true;
+		}
+
+		void close()
+		{
+			if (has_success_)
+			{
+				return;
+			}
+
+			pubseekpos(start_pos_, std::ios::in);
+
+			start_pos_ = 0;
+		}
+
 	private:
 		std::vector<value_type, allocator_type> buffer_;
 
@@ -337,9 +369,11 @@ namespace elastic
 
 		off_type gptr_;
 
-		off_type active_;
-
 		std::size_t capacity_;
+
+		off_type start_pos_;
+
+		bool has_success_;
 	};
 
 	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;

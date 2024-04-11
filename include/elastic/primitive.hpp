@@ -41,58 +41,28 @@ namespace elastic
 		public:
 			explicit basic_primitive(flex_buffer<value_type, traits_t>& bs)
 				: streambuf_(bs)
-				, start_pos_(0)
-				, has_success_(true)
 			{}
 
 			virtual ~basic_primitive() = default;
 
 		public:
-			bool success() const
+			void start()
 			{
-				return has_success_;
-			}
-
-			void complete()
-			{
-				has_success_ = true;
-			}
-
-			void failed()
-			{
-				has_success_ = false;
-			}
-
-		private:
-			bool start()
-			{
-				if (start_pos_ != 0)
-					return false;
-
-				start_pos_ = this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in);
-
-				return true;
+				streambuf_.start();
 			}
 
 			void close()
 			{
-				if (has_success_) [[likely]]
-				{
-					return;
-				}
-
-				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
-
-				start_pos_ = 0;
+				streambuf_.close();
 			}
 
+			void failed()
+			{
+				streambuf_.failed();
+			}
+			
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
-
-		private:
-			int64_t start_pos_;
-
-			bool has_success_;
 		};
 
 		template <typename _Archive, typename _Elem, typename _Traits = std::char_traits<_Elem>>

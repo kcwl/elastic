@@ -156,7 +156,9 @@ TEST(buffer, function)
 		elastic::flex_buffer_t buffer{4096};
 		int a = 0;
 
-		EXPECT_TRUE(!elastic::from_binary(a, buffer));
+		elastic::from_binary(a, buffer);
+
+		EXPECT_TRUE(!buffer.success());
 	}
 
 	{
@@ -179,11 +181,5 @@ TEST(buffer, function)
 		elastic::flex_buffer_t buffer;
 
 		EXPECT_TRUE(buffer.sputn(nullptr, 0) == 0 );
-	}
-
-	{
-		elastic::flex_buffer_t buffer{};
-		buffer.consume(-1);
-		buffer.commit(-1);
 	}
 }
