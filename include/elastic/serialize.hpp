@@ -1,6 +1,5 @@
 #pragma once
 #include "access.hpp"
-#include "integer.hpp"
 #include "power.hpp"
 #include "reflect.hpp"
 #include "type_traits.hpp"
@@ -42,15 +41,6 @@ namespace elastic
 			constexpr auto pow = power<2, bit>::value;
 
 			return static_cast<uint8_t>((value & pow) >> bit);
-		}
-
-		inline uint8_t filter_negative(const uint8_t value)
-		{
-			constexpr auto bit = sizeof(uint8_t) * 8 - 2;
-
-			constexpr auto pow = power<2, bit>::value;
-
-			return (value & pow) >> bit;
 		}
 
 		inline uint8_t filter_length(const uint8_t value)
@@ -187,84 +177,34 @@ namespace elastic
 		{
 			using value_type = typename _Archive::value_type;
 
-			using result_t = std::remove_cvref_t<_Ty>;
+			uint8_t symbol;
 
-			integer<result_t> tag_integer{};
+			_Ty result = value;
 
-			tag_integer.tag_ = get_symbol(value);
-
-			if constexpr (std::is_unsigned_v<result_t>)
+			if constexpr (!std::is_unsigned_v<_Ty>)
 			{
-				if (tag_integer.tag_ == 1)
+				symbol = get_symbol(value);
+
+				if (symbol & 1)
 				{
-					tag_integer.value_ = get_data(value);
-
-					tag_integer.tag_ <<= 7;
-				}
-				else
-				{
-					tag_integer.value_ = value;
-				}
-			}
-			else
-			{
-				tag_integer.value_ = value;
-
-				if (tag_integer.tag_ == 1) [[unlikely]]
-				{
-					tag_integer.value_ = ~tag_integer.value_ + 1;
-
-					constexpr uint8_t symbol = 1 << 7 | 1 << 6;
-
-					tag_integer.tag_ = symbol;
+					result = ~result + 1;
 				}
 			}
 
-			uint8_t bit = 0;
+			std::size_t bit = 0;
 
-			auto temp = tag_integer.value_;
+			auto temp = result;
 
-			while (temp)
+			while (temp != 0)
 			{
 				temp >>= 8;
-
 				++bit;
 			}
 
-			tag_integer.tag_ |= bit;
+			symbol = symbol << 7 | bit;
 
-			tag_integer.write(ar, bit);
-
-			// ar.save(static_cast<uint8_t>(symbol));
-
-			// result_t temp;
-
-			// int has_negative = 0;
-
-			//
-
-			// int bit = 0;
-
-			// while (temp)
-			//{
-			//	value_type bit_data{};
-
-			//	temp > 0xff ? bit_data = static_cast<value_type>(0xff) : bit_data = static_cast<value_type>(temp);
-
-			//	ar.save(bit_data);
-
-			//	temp >>= 8;
-
-			//	++bit;
-			//}
-
-			// ar.commit(-bit - 1);
-
-			// symbol = static_cast<uint8_t>((symbol << 7) | (has_negative << 6) | bit);
-
-			// ar.save(symbol);
-
-			// ar.commit(bit);
+			ar.save(&symbol, 1);
+			ar.save((value_type*)&result, bit);
 		}
 
 		template <enum_t _Ty, typename _Archive>

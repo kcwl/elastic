@@ -9,9 +9,7 @@ namespace elastic
 	template <typename _Ty>
 	flex_buffer_t to_binary(const _Ty& t)
 	{
-		auto byte = bytes(t);
-
-		flex_buffer_t buffer(byte);
+		flex_buffer_t buffer(bytes(t));
 
 		binary_oarchive oa(buffer);
 
