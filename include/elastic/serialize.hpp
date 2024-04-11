@@ -9,6 +9,12 @@
 
 namespace elastic
 {
+	namespace binary
+	{
+		template <typename _Archive, typename _Ty>
+		void serialize(_Archive& ar, _Ty&& t);
+	}
+
 	namespace detail
 	{
 		template <integer_t _Ty>
@@ -112,7 +118,8 @@ namespace elastic
 		template <float_point_t _Ty, typename _Archive>
 		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
-			_Ty t{};
+			using result_t = std::remove_cvref_t<_Ty>;
+			result_t t{};
 
 			ar.load(t);
 
@@ -137,7 +144,9 @@ namespace elastic
 		template <string_t _Ty, typename _Archive>
 		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
-			_Ty t{};
+			using result_t = std::remove_cvref_t<_Ty>;
+
+			result_t t{};
 
 			using value_type = typename _Archive::value_type;
 
@@ -153,7 +162,9 @@ namespace elastic
 		template <sequence_t _Ty, typename _Archive>
 		auto deserialize(_Archive& ar) -> std::remove_cvref_t<_Ty>
 		{
-			_Ty t{};
+			using result_t = std::remove_cvref_t<_Ty>;
+
+			result_t t{};
 
 			std::size_t bytes = deserialize<std::size_t>(ar);
 
@@ -161,7 +172,7 @@ namespace elastic
 
 			while (count--)
 			{
-				using type = typename _Ty::value_type;
+				using type = typename result_t::value_type;
 
 				type value;
 
@@ -261,26 +272,30 @@ namespace elastic
 		template <enum_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			return serialize(ar, static_cast<int>(value));
+			return serialize(ar, static_cast<int>(std::forward<_Ty>(value)));
 		}
 
 		template <boolean_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			return serialize(ar, static_cast<int>(value));
+			return serialize(ar, static_cast<int>(std::forward<_Ty>(value)));
 		}
 
 		template <float_point_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
-			ar.save(value);
+			constexpr auto size = sizeof(_Ty);
+
+			using value_type = typename _Archive::value_type;
+
+			ar.save((const value_type*)&(std::forward<_Ty>(value)), size);
 		}
 
 		template <struct_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
 			// reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
-			reflect::visit_each(std::forward<_Ty>(value), [&ar](auto... values) { (serialize(ar, values), ...); });
+			reflect::visit_each(std::forward<_Ty>(value), [&ar](auto&&... values) { (serialize(ar, values), ...); });
 		}
 
 		template <string_t _Ty, typename _Archive>
@@ -292,8 +307,10 @@ namespace elastic
 
 			serialize(ar, bytes);
 
-			ar.save((value_type*)value.data(), bytes);
+			ar.save((const value_type*)value.c_str(), bytes);
 		}
+
+		
 
 		template <sequence_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
@@ -308,7 +325,7 @@ namespace elastic
 
 			for (auto& mem : value)
 			{
-				ar << mem;
+				binary::serialize(ar, mem);
 			}
 		}
 	} // namespace detail

@@ -1,5 +1,4 @@
 #pragma once
-#include "bytes.hpp"
 #include "primitive.hpp"
 #include "serialize.hpp"
 
@@ -50,10 +49,6 @@ namespace elastic
 		template <typename _Ty>
 		binary_oarchive& operator<<(_Ty&& t)
 		{
-			auto byte = bytes(std::forward<_Ty>(t));
-
-			this->streambuf_.resize(byte);
-
 			primitive_guard lk(*this);
 
 			try

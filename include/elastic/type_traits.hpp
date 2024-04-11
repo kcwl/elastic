@@ -82,7 +82,7 @@ namespace elastic
 		std::is_trivial_v<std::remove_cvref_t<_Ty>> && std::is_standard_layout_v<std::remove_cvref_t<_Ty>>;
 
 	template <typename _Ty>
-	concept struct_t = class_t<_Ty> && pod_and_integer_t<_Ty> && !integer_t<_Ty>;
+	concept struct_t = std::is_aggregate_v<std::remove_cvref_t<_Ty>> && !integer_t<_Ty>;
 
 	template <typename _Ty>
 	concept sequence_t = detail::sequence_like<std::remove_cvref_t<_Ty>>::value;

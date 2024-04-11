@@ -42,6 +42,10 @@ namespace elastic
 
 		flex_buffer(std::size_t capa)
 			: buffer_(capa)
+			, pptr_()
+			, gptr_()
+			, capacity_(capa)
+			, active_(capa)
 		{}
 
 		template <typename _Iter>
@@ -50,7 +54,9 @@ namespace elastic
 		{
 			std::copy(begin, end, std::back_inserter(buffer_));
 
-			commit(static_cast<int>(buffer_.size()));
+			capacity_ = buffer_.size();
+
+			commit(static_cast<off_type>(capacity_));
 		}
 
 		template <typename _Ty, std::size_t N, typename = std::is_convertible<_Ty, _Elem>>
@@ -64,6 +70,8 @@ namespace elastic
 			: buffer_(other.buffer_)
 			, pptr_(other.pptr_)
 			, gptr_(other.gptr_)
+			, capacity_(other.capacity_)
+			, active_(other.active_)
 		{
 			flex_buffer{}.swap(other);
 		}
@@ -71,15 +79,15 @@ namespace elastic
 		flex_buffer(const void* buffer, size_type sz)
 			: flex_buffer()
 		{
+			capacity_ = sz;
+
+			active_ = sz;
+
 			buffer_.resize(sz);
-
-			auto active_sz = active();
-
-			sz > active_sz ? sz = active_sz : 0;
 
 			traits_type::copy(rdata(), (elem_type*)buffer, sz);
 
-			commit(static_cast<int>(sz));
+			commit(static_cast<off_type>(sz));
 		}
 
 		flex_buffer(const flex_buffer&) = delete;
@@ -94,21 +102,16 @@ namespace elastic
 
 		bool operator==(const flex_buffer& other) const
 		{
-			return buffer_ == other.buffer_ && pptr_ == other.pptr_ && gptr_ == other.gptr_;
+			return buffer_ == other.buffer_ && pptr_ == other.pptr_ && gptr_ == other.gptr_ && capacity_ =
+					   other.capacity_ && active_ == other.active_;
 		}
 
-		virtual ~flex_buffer()
-		{}
+		virtual ~flex_buffer() = default;
 
 	public:
-		size_type active() noexcept
+		const size_type active() const noexcept
 		{
-			return buffer_.size() - pptr_;
-		}
-
-		size_type active() const noexcept
-		{
-			return buffer_.size() - pptr_;
+			return active_;
 		}
 
 		pointer wdata() noexcept
@@ -133,24 +136,17 @@ namespace elastic
 
 		void commit(const off_type bytes)
 		{
-			pptr_ += std::min<off_type>(bytes, buffer_.size() - pptr_);
+			pptr_ += bytes;
 
-			pptr_ < 0 ? pptr_ = 0 : 0;
-
-			if (pptr_ < 0) [[unlikely]]
-			{
-				pptr_ = 0;
-			}
+			pptr_ < 0 ? pptr_ = 0 : active_ -= bytes;
 		}
 
 		void consume(const off_type bytes)
 		{
-			gptr_ += std::min<off_type>(bytes, pptr_ - gptr_);
+			gptr_ += bytes;
 
-			if (gptr_ < 0) [[unlikely]]
-			{
+			if (gptr_ < 0)
 				gptr_ = 0;
-			}
 		}
 
 		constexpr iterator begin() noexcept
@@ -165,29 +161,12 @@ namespace elastic
 
 		constexpr iterator end() noexcept
 		{
-			return begin() + size();
+			return begin() + pptr_;
 		}
 
 		constexpr const_iterator end() const noexcept
 		{
-			return begin() + size();
-		}
-
-		void resize(size_type value)
-		{
-			if (value == 0)
-				return;
-
-			buffer_.resize(buffer_.size() + value);
-		}
-
-		void clear() noexcept
-		{
-			buffer_.clear();
-
-			pptr_ = 0;
-
-			gptr_ = 0;
+			return begin() + pptr_;
 		}
 
 		void swap(flex_buffer& other)
@@ -199,11 +178,6 @@ namespace elastic
 			std::swap(gptr_, other.gptr_);
 		}
 
-		size_type size() noexcept
-		{
-			return pptr_ - gptr_;
-		}
-
 		size_type size() const noexcept
 		{
 			return pptr_ - gptr_;
@@ -213,6 +187,8 @@ namespace elastic
 		{
 			if (pptr_ == 0)
 				return;
+
+			active_ += gptr_;
 
 			traits_type::copy(buffer_.data(), wdata(), active());
 
@@ -227,16 +203,13 @@ namespace elastic
 				return;
 
 			buffer_.resize(max_size() + capacity);
-		}
 
-		size_type max_size()
-		{
-			return buffer_.size();
+			active_ += capacity;
 		}
 
 		size_type max_size() const
 		{
-			return buffer_.size();
+			return capacity_;
 		}
 
 		pos_type pubseekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode)
@@ -317,27 +290,13 @@ namespace elastic
 			return static_cast<pos_type>(pos);
 		}
 
-		size_type sputn(const value_type* begin, const size_type size)
+		const size_type sputn(const value_type* begin, const size_type size)
 		{
-			if (size == 0)
-				return 0;
-
 			traits_type::copy(rdata(), begin, size);
-			// std::memcpy(rdata(), begin, size);
-
-			// for (std::size_t i = 0; i < size; ++i)
-			//{
-			//	*rdata() = begin[i];
-			// }
 
 			commit(size);
 
 			return size;
-		}
-
-		size_type sputc(const value_type& c)
-		{
-			return sputn(&c, 1);
 		}
 
 		size_type sgetn(value_type* begin, const size_type size)
@@ -353,11 +312,6 @@ namespace elastic
 			}
 
 			return size;
-		}
-
-		size_type sgetc(value_type* c)
-		{
-			return sgetn(c, 1);
 		}
 
 		void append(this_type&& buffer)
@@ -382,6 +336,10 @@ namespace elastic
 		off_type pptr_;
 
 		off_type gptr_;
+
+		off_type active_;
+
+		std::size_t capacity_;
 	};
 
 	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;

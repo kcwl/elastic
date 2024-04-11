@@ -34,7 +34,10 @@ namespace elastic
 		}
 		else if constexpr (struct_t<_Ty>)
 		{
-			reflect::visit_each(value, [&byte](auto... values) { ((byte += bytes(values)), ...); });
+			reflect::visit_each(value, [&byte](auto&&... values) 
+								{ 
+									((byte += bytes(values)), ...); 
+								});
 		}
 		else if constexpr (string_t<_Ty>)
 		{
@@ -45,6 +48,11 @@ namespace elastic
 		else if constexpr (sequence_t<_Ty>)
 		{
 			byte = bytes(value.size());
+
+			for (auto& v : value)
+			{
+				byte += bytes(v);
+			}
 		}
 
 		return byte;

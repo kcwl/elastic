@@ -157,19 +157,14 @@ namespace elastic
 			~binary_oprimitive() = default;
 
 		public:
-			template <pod_and_integer_t _Ty>
-			void save(_Ty&& t)
+			void save(const std::string& value)
 			{
-				constexpr auto array_size = sizeof(_Ty);
-
-				auto* elastic_fixed_ptr = reinterpret_cast<value_type*>(&t);
-
-				this->save(elastic_fixed_ptr, array_size);
+				this->streambuf_.sputn((const value_type*)value.c_str(), value.size());
 			}
 
-			void save(const value_type* begin, const std::size_t size)
+			void save(const value_type* t, const std::size_t size)
 			{
-				this->streambuf_.sputn(begin, size);
+				this->streambuf_.sputn(t, size);
 			}
 		};
 	} // namespace detail

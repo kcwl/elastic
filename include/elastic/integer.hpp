@@ -15,7 +15,7 @@ namespace elastic
 		void write(_Archive& ar, const std::size_t length)
 		{
 			using type = typename _Archive::value_type;
-			ar.save(tag_);
+			ar.save(&tag_, 1);
 
 			ar.save((type*)&value_, length);
 		}

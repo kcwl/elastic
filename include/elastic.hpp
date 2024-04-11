@@ -2,17 +2,22 @@
 #include "elastic/access.hpp"
 #include "elastic/binary_archive.hpp"
 #include "elastic/macro_expand.hpp"
+#include "elastic/bytes.hpp"
 
 namespace elastic
 {
-	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
-	bool to_binary(_Ty&& t, flex_buffer<_Elem, _Traits>& buffer)
+	template <typename _Ty>
+	flex_buffer_t to_binary(_Ty&& t)
 	{
+		auto byte = bytes(std::forward<_Ty>(t));
+
+		flex_buffer_t buffer(byte);
+
 		binary_oarchive oa(buffer);
 
 		oa << std::forward<_Ty>(t);
 
-		return oa.success();
+		return std::move(buffer);
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
@@ -22,7 +27,7 @@ namespace elastic
 
 		ia >> t;
 
-		return !ia.success();
+		return ia.success();
 	}
 } // namespace elastic
 
