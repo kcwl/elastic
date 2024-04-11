@@ -7,15 +7,15 @@
 namespace elastic
 {
 	template <typename _Ty>
-	flex_buffer_t to_binary(_Ty&& t)
+	flex_buffer_t to_binary(const _Ty& t)
 	{
-		auto byte = bytes(std::forward<_Ty>(t));
+		auto byte = bytes(t);
 
 		flex_buffer_t buffer(byte);
 
 		binary_oarchive oa(buffer);
 
-		oa << std::forward<_Ty>(t);
+		oa << t;
 
 		return std::move(buffer);
 	}

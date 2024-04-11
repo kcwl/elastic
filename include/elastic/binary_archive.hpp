@@ -47,13 +47,13 @@ namespace elastic
 
 	public:
 		template <typename _Ty>
-		binary_oarchive& operator<<(_Ty&& t)
+		binary_oarchive& operator<<(const _Ty& t)
 		{
 			primitive_guard lk(*this);
 
 			try
 			{
-				binary::template serialize(*this, std::forward<_Ty>(t));
+				binary::template serialize(*this, t);
 			}
 			catch (...)
 			{
@@ -64,9 +64,9 @@ namespace elastic
 		}
 
 		template <typename _Ty>
-		binary_oarchive& operator&(_Ty&& t)
+		binary_oarchive& operator&(const _Ty& t)
 		{
-			return operator<<(std::forward<_Ty>(t));
+			return operator<<(t);
 		}
 	};
 } // namespace elastic

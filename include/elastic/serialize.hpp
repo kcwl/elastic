@@ -12,13 +12,13 @@ namespace elastic
 	namespace binary
 	{
 		template <typename _Archive, typename _Ty>
-		void serialize(_Archive& ar, _Ty&& t);
+		void serialize(_Archive& ar, const _Ty& t);
 	}
 
 	namespace detail
 	{
 		template <integer_t _Ty>
-		constexpr uint8_t get_symbol(_Ty&& t)
+		constexpr uint8_t get_symbol(const _Ty t)
 		{
 			constexpr auto bit = sizeof(_Ty) * 8 - 1;
 
@@ -28,16 +28,14 @@ namespace elastic
 		}
 
 		template <integer_t _Ty>
-		constexpr auto get_data(_Ty&& t)
+		constexpr auto get_data(const _Ty t)
 		{
-			using type = std::remove_cvref_t<_Ty>;
-
 			constexpr auto pow = power<2, sizeof(_Ty) * 8 - 1>::value - 1;
 
-			return static_cast<type>(t & pow);
+			return static_cast<_Ty>(t & pow);
 		}
 
-		inline uint8_t filter_symbol(uint8_t value)
+		inline uint8_t filter_symbol(const uint8_t value)
 		{
 			constexpr auto bit = sizeof(uint8_t) * 8 - 1;
 
@@ -46,7 +44,7 @@ namespace elastic
 			return static_cast<uint8_t>((value & pow) >> bit);
 		}
 
-		inline uint8_t filter_negative(uint8_t value)
+		inline uint8_t filter_negative(const uint8_t value)
 		{
 			constexpr auto bit = sizeof(uint8_t) * 8 - 2;
 
@@ -55,7 +53,7 @@ namespace elastic
 			return (value & pow) >> bit;
 		}
 
-		inline uint8_t filter_length(uint8_t value)
+		inline uint8_t filter_length(const uint8_t value)
 		{
 			constexpr auto pow = power<2, 0>::value + power<2, 1>::value + power<2, 2>::value + power<2, 3>::value;
 
@@ -185,7 +183,7 @@ namespace elastic
 		}
 
 		template <integer_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty value)
 		{
 			using value_type = typename _Archive::value_type;
 
@@ -193,13 +191,13 @@ namespace elastic
 
 			integer<result_t> tag_integer{};
 
-			tag_integer.tag_ = get_symbol(std::forward<_Ty>(value));
+			tag_integer.tag_ = get_symbol(value);
 
 			if constexpr (std::is_unsigned_v<result_t>)
 			{
 				if (tag_integer.tag_ == 1)
 				{
-					tag_integer.value_ = get_data(std::forward<_Ty>(value));
+					tag_integer.value_ = get_data(value);
 
 					tag_integer.tag_ <<= 7;
 				}
@@ -270,36 +268,35 @@ namespace elastic
 		}
 
 		template <enum_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty value)
 		{
-			return serialize(ar, static_cast<int>(std::forward<_Ty>(value)));
+			return serialize(ar, static_cast<int>(value));
 		}
 
 		template <boolean_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty value)
 		{
-			return serialize(ar, static_cast<int>(std::forward<_Ty>(value)));
+			return serialize(ar, static_cast<int>(value));
 		}
 
 		template <float_point_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty value)
 		{
 			constexpr auto size = sizeof(_Ty);
 
 			using value_type = typename _Archive::value_type;
 
-			ar.save((const value_type*)&(std::forward<_Ty>(value)), size);
+			ar.save((const value_type*)&value, size);
 		}
 
 		template <struct_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty& value)
 		{
-			// reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
-			reflect::visit_each(std::forward<_Ty>(value), [&ar](auto&&... values) { (serialize(ar, values), ...); });
+			reflect::visit_each(value, [&ar](auto&&... values) { (serialize(ar, values), ...); });
 		}
 
 		template <string_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty& value)
 		{
 			using value_type = typename _Archive::value_type;
 
@@ -310,14 +307,10 @@ namespace elastic
 			ar.save((const value_type*)value.c_str(), bytes);
 		}
 
-		
-
 		template <sequence_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		void serialize(_Archive& ar, const _Ty& value)
 		{
-			using type = std::remove_cvref_t<_Ty>;
-
-			using value_type = typename type::value_type;
+			using value_type = typename _Ty::value_type;
 
 			auto bytes = value.size();
 
@@ -349,20 +342,18 @@ namespace elastic
 		}
 
 		template <typename _Archive, typename _Ty>
-		inline void serialize(_Archive& ar, _Ty&& t)
+		inline void serialize(_Archive& ar, const _Ty& t)
 		{
-			using type = std::remove_reference_t<_Ty>;
-
-			if constexpr (non_inherit_t<type>)
+			if constexpr (non_inherit_t<_Ty>)
 			{
-				detail::template serialize(ar, std::forward<_Ty>(t));
+				detail::template serialize(ar, t);
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{
 			}
 			else
 			{
-				access::template serialize(ar, std::forward<_Ty>(t));
+				access::template serialize(ar, t);
 			}
 		}
 	} // namespace binary
