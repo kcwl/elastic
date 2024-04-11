@@ -210,13 +210,13 @@ namespace elastic
 		template <enum_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, const _Ty value)
 		{
-			return serialize(ar, static_cast<int>(value));
+			return serialize<int>(ar, value);
 		}
 
 		template <boolean_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, const _Ty value)
 		{
-			return serialize(ar, static_cast<int>(value));
+			return serialize<int>(ar, value);
 		}
 
 		template <float_point_t _Ty, typename _Archive>
