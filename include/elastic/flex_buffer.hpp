@@ -4,6 +4,7 @@
 #include <iterator>
 #include <span>
 #include <streambuf>
+#include <utility>
 #include <vector>
 
 namespace elastic
@@ -40,7 +41,7 @@ namespace elastic
 	public:
 		flex_buffer() = default;
 
-		flex_buffer(std::size_t capa)
+		flex_buffer(const std::size_t capa)
 			: buffer_(capa)
 			, pptr_()
 			, gptr_()
@@ -68,15 +69,13 @@ namespace elastic
 		}
 
 		flex_buffer(flex_buffer&& other) noexcept
-			: buffer_(std::move(other.buffer_))
-			, pptr_(std::move(other.pptr_))
-			, gptr_(std::move(other.gptr_))
-			, capacity_(std::move(other.capacity_))
-			, start_pos_(std::move(other.start_pos_))
-			, has_success_(std::move(other.has_success_))
-		{
-			flex_buffer{}.swap(other);
-		}
+			: buffer_(std::exchange(other.buffer_, std::vector<value_type, allocator_type>{}))
+			, pptr_(std::exchange(other.pptr_, 0))
+			, gptr_(std::exchange(other.gptr_, 0))
+			, capacity_(std::exchange(other.capacity_, 0))
+			, start_pos_(std::exchange(other.start_pos_, 0))
+			, has_success_(std::exchange(other.has_success_, true))
+		{}
 
 		flex_buffer(const void* buffer, size_type sz)
 			: flex_buffer()
