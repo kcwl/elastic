@@ -64,7 +64,9 @@ TEST(io, elastic_type)
 	{
 		char a_in = (std::numeric_limits<char>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		char a_out{};
 
@@ -76,7 +78,9 @@ TEST(io, elastic_type)
 	{
 		int8_t a_in = (std::numeric_limits<int8_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		int8_t a_out{};
 
@@ -88,7 +92,9 @@ TEST(io, elastic_type)
 	{
 		uint8_t a_in = (std::numeric_limits<uint8_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		uint8_t a_out{};
 
@@ -100,8 +106,9 @@ TEST(io, elastic_type)
 	{
 		int16_t a_in = (std::numeric_limits<int16_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
 
+		elastic::to_binary(a_in, buf);
 
 		int16_t a_out{};
 
@@ -112,7 +119,9 @@ TEST(io, elastic_type)
 	{
 		uint16_t a_in = (std::numeric_limits<uint16_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		uint16_t a_out{};
 
@@ -124,7 +133,9 @@ TEST(io, elastic_type)
 	{
 		int32_t a_in = (std::numeric_limits<int32_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		int32_t a_out{};
 
@@ -136,7 +147,9 @@ TEST(io, elastic_type)
 	{
 		uint32_t a_in = (std::numeric_limits<uint32_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		uint32_t a_out{};
 
@@ -148,7 +161,9 @@ TEST(io, elastic_type)
 	{
 		int64_t a_in = (std::numeric_limits<int64_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		int64_t a_out{};
 
@@ -160,7 +175,9 @@ TEST(io, elastic_type)
 	{
 		uint64_t a_in = (std::numeric_limits<uint64_t>::max)();
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		uint64_t a_out{};
 
@@ -172,7 +189,9 @@ TEST(io, elastic_type)
 	{
 		int64_t a_in = -10;
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		int64_t a_out{};
 
@@ -188,19 +207,23 @@ TEST(io, elastic_type)
 			blue = 2
 		};
 
-		auto buf = elastic::to_binary(color::red);
+		elastic::flex_buffer_t buf{};
 
-		color cr{};
+		color a_in;
 
-		elastic::from_binary(cr, buf);
+		elastic::to_binary(1, buf);
 
-		EXPECT_TRUE(cr == color::red);
+		elastic::from_binary(a_in, buf);
+
+		EXPECT_TRUE(a_in == color::red);
 	}
 
 	{
 		std::string a_in = "hello world!";
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		std::string a_out{};
 
@@ -212,7 +235,9 @@ TEST(io, elastic_type)
 	{
 		bool a_in = false;
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		bool a_out = true;
 
@@ -225,7 +250,9 @@ TEST(io, elastic_type)
 		std::vector<std::byte> a_in = { std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
 										std::byte('5') };
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		std::vector<std::byte> a_out{};
 
@@ -235,14 +262,16 @@ TEST(io, elastic_type)
 	}
 
 	{
-		std::vector<person> pers{};
+		std::vector<person> a_in{};
 		person per = { 1, "Lancy" };
 
-		pers.push_back(per);
-		pers.push_back(per);
-		pers.push_back(per);
+		a_in.push_back(per);
+		a_in.push_back(per);
+		a_in.push_back(per);
 
-		auto buf = elastic::to_binary(pers);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		std::vector<person> pers_copy{};
 
@@ -252,7 +281,7 @@ TEST(io, elastic_type)
 
 		for (std::size_t i = 0; i < size; ++i)
 		{
-			EXPECT_TRUE(pers_copy[i].age == pers[i].age && pers_copy[i].name == pers[i].name);
+			EXPECT_TRUE(pers_copy[i].age == a_in[i].age && pers_copy[i].name == a_in[i].name);
 		}
 	}
 
@@ -262,25 +291,29 @@ TEST(io, elastic_type)
 		animals.push_back({ 2, '2', 0 });
 		animals.push_back({ 3, '2', 0 });
 
-		std::vector<animal> animal_copys{};
+		std::vector<animal> a_in{};
 
-		auto buf = elastic::to_binary(animals);
+		elastic::flex_buffer_t buf{};
 
-		elastic::from_binary(animal_copys, buf);
+		elastic::to_binary(a_in, buf);
 
-		auto size = animal_copys.size();
+		elastic::from_binary(a_in, buf);
+
+		auto size = a_in.size();
 
 		for (std::size_t i = 0; i < size; ++i)
 		{
-			EXPECT_TRUE(animal_copys[i].a == animals[i].a && animal_copys[i].b == animals[i].b &&
-						animal_copys[i].c == animals[i].c);
+			EXPECT_TRUE(a_in[i].a == animals[i].a && a_in[i].b == animals[i].b &&
+						a_in[i].c == animals[i].c);
 		}
 	}
 
 	{
 		double a_in = 1.2;
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		double a_out;
 
@@ -292,7 +325,9 @@ TEST(io, elastic_type)
 	{
 		float a_in = 2.4f;
 
-		auto buf = elastic::to_binary(a_in);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		float a_out;
 

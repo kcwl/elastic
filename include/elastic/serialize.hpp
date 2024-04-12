@@ -180,7 +180,7 @@ namespace elastic
 				}
 			}
 
-			int8_t bit = 0;
+			std::size_t bit = 0;
 
 			auto temp = result;
 
@@ -190,7 +190,7 @@ namespace elastic
 				++bit;
 			}
 
-			symbol = symbol << 7 | bit;
+			symbol = symbol << 7 | static_cast<uint8_t>(bit);
 
 			ar.save(std::span{ &symbol, 1 });
 			ar.save(std::span{ (value_type*)&result, bit });

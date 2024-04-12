@@ -5,11 +5,13 @@
 TEST(buffer, construct)
 {
 	{
-		int a = 5;
+		int a_in = 5;
 
-		auto buffer = elastic::to_binary(a);
+		elastic::flex_buffer_t buf{};
 
-		elastic::flex_buffer_t buffer_c(buffer.begin(), buffer.end());
+		elastic::to_binary(a_in, buf);
+
+		elastic::flex_buffer_t buffer_c(buf.begin(), buf.end());
 
 		EXPECT_TRUE(buffer_c.size() == 2);
 
@@ -33,14 +35,16 @@ TEST(buffer, construct)
 	}
 
 	{
-		int a = 5;
+		int a_in = 5;
 
-		auto buffer = elastic::to_binary(a);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(a_in, buf);
 
 		elastic::flex_buffer_t buffer_c{};
-		buffer_c = std::move(buffer);
+		buffer_c = std::move(buf);
 
-		EXPECT_TRUE(buffer.size() == 0);
+		EXPECT_TRUE(buf.size() == 0);
 
 		EXPECT_TRUE(buffer_c.size() == 2);
 
@@ -85,18 +89,20 @@ TEST(buffer, function)
 	}
 
 	{
-		auto buffer = elastic::to_binary(1);
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(1, buf);
 
 		int a = 0;
 
-		elastic::from_binary(a, buffer);
+		elastic::from_binary(a, buf);
 
 		EXPECT_TRUE(a == 1);
 
-		buffer.ensure();
-		buffer.normalize();
+		buf.ensure();
+		buf.normalize();
 
-		EXPECT_TRUE(buffer.size() == 0 && buffer.active() == 4098);
+		EXPECT_TRUE(buf.size() == 0 && buf.active() == 4098);
 	}
 
 	//{
@@ -162,9 +168,13 @@ TEST(buffer, function)
 	}
 
 	{
-		auto buffer = elastic::to_binary(1);
+		elastic::flex_buffer_t buffer{};
 
-		auto buf = elastic::to_binary(2);
+		elastic::to_binary(1, buffer);
+
+		elastic::flex_buffer_t buf{};
+
+		elastic::to_binary(2, buf);
 
 		buffer.append(std::move(buf));
 

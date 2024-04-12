@@ -39,10 +39,12 @@ namespace elastic
 		using int_type = typename traits_type::int_type;
 
 	public:
-		flex_buffer() = default;
+		flex_buffer()
+			: flex_buffer(0)
+		{}
 
 		flex_buffer(const std::size_t capa)
-			: buffer_(capa)
+			: buffer_(capa, 0)
 			, pptr_()
 			, gptr_()
 			, capacity_(capa)
@@ -136,6 +138,8 @@ namespace elastic
 		void commit(const off_type bytes)
 		{
 			pptr_ += bytes;
+
+			capacity_ < pptr_ ? capacity_ = pptr_ : 0;
 		}
 
 		void consume(const off_type bytes)
@@ -177,6 +181,16 @@ namespace elastic
 			return pptr_ - gptr_;
 		}
 
+		size_type max_size() const
+		{
+			return capacity_;
+		}
+
+		void resize(const size_type new_size)
+		{
+			buffer_.resize(new_size);
+		}
+
 		void normalize()
 		{
 			if (pptr_ == 0)
@@ -197,11 +211,6 @@ namespace elastic
 			buffer_.resize(max_size() + capacity);
 
 			capacity_ += capacity;
-		}
-
-		size_type max_size() const
-		{
-			return capacity_;
 		}
 
 		pos_type pubseekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode)
@@ -286,7 +295,12 @@ namespace elastic
 		{
 			auto size = begin.size();
 
-			traits_type::copy(rdata(), begin.data(), size);
+			// traits_type::copy(rdata(), begin.data(), size);
+
+			for (int i = 0; i < size; ++i)
+			{
+				buffer_.emplace_back(begin[i]);
+			}
 
 			return size;
 		}

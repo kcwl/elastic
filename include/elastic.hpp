@@ -7,20 +7,20 @@
 namespace elastic
 {
 	template <typename _Ty>
-	flex_buffer_t to_binary(const _Ty& t)
+	bool to_binary(const _Ty& t, flex_buffer_t& buffer)
 	{
 		auto byte = bytes(t);
-
-		flex_buffer_t buffer(byte);
 
 		binary_oarchive oa(buffer);
 
 		oa << t;
 
-		if (buffer.success())
+		auto result = buffer.success();
+
+		if (result)
 			buffer.commit(byte);
 
-		return std::move(buffer);
+		return result;
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
