@@ -176,10 +176,4 @@ TEST(buffer, function)
 
 		EXPECT_TRUE(a == 1 && b == 2);
 	}
-
-	{
-		elastic::flex_buffer_t buffer;
-
-		EXPECT_TRUE(buffer.sputn(nullptr, 0) == 0 );
-	}
 }

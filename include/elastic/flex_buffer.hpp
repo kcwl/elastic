@@ -40,7 +40,7 @@ namespace elastic
 	public:
 		flex_buffer() = default;
 
-		flex_buffer(const std::size_t capa)
+		flex_buffer(std::size_t capa)
 			: buffer_(capa)
 			, pptr_()
 			, gptr_()
@@ -136,12 +136,12 @@ namespace elastic
 
 		void commit(const size_type bytes)
 		{
-			pptr_ += bytes;
+			pptr_ += static_cast<off_type>(bytes);
 		}
 
 		void consume(const size_type bytes)
 		{
-			gptr_ += bytes;
+			gptr_ += static_cast<off_type>(bytes);
 		}
 
 		constexpr iterator begin() noexcept
@@ -283,9 +283,11 @@ namespace elastic
 			return static_cast<pos_type>(pos);
 		}
 
-		const size_type sputn(const value_type* begin, const size_type size)
+		const size_type sputn(std::span<value_type> begin)
 		{
-			traits_type::copy(rdata(), begin, size);
+			auto size = begin.size();
+
+			traits_type::copy(rdata(), begin.data(), size);
 
 			commit(size);
 

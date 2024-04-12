@@ -60,7 +60,7 @@ namespace elastic
 			{
 				streambuf_.failed();
 			}
-			
+
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
 		};
@@ -129,12 +129,12 @@ namespace elastic
 		public:
 			void save(const std::string& value)
 			{
-				this->streambuf_.sputn((const value_type*)value.c_str(), value.size());
+				this->streambuf_.sputn(std::span{ (value_type*)const_cast<char*>(value.data()), value.size() });
 			}
 
-			void save(const value_type* t, const std::size_t size)
+			void save(std::span<value_type> value)
 			{
-				this->streambuf_.sputn(t, size);
+				this->streambuf_.sputn(value);
 			}
 		};
 	} // namespace detail
