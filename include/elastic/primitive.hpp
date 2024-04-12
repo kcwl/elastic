@@ -21,7 +21,7 @@ namespace elastic
 			class primitive_guard
 			{
 			public:
-				primitive_guard(basic_primitive<value_type, traits_t>& primitive)
+				primitive_guard(basic_primitive<value_type, traits_t>* primitive)
 					: primitive_(primitive)
 				{
 					primitive_.start();
@@ -33,7 +33,7 @@ namespace elastic
 				}
 
 			private:
-				basic_primitive<value_type, traits_t>& primitive_;
+				basic_primitive<value_type, traits_t>* primitive_;
 			};
 
 			friend class primitive_guard;
@@ -56,11 +56,6 @@ namespace elastic
 				streambuf_.close();
 			}
 
-			void failed()
-			{
-				streambuf_.failed();
-			}
-
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
 		};
@@ -80,7 +75,7 @@ namespace elastic
 				: detail::basic_primitive<value_type, traits_t>(bs)
 			{}
 
-			~binary_iprimitive()
+			virtual ~binary_iprimitive()
 			{}
 
 		public:
@@ -124,7 +119,7 @@ namespace elastic
 				: detail::basic_primitive<value_type, traits_t>(bs)
 			{}
 
-			~binary_oprimitive() = default;
+			virtual ~binary_oprimitive() = default;
 
 		public:
 			void save(const std::string& value)

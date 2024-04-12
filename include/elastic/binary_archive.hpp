@@ -12,6 +12,8 @@ namespace elastic
 			: binary_iprimitive<binary_iarchive, uint8_t, std::char_traits<uint8_t>>(bs)
 		{}
 
+		virtual ~binary_iarchive() = default;
+
 	public:
 		template <typename _Ty>
 		binary_iarchive& operator>>(_Ty& t)
@@ -23,9 +25,7 @@ namespace elastic
 				binary::deserialize(*this, t);
 			}
 			catch (...)
-			{
-				this->failed();
-			}
+			{}
 
 			return *this;
 		}
@@ -45,6 +45,8 @@ namespace elastic
 			: binary_oprimitive<binary_oarchive, uint8_t, std::char_traits<uint8_t>>(bsb)
 		{}
 
+		virtual ~binary_oarchive() = default;
+
 	public:
 		template <typename _Ty>
 		binary_oarchive& operator<<(const _Ty& t)
@@ -55,10 +57,7 @@ namespace elastic
 			{
 				binary::template serialize(*this, t);
 			}
-			catch (...)
-			{
-				this->failed();
-			}
+			catch (...){}
 
 			return *this;
 		}
