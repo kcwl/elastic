@@ -20,7 +20,7 @@ namespace elastic
 
 		using this_type = flex_buffer<elem_type, traits_type, allocator_type>;
 
-		constexpr static std::size_t capacity = 4096;
+		constexpr static std::size_t capacity = 512;
 
 		constexpr static std::size_t water_line = 32;
 
@@ -40,7 +40,7 @@ namespace elastic
 
 	public:
 		flex_buffer()
-			: flex_buffer(0)
+			: flex_buffer(capacity)
 		{}
 
 		flex_buffer(const std::size_t capa)
@@ -186,11 +186,6 @@ namespace elastic
 			return capacity_;
 		}
 
-		void resize(const size_type new_size)
-		{
-			buffer_.resize(new_size);
-		}
-
 		void normalize()
 		{
 			if (pptr_ == 0)
@@ -293,14 +288,12 @@ namespace elastic
 
 		const size_type sputn(std::span<value_type> begin)
 		{
-			auto size = begin.size();
+			const auto size = begin.size();
 
-			// traits_type::copy(rdata(), begin.data(), size);
+			//traits_type::copy(rdata(), begin.data(), size);
+			std::memcpy(rdata(), begin.data(), size);
 
-			for (int i = 0; i < size; ++i)
-			{
-				buffer_.emplace_back(begin[i]);
-			}
+			commit(size);
 
 			return size;
 		}

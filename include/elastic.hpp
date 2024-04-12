@@ -9,18 +9,11 @@ namespace elastic
 	template <typename _Ty>
 	bool to_binary(const _Ty& t, flex_buffer_t& buffer)
 	{
-		auto byte = bytes(t);
-
 		binary_oarchive oa(buffer);
 
 		oa << t;
 
-		auto result = buffer.success();
-
-		if (result)
-			buffer.commit(byte);
-
-		return result;
+		return buffer.success();
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
