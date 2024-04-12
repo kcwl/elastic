@@ -18,7 +18,7 @@ namespace elastic
 		template <typename _Ty>
 		binary_iarchive& operator>>(_Ty& t)
 		{
-			primitive_guard lk(*this);
+			primitive_guard lk(this);
 
 			try
 			{
@@ -51,7 +51,7 @@ namespace elastic
 		template <typename _Ty>
 		binary_oarchive& operator<<(const _Ty& t)
 		{
-			primitive_guard lk(*this);
+			primitive_guard lk(this);
 
 			try
 			{

@@ -24,12 +24,12 @@ namespace elastic
 				primitive_guard(basic_primitive<value_type, traits_t>* primitive)
 					: primitive_(primitive)
 				{
-					primitive_.start();
+					primitive_->start();
 				}
 
 				~primitive_guard()
 				{
-					primitive_.close();
+					primitive_->close();
 				}
 
 			private:
