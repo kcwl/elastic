@@ -193,7 +193,7 @@ namespace elastic
 			symbol = symbol << 7 | bit;
 
 			ar.save(std::span{ &symbol, 1 });
-			ar.save(std::span{ (value_type*)&result, static_cast<std::size_t>(bit) });
+			ar.save(std::span{ (value_type*)&result, bit });
 		}
 
 		template <enum_t _Ty, typename _Archive>
