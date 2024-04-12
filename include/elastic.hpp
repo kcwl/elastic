@@ -17,6 +17,9 @@ namespace elastic
 
 		oa << t;
 
+		if (buffer.success())
+			buffer.commit(byte);
+
 		return std::move(buffer);
 	}
 

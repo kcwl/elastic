@@ -221,7 +221,7 @@ namespace elastic
 		template <struct_t _Ty, typename _Archive>
 		void serialize(_Archive& ar, const _Ty& value)
 		{
-			reflect::visit_each(value, [&ar](auto&&... values) { (serialize(ar, values), ...); });
+			reflect::visit_each(value, [&ar](auto&&... values) { (serialize(ar, std::move(values)), ...); });
 		}
 
 		template <string_t _Ty, typename _Archive>

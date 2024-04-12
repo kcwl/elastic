@@ -133,14 +133,14 @@ namespace elastic
 			return buffer_.data() + pptr_;
 		}
 
-		void commit(const size_type bytes)
+		void commit(const off_type bytes)
 		{
-			pptr_ += static_cast<off_type>(bytes);
+			pptr_ += bytes;
 		}
 
-		void consume(const size_type bytes)
+		void consume(const off_type bytes)
 		{
-			gptr_ += static_cast<off_type>(bytes);
+			gptr_ += bytes;
 		}
 
 		constexpr iterator begin() noexcept
@@ -288,8 +288,6 @@ namespace elastic
 
 			traits_type::copy(rdata(), begin.data(), size);
 
-			commit(size);
-
 			return size;
 		}
 
@@ -297,6 +295,8 @@ namespace elastic
 		{
 			if (size > this->size())
 			{
+				has_success_ = false;
+
 				return 0;
 			}
 
@@ -329,16 +329,6 @@ namespace elastic
 		bool success() const
 		{
 			return has_success_;
-		}
-
-		void complete()
-		{
-			has_success_ = true;
-		}
-
-		void failed()
-		{
-			has_success_ = false;
 		}
 
 		bool start()
