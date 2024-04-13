@@ -17,11 +17,13 @@ namespace elastic
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
-	void from_binary(_Ty& t, flex_buffer<_Elem, _Traits>& buffer)
+	bool from_binary(_Ty& t, flex_buffer<_Elem, _Traits>& buffer)
 	{
 		binary_iarchive ia(buffer);
 
 		ia >> t;
+
+		return buffer.success();
 	}
 } // namespace elastic
 

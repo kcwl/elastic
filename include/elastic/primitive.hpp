@@ -124,12 +124,12 @@ namespace elastic
 		public:
 			void save(const std::string& value)
 			{
-				this->streambuf_.sputn(std::span{ (value_type*)const_cast<char*>(value.data()), value.size() });
+				this->streambuf_.sputn((value_type*)const_cast<char*>(value.data()), value.size());
 			}
 
 			void save(std::span<value_type> value)
 			{
-				this->streambuf_.sputn(value);
+				this->streambuf_.sputn(value.data(), value.size());
 			}
 		};
 	} // namespace detail
