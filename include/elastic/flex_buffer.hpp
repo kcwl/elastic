@@ -276,19 +276,39 @@ namespace elastic
 			start_pos_ = 0;
 		}
 
+		void save(value_type* data, const size_type sizes)
+		{
+			if (sizes > active())
+				return;
+
+			std::memcpy(this->pptr(), data, sizes);
+
+			commit(sizes);
+		}
+
+		size_type load(value_type* data, const size_type sizes)
+		{
+			if (sizes > active())
+				return 0;
+
+			std::memcpy(data, this->gptr(), sizes);
+
+			consume(sizes);
+
+			return sizes;
+		}
+
 	protected:
 		virtual int_type underflow() override
 		{
 			const auto pptr = this->pptr();
 
 			if (pptr == this->eback())
-			{
-				has_success_ = false;
-
 				return _Traits::eof();
-			}
 
 			auto result = _Traits::to_int_type(*this->gptr());
+
+			consume(1);
 
 			return result;
 		}

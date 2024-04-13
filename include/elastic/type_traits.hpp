@@ -49,7 +49,25 @@ namespace elastic
 		template <typename _Key, typename _Value>
 		struct map_like<std::map<_Key, _Value>> : std::true_type
 		{};
+
+		template<typename _Ty>
+		struct to_integer
+		{
+			using type = _Ty;
+		};
+
+		template<enum_t _Ty>
+		struct to_integer<_Ty>
+		{
+			using type = int64_t;
+		};
 	} // namespace detail
+
+	template<typename _Ty>
+	using to_integer_t = detail::to_integer<_Ty>::type;
+
+	template<typename _Ty>
+	concept boolean_t = std::is_same_v<_Ty, bool>;
 
 	template <typename _Ty, typename... _Args>
 	inline constexpr bool is_any_of_v = std::disjunction_v<std::is_same<std::remove_cvref_t<_Ty>, _Args>...>;
@@ -58,10 +76,7 @@ namespace elastic
 	concept float_point_t = std::is_floating_point_v<std::remove_reference_t<_Ty>>;
 
 	template <typename _Ty>
-	concept boolean_t = is_any_of_v<std::remove_reference_t<_Ty>, bool>;
-
-	template <typename _Ty>
-	concept integer_t = std::is_integral_v<std::remove_reference_t<_Ty>> && !boolean_t<std::remove_reference_t<_Ty>>;
+	concept integer_t = std::is_integral_v<std::remove_reference_t<_Ty>> && !boolean_t<_Ty>;
 
 	template <typename _Ty>
 	concept copable_t = std::is_copy_constructible_v<std::remove_all_extents_t<_Ty>> &&
@@ -94,7 +109,7 @@ namespace elastic
 	concept map_t = detail::map_like<_Ty>::value;
 
 	template <typename _Ty>
-	concept non_inherit_t = integer_t<_Ty> || enum_t<_Ty> || boolean_t<_Ty> || struct_t<_Ty> || sequence_t<_Ty> ||
+	concept non_inherit_t = integer_t<_Ty> || /*struct_t<_Ty> ||*/ sequence_t<_Ty> || boolean_t<_Ty> || enum_t<_Ty> ||
 							string_t<_Ty> || map_t<_Ty> || float_point_t<_Ty>;
 
 	template <typename _Ty>

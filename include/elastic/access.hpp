@@ -7,9 +7,9 @@ namespace elastic
 	{
 	public:
 		template <typename _Archive, typename _Ty>
-		static void serialize(_Archive& ar, _Ty& t)
+		static void serialize(_Archive& ar, _Ty&& t)
 		{
-			t.serialize(ar);
+			std::forward<_Ty>(t).serialize(ar);
 		}
 
 		template <typename _Ty, typename _U>

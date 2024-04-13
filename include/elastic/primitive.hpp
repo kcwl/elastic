@@ -79,23 +79,11 @@ namespace elastic
 			{}
 
 		public:
-			template <pod_and_integer_t _Ty>
-			void load(_Ty& t)
-			{
-				constexpr auto array_size = sizeof(_Ty);
-
-				value_type buffer[array_size] = { 0 };
-
-				this->load(&buffer[0], array_size);
-
-				t = *reinterpret_cast<_Ty*>(buffer);
-			}
-
 			void load(value_type* address, std::size_t size)
 			{
-				std::streamsize s = static_cast<std::streamsize>(size / sizeof(_Elem));
+				std::streamsize s = static_cast<std::streamsize>(size / sizeof(value_type));
 
-				std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
+				std::streamsize scount = this->streambuf_.load(static_cast<value_type*>(address), s);
 
 				if (scount != s)
 				{
@@ -122,14 +110,9 @@ namespace elastic
 			virtual ~binary_oprimitive() = default;
 
 		public:
-			void save(const std::string& value)
-			{
-				this->streambuf_.sputn((value_type*)const_cast<char*>(value.data()), value.size());
-			}
-
 			void save(std::span<value_type> value)
 			{
-				this->streambuf_.sputn(value.data(), value.size());
+				this->streambuf_.save(value.data(), value.size());
 			}
 		};
 	} // namespace detail

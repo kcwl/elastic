@@ -14,6 +14,8 @@ struct animal
 	int a;
 	char b;
 	bool c;
+
+	ELASTIC_ACCESS(a, b, c);
 };
 
 struct person_body_request
@@ -334,5 +336,25 @@ TEST(io, elastic_type)
 		elastic::from_binary(a_out, buf);
 
 		EXPECT_TRUE(a_in == a_out);
+	}
+
+	{
+		person_body_request req{};
+		req.sex = true;
+		req.role_data.push_back('a');
+		req.mana = 12.2;
+		req.hp = 100.1f;
+		req.age = 1;
+		req.money = -2;
+		req.name = "hello";
+		req.back_money = 10000000;
+		req.crc = 2;
+
+		elastic::flex_buffer_t buffer{};
+		elastic::to_binary(req, buffer);
+
+		person_body_request req1{};
+
+		elastic::from_binary(req1, buffer);
 	}
 }
