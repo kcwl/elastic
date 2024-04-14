@@ -117,11 +117,11 @@ namespace elastic
 		public:
 			void save(std::span<value_type> value)
 			{
-				const auto size = this->streambuf_.save(value);
+				const auto result = this->streambuf_.save(value);
 
-				if (size != value.size())
+				if (!result)
 				{
-					throw std::underflow_error("input stream error!");
+					throw std::overflow_error("input stream error!");
 				}
 			}
 		};

@@ -12,6 +12,9 @@ namespace elastic
 	{
 		template <typename _Archive, typename _Ty>
 		void serialize(_Archive& ar, _Ty&& t);
+
+		template <typename _Archive, typename _Ty>
+		void deserialize(_Archive& ar, _Ty& t);
 	}
 
 	namespace detail
@@ -55,10 +58,10 @@ namespace elastic
 		{
 			using type = std::remove_cvref_t<_Ty>;
 
+			using value_type = typename _Archive::value_type;
+
 			if constexpr (integer_t<type>)
 			{
-				using value_type = typename _Archive::value_type;
-
 				uint8_t symbol = 0;
 
 				type result = value;
@@ -95,7 +98,7 @@ namespace elastic
 			{
 				char result = static_cast<char>(std::forward<_Ty>(value));
 
-				serialize(ar, result);
+				ar.save(std::span{ (value_type*)&result, 1 });
 			}
 			else if constexpr (enum_t<type>)
 			{
@@ -123,8 +126,6 @@ namespace elastic
 			}
 			else if constexpr (sequence_t<type>)
 			{
-				using value_type = typename std::remove_cvref_t<_Ty>::value_type;
-
 				const auto bytes = value.size();
 
 				serialize(ar, bytes);
@@ -144,7 +145,7 @@ namespace elastic
 			if constexpr (integer_t<_Ty>)
 			{
 				value_type c{};
-				ar.load(std::span{ (value_type*)& c, 1 });
+				ar.load(std::span{ (value_type*)&c, 1 });
 
 				uint8_t symbol = filter_symbol(c);
 
@@ -158,9 +159,10 @@ namespace elastic
 			{
 				char temp{};
 
-				deserialize(ar, temp);
+				ar.load(std::span{ (value_type*)&temp,1 });
 
 				t = static_cast<bool>(temp);
+
 			}
 			else if constexpr (enum_t<_Ty>)
 			{
@@ -194,13 +196,11 @@ namespace elastic
 
 				while (bytes--)
 				{
-					using type = typename _Ty::value_type;
+					t.push_back({});
 
-					type value{};
+					auto& back = t.back();
 
-					ar >> value;
-
-					t.push_back(value);
+					binary::deserialize(ar, back);
 				}
 			}
 		}
