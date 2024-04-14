@@ -45,6 +45,8 @@ namespace elastic
 			, epptr_(nullptr)
 			, eback_(nullptr)
 			, gptr_(nullptr)
+			, pcount_(capa)
+			, gcount_(0)
 			, egptr_(pptr_)
 			, capacity_(capa)
 			, start_pos_(0)
@@ -62,7 +64,7 @@ namespace elastic
 	public:
 		const size_type active() const noexcept
 		{
-			return epptr_ - pptr_;
+			return pcount_;
 		}
 
 		const_pointer wdata() const noexcept
@@ -78,7 +80,7 @@ namespace elastic
 		void commit(int bytes)
 		{
 			bytes = static_cast<int>((std::min<std::size_t>)(bytes, epptr_ - pptr_));
-			pptr_+= bytes;
+			pptr_ += bytes;
 		}
 
 		void consume(int bytes)
@@ -157,33 +159,40 @@ namespace elastic
 				return;
 			}
 
-			//this->pubseekpos(start_pos_, std::ios::out);
+			// this->pubseekpos(start_pos_, std::ios::out);
 
 			start_pos_ = 0;
 		}
 
-		bool save(std::span<value_type> values)
+		std::size_t save(const value_type* data, const std::size_t size)
 		{
-			if (values.size() > active())
-				return false;
+			auto sz = pcount_;
 
-			traits_type::copy(pptr_, values.data(), values.size());
+			if (sz > size)
+				sz = size;
 
-			pptr_ += values.size();
+			traits_type::copy(pptr_, data, sz);
 
-			return true;
+			pptr_ += sz;
+			pcount_ -= sz;
+			gcount_ += sz;
+
+			return sz;
 		}
 
-		size_type load(std::span<value_type> values)
+		size_type load(value_type* data, const std::size_t size)
 		{
-			if (values.size() > size())
-				return 0;
+			auto sz = gcount_;
 
-			traits_type::copy(values.data(), gptr_, values.size());
-			
-			gptr_ += values.size();
+			if (sz > size)
+				sz = size;
 
-			return values.size();
+			traits_type::copy(data, gptr_, sz);
+
+			gptr_ += sz;
+			gcount_ -= sz;
+
+			return sz;
 		}
 
 	private:
@@ -215,6 +224,10 @@ namespace elastic
 		value_type* gptr_;
 
 		value_type* egptr_;
+
+		std::size_t pcount_;
+
+		std::size_t gcount_;
 
 		std::size_t capacity_;
 

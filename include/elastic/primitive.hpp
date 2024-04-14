@@ -84,11 +84,11 @@ namespace elastic
 			{}
 
 		public:
-			void load(std::span<value_type> values)
+			void load(value_type* data, const std::size_t size)
 			{
-				std::streamsize s = static_cast<std::streamsize>(values.size() / sizeof(value_type));
+				std::streamsize s = static_cast<std::streamsize>(size / sizeof(value_type));
 
-				std::streamsize scount = this->streambuf_.load(values);
+				std::streamsize scount = this->streambuf_.load(data, size);
 
 				if (scount != s)
 				{
@@ -115,11 +115,11 @@ namespace elastic
 			virtual ~binary_oprimitive() = default;
 
 		public:
-			void save(std::span<value_type> value)
+			void save(const value_type* data, const std::size_t size)
 			{
-				const auto result = this->streambuf_.save(value);
+				const auto result = this->streambuf_.save(data, size);
 
-				if (!result)
+				if (result != size)
 				{
 					throw std::overflow_error("input stream error!");
 				}

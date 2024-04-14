@@ -15,7 +15,7 @@ namespace elastic
 
 		template <typename _Archive, typename _Ty>
 		void deserialize(_Archive& ar, _Ty& t);
-	}
+	} // namespace binary
 
 	namespace detail
 	{
@@ -91,14 +91,14 @@ namespace elastic
 
 				symbol = symbol << 7 | static_cast<uint8_t>(byte);
 
-				ar.save(std::span{ &symbol, 1 });
-				ar.save(std::span{ (value_type*)&result, byte });
+				ar.save(&symbol, 1);
+				ar.save((value_type*)&result, byte);
 			}
 			else if constexpr (boolean_t<type>)
 			{
 				char result = static_cast<char>(std::forward<_Ty>(value));
 
-				ar.save(std::span{ (value_type*)&result, 1 });
+				ar.save((value_type*)&result, 1);
 			}
 			else if constexpr (enum_t<type>)
 			{
@@ -112,7 +112,7 @@ namespace elastic
 
 				using value_type = typename _Archive::value_type;
 
-				ar.save(std::span{ (value_type*)&value, size });
+				ar.save((value_type*)&value, size);
 			}
 			else if constexpr (string_t<type>)
 			{
@@ -122,7 +122,7 @@ namespace elastic
 
 				serialize(ar, bytes);
 
-				ar.save(std::span{ (value_type*)value.data(), value.size() });
+				ar.save((value_type*)value.data(), bytes);
 			}
 			else if constexpr (sequence_t<type>)
 			{
@@ -145,13 +145,13 @@ namespace elastic
 			if constexpr (integer_t<_Ty>)
 			{
 				value_type c{};
-				ar.load(std::span{ (value_type*)&c, 1 });
+				ar.load((value_type*)&c, 1);
 
 				uint8_t symbol = filter_symbol(c);
 
 				auto length = filter_length(c);
 
-				ar.load(std::span{ (value_type*)&t, length });
+				ar.load((value_type*)&t, length);
 
 				symbol == 0 ? t : t = ~t + 1;
 			}
@@ -159,10 +159,9 @@ namespace elastic
 			{
 				char temp{};
 
-				ar.load(std::span{ (value_type*)&temp,1 });
+				ar.load((value_type*)&temp, 1);
 
 				t = static_cast<bool>(temp);
-
 			}
 			else if constexpr (enum_t<_Ty>)
 			{
@@ -176,7 +175,7 @@ namespace elastic
 			{
 				constexpr auto size = sizeof(_Ty);
 
-				ar.load(std::span{ (value_type*)&t, size });
+				ar.load((value_type*)&t, size);
 			}
 			else if constexpr (string_t<_Ty>)
 			{
@@ -186,7 +185,7 @@ namespace elastic
 
 				t.resize(bytes);
 
-				ar.load(std::span{ (value_type*)t.data(), bytes });
+				ar.load((value_type*)t.data(), bytes);
 			}
 			else if constexpr (sequence_t<_Ty>)
 			{
