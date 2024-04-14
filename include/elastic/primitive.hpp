@@ -84,11 +84,11 @@ namespace elastic
 			{}
 
 		public:
-			void load(value_type* address, std::size_t size)
+			void load(std::span<value_type> values)
 			{
-				std::streamsize s = static_cast<std::streamsize>(size / sizeof(value_type));
+				std::streamsize s = static_cast<std::streamsize>(values.size() / sizeof(value_type));
 
-				std::streamsize scount = this->streambuf_.load(static_cast<value_type*>(address), s);
+				std::streamsize scount = this->streambuf_.load(values);
 
 				if (scount != s)
 				{
@@ -117,7 +117,9 @@ namespace elastic
 		public:
 			void save(std::span<value_type> value)
 			{
-				if (!this->streambuf_.save(value.data(), value.size()))
+				const auto size = this->streambuf_.save(value);
+
+				if (size != value.size())
 				{
 					throw std::underflow_error("input stream error!");
 				}

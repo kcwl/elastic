@@ -144,13 +144,13 @@ namespace elastic
 			if constexpr (integer_t<_Ty>)
 			{
 				value_type c{};
-				ar.load((value_type*)&c, 1);
+				ar.load(std::span{ (value_type*)& c, 1 });
 
 				uint8_t symbol = filter_symbol(c);
 
 				auto length = filter_length(c);
 
-				ar.load((value_type*)&t, length);
+				ar.load(std::span{ (value_type*)&t, length });
 
 				symbol == 0 ? t : t = ~t + 1;
 			}
@@ -174,17 +174,17 @@ namespace elastic
 			{
 				constexpr auto size = sizeof(_Ty);
 
-				ar.load((value_type*)&t, size);
+				ar.load(std::span{ (value_type*)&t, size });
 			}
 			else if constexpr (string_t<_Ty>)
 			{
-				int bytes{};
+				std::size_t bytes{};
 
 				deserialize(ar, bytes);
 
 				t.resize(bytes);
 
-				ar.load((value_type*)t.data(), bytes);
+				ar.load(std::span{ (value_type*)t.data(), bytes });
 			}
 			else if constexpr (sequence_t<_Ty>)
 			{

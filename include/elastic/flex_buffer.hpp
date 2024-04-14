@@ -39,15 +39,12 @@ namespace elastic
 		using int_type = typename traits_type::int_type;
 
 	public:
-		flex_buffer()
-			: flex_buffer(capacity)
-		{}
-
-		flex_buffer(const std::size_t capa)
+		flex_buffer(const std::size_t capa = capacity, bool has_trans = false)
 			: buffer_(capa, 0)
 			, capacity_(capa)
 			, start_pos_(0)
 			, has_success_(true)
+			, has_trans_(has_trans)
 		{
 			reset();
 		}
@@ -142,48 +139,55 @@ namespace elastic
 
 		bool start()
 		{
-			//if (start_pos_ != 0)
-			//	return false;
+			if (!has_trans_)
+				return true;
 
-			//start_pos_ = this->gptr() - this->eback();
+			if (start_pos_ != 0)
+				return false;
+
+			start_pos_ = this->gptr() - this->eback();
 
 			return true;
 		}
 
 		void close()
 		{
+			if (!has_trans_)
+				return;
+
 			if (has_success_)
 			{
 				return;
 			}
 
-			//this->pubseekpos(start_pos_, std::ios::out);
+			this->pubseekpos(start_pos_, std::ios::out);
 
 			start_pos_ = 0;
 		}
 
-		bool save(value_type* data, const size_type sizes)
+		bool save(std::span<value_type> values)
 		{
-			if (sizes > active())
+			if (values.size() > active())
 				return false;
 
-			std::memcpy(this->pptr(), data, sizes);
+			std::memcpy(this->pptr(), values.data(), values.size());
 
-			commit(static_cast<int>(sizes));
+			//commit(static_cast<int>(values.size()));
+			this->pbump(static_cast<int>(values.size()));
 
 			return true;
 		}
 
-		size_type load(value_type* data, const size_type sizes)
+		size_type load(std::span<value_type> values)
 		{
-			if (sizes > size())
+			if (values.size() > size())
 				return 0;
 
-			std::memcpy(data, this->gptr(), sizes);
+			std::memcpy(values.data(), this->gptr(), values.size());
 
-			consume(static_cast<int>(sizes));
+			consume(static_cast<int>(values.size()));
 
-			return sizes;
+			return values.size();
 		}
 
 	protected:
@@ -315,6 +319,8 @@ namespace elastic
 		off_type start_pos_;
 
 		bool has_success_;
+
+		bool has_trans_;
 	};
 
 	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;
