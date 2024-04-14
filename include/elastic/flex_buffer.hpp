@@ -49,7 +49,7 @@ namespace elastic
 			, start_pos_(0)
 			, has_success_(true)
 		{
-			init_stream();
+			reset();
 		}
 
 		flex_buffer(const flex_buffer&) = default;
@@ -104,149 +104,30 @@ namespace elastic
 			return capacity_;
 		}
 
-		// void normalize()
-		//{
-		//	if (pptr_ == 0)
-		//		return;
-
-		//	traits_type::copy(buffer_.data(), wdata(), active());
-
-		//	pptr_ = size();
-
-		//	gptr_ = 0;
-		//}
-
-		// void ensure()
-		//{
-		//	if (active() > water_line)
-		//		return;
-
-		//	buffer_.resize(max_size() + capacity);
-
-		//	capacity_ += capacity;
-		//}
-
-		// pos_type pubseekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode)
-		//{
-		//	off_type new_off{};
-
-		//	switch (way)
-		//	{
-		//	case std::ios::beg:
-		//		{
-		//			new_off = 0;
-		//		}
-
-		//		break;
-		//	case std::ios::cur:
-		//		{
-		//			if (mode & std::ios::in)
-		//			{
-		//				new_off = pptr_;
-		//			}
-		//			else if (mode & std::ios::out)
-		//			{
-		//				new_off = gptr_;
-		//			}
-		//		}
-		//		break;
-		//	case std::ios::end:
-		//		{
-		//			new_off = buffer_.size();
-		//		}
-		//		break;
-		//	default:
-		//		break;
-		//	}
-
-		//	off += new_off;
-
-		//	off < 0 ? off = 0 : 0;
-
-		//	if (mode & std::ios::in)
-		//	{
-		//		auto cur_pos = static_cast<off_type>(buffer_.size());
-
-		//		off > cur_pos ? off = cur_pos - 1 : 0;
-
-		//		pptr_ = off;
-		//	}
-		//	else if (mode & std::ios::out)
-		//	{
-		//		off > pptr_ ? gptr_ = pptr_ : gptr_ = off;
-		//	}
-
-		//	return static_cast<pos_type>(off);
-		//}
-
-		// pos_type pubseekpos(pos_type pos, std::ios_base::openmode mode)
-		//{
-		//	if (mode & std::ios::in)
-		//	{
-		//		auto end_pos = static_cast<int>(buffer_.size());
-
-		//		pos > end_pos ? pptr_ = end_pos : 0;
-
-		//		pos < 0 ? pos = 0 : (pos_type)0;
-
-		//		pptr_ = static_cast<off_type>(pos);
-		//	}
-
-		//	if (mode & std::ios::out)
-		//	{
-		//		pos > pptr_ ? gptr_ = pptr_ : 0;
-
-		//		pos < 0 ? pos = 0 : (pos_type)0;
-
-		//		gptr_ = static_cast<off_type>(pos);
-		//	}
-
-		//	return static_cast<pos_type>(pos);
-		//}
-
-		// const size_type sputn(std::span<value_type> begin)
-		//{
-		//	const auto size = begin.size();
-
-		//	// traits_type::copy(rdata(), begin.data(), size);
-		//	std::memcpy(this->pptr(), begin.data(), size);
-
-		//	commit(size);
-
-		//	return size;
-		//}
-
-		// size_type sgetn(value_type* begin, const size_type size)
-		//{
-		//	if (size > this->size())
-		//	{
-		//		has_success_ = false;
-
-		//		return 0;
-		//	}
-
-		//	for (size_type i = 0; i < size; ++i)
-		//	{
-		//		begin[i] = *wdata();
-
-		//		consume(1);
-		//	}
-
-		//	return size;
-		//}
-
-		void append(const this_type& buffer)
+		void normalize()
 		{
-			auto size = buffer.size();
+			if (this->pptr() == this->pbase())
+				return;
 
-			auto act = active();
+			traits_type::copy(buffer_.data(), wdata(), active());
 
-			if (size > act)
-				buffer_.resize(max_size() + (size - act));
+			reset();
+		}
 
-			traits_type::copy(this->pptr(), buffer.wdata(), size);
+		void ensure()
+		{
+			if (active() > water_line)
+				return;
 
-			commit(static_cast<int>(size));
+			buffer_.resize(max_size() + capacity);
+
+			auto _pptr = this->pptr();
+
+			this->setp(&buffer_[0], _pptr, &buffer_[0] + buffer_.size());
+
+			this->setg(&buffer_[0], this->gptr(), _pptr);
+
+			capacity_ += capacity;
 		}
 
 		bool success() const
@@ -254,12 +135,17 @@ namespace elastic
 			return has_success_;
 		}
 
+		void failed()
+		{
+			has_success_ = false;
+		}
+
 		bool start()
 		{
-			// if (start_pos_ != 0)
+			//if (start_pos_ != 0)
 			//	return false;
 
-			// start_pos_ = this->pubseekoff(0, std::ios::cur, std::ios::in);
+			//start_pos_ = this->gptr() - this->eback();
 
 			return true;
 		}
@@ -271,29 +157,31 @@ namespace elastic
 				return;
 			}
 
-			// this->pubseekpos(start_pos_, std::ios::in);
+			//this->pubseekpos(start_pos_, std::ios::out);
 
 			start_pos_ = 0;
 		}
 
-		void save(value_type* data, const size_type sizes)
+		bool save(value_type* data, const size_type sizes)
 		{
 			if (sizes > active())
-				return;
+				return false;
 
 			std::memcpy(this->pptr(), data, sizes);
 
-			commit(sizes);
+			commit(static_cast<int>(sizes));
+
+			return true;
 		}
 
 		size_type load(value_type* data, const size_type sizes)
 		{
-			if (sizes > active())
+			if (sizes > size())
 				return 0;
 
 			std::memcpy(data, this->gptr(), sizes);
 
-			consume(sizes);
+			consume(static_cast<int>(sizes));
 
 			return sizes;
 		}
@@ -348,7 +236,7 @@ namespace elastic
 						{
 							if (pptr_old || !this->eback())
 							{
-								new_off = pptr_old - this->eback();
+								new_off = pptr_old - this->pbase();
 							}
 						}
 						else if ((mode & std::ios::out) && (gptr_old || !this->eback()))
@@ -410,7 +298,7 @@ namespace elastic
 		}
 
 	private:
-		void init_stream()
+		void reset()
 		{
 			if (buffer_.empty())
 				return;

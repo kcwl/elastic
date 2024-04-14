@@ -2,7 +2,6 @@
 #include "elastic/access.hpp"
 #include "elastic/binary_archive.hpp"
 #include "elastic/macro_expand.hpp"
-#include "elastic/bytes.hpp"
 
 namespace elastic
 {

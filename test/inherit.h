@@ -5,6 +5,8 @@ struct base
 {
 	int a;
 	int b;
+
+	ELASTIC_ACCESS(a, b);
 };
 
 struct deri : base
@@ -13,6 +15,22 @@ struct deri : base
 	int d;
 
 	ELASTIC_ACCESS_IF(base, c, d)
+};
+
+struct son
+{
+	int b_;
+
+	ELASTIC_ACCESS(b_);
+};
+
+struct persons
+{
+	int a_;
+	int b_;
+	son s_;
+
+	ELASTIC_ACCESS(a_, b_, s_);
 };
 
 TEST(inherit, inherits)
@@ -39,23 +57,11 @@ TEST(inherit, inherits)
 		elastic::flex_buffer_t buf;
 		elastic::binary_oarchive oa(buf);
 
-		struct son
-		{
-			int b_;
-		};
-
-		struct person
-		{
-			int a_;
-			int b_;
-			son s_;
-		};
-
-		person p_in{ 1, 2, { 3 } };
+		persons p_in{ 1, 2, { 3 } };
 
 		elastic::to_binary(p_in, buf);
 
-		person p_out{};
+		persons p_out{};
 
 		elastic::from_binary(p_out, buf);
 
@@ -65,29 +71,17 @@ TEST(inherit, inherits)
 	}
 
 	{
-		struct son
-		{
-			int b_;
-		};
-
-		struct person
-		{
-			int a_;
-			int b_;
-			son s_;
-		};
-
 		elastic::flex_buffer_t buf;
 
 		elastic::to_binary(1, buf);
 		elastic::to_binary(2, buf);
 
-		person p1{};
+		persons p1{};
 
 		elastic::from_binary(p1, buf);
 
-		EXPECT_EQ(p1.a_, 0);
-		EXPECT_EQ(p1.b_, 0);
+		EXPECT_EQ(p1.a_, 1);
+		EXPECT_EQ(p1.b_, 2);
 		EXPECT_EQ(p1.s_.b_, 0);
 	}
 }

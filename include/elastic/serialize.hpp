@@ -1,6 +1,5 @@
 #pragma once
 #include "access.hpp"
-#include "bytes.hpp"
 #include "power.hpp"
 #include "reflect.hpp"
 #include "type_traits.hpp"
@@ -51,68 +50,6 @@ namespace elastic
 			return value & pow;
 		}
 
-		// template <integer_t _Ty, typename _Archive>
-		// void deserialize(_Archive& ar, _Ty& t)
-		//{
-		//
-		// }
-
-		// template <float_point_t _Ty, typename _Archive>
-		// void deserialize(_Archive& ar, _Ty& t)
-		//{
-		//	ar.load(t);
-		// }
-
-		// template <struct_t _Ty, typename _Archive>
-		// void deserialize(_Archive& ar, _Ty& t)
-		//{
-		//	// constexpr auto N = reflect::tuple_size_v<_Ty>;
-
-		//	// using Indices = std::make_index_sequence<N>;
-
-		//	// using result_t = std::remove_cvref_t<_Ty>;
-
-		//	// auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>) mutable
-		//	//{ return result_t{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
-
-		//	// return func(ar, Indices{});
-
-		//	//reflect::visit_each(t, [&ar](auto&... values) mutable { (deserialize(ar, values), ...); });
-		//	access::template serialize(ar, t);
-		//}
-
-		// template <string_t _Ty, typename _Archive>
-		// void deserialize(_Archive& ar, _Ty& t)
-		//{
-		//	using value_type = typename _Archive::value_type;
-
-		//	std::size_t bytes{};
-
-		//	deserialize<std::size_t>(ar, bytes);
-
-		//	t.resize(bytes);
-
-		//	ar.load((value_type*)t.data(), bytes);
-		//}
-
-		// template <sequence_t _Ty, typename _Archive>
-		// void deserialize(_Archive& ar, _Ty& t)
-		//{
-		//	std::size_t bytes{};
-		//	deserialize<std::size_t>(ar, bytes);
-
-		//	while (bytes--)
-		//	{
-		//		using type = typename _Ty::value_type;
-
-		//		type value{};
-
-		//		ar >> value;
-
-		//		t.push_back(value);
-		//	}
-		//}
-
 		template <typename _Ty, typename _Archive>
 		void serialize(_Archive& ar, _Ty&& value)
 		{
@@ -126,6 +63,8 @@ namespace elastic
 
 				type result = value;
 
+				type temp = value;
+
 				if constexpr (!std::is_unsigned_v<_Ty>)
 				{
 					symbol = get_symbol(value);
@@ -133,15 +72,24 @@ namespace elastic
 					if (symbol & 1)
 					{
 						result = ~result + 1;
+
+						temp = result;
 					}
 				}
 
-				std::size_t bit = bytes(result, false);
+				std::size_t byte{};
 
-				symbol = symbol << 7 | static_cast<uint8_t>(bit);
+				while (temp > 0)
+				{
+					temp >>= 8;
+
+					byte++;
+				}
+
+				symbol = symbol << 7 | static_cast<uint8_t>(byte);
 
 				ar.save(std::span{ &symbol, 1 });
-				ar.save(std::span{ (value_type*)&result, bit });
+				ar.save(std::span{ (value_type*)&result, byte });
 			}
 			else if constexpr (boolean_t<type>)
 			{
@@ -246,9 +194,9 @@ namespace elastic
 
 				while (bytes--)
 				{
-					using value_type = typename _Ty::value_type;
+					using type = typename _Ty::value_type;
 
-					value_type value{};
+					type value{};
 
 					ar >> value;
 

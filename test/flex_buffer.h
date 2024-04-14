@@ -16,49 +16,37 @@ TEST(buffer, function)
 		EXPECT_TRUE(*buffer.rdata() == 0);
 	}
 
-	//{
-	//	elastic::flex_buffer_t buf{};
+	{
+		elastic::flex_buffer_t buf{};
 
-	//	elastic::to_binary(1, buf);
+		elastic::to_binary(1, buf);
 
-	//	int a = 0;
+		int a = 0;
 
-	//	elastic::from_binary(a, buf);
+		elastic::from_binary(a, buf);
 
-	//	EXPECT_TRUE(a == 1);
+		EXPECT_TRUE(a == 1);
 
-	//	buf.ensure();
-	//	buf.normalize();
+		buf.ensure();
+		buf.normalize();
 
-	//	EXPECT_TRUE(buf.size() == 0 && buf.active() == 4098);
-	//}
+		EXPECT_TRUE(buf.size() == 0 && buf.active() == 512);
+	}
 
-	//{
-	//	elastic::flex_buffer_t buffer{4096};
-	//	buffer.commit(4090);
+	{
+		elastic::flex_buffer_t buffer{ 4096 };
+		buffer.commit(4090);
 
-	//	buffer.ensure();
+		buffer.ensure();
 
-	//	EXPECT_TRUE(buffer.max_size() == 4096);
-	//}
+		EXPECT_TRUE(buffer.max_size() == 4096 + 512);
+	}
 
-	//{
-	//	elastic::flex_buffer_t buffer{4096};
-	//	buffer.ensure();
-	//	buffer.normalize();
-	//}
-
-	//{
-	//	elastic::flex_buffer_t buffer{4096};
-
-	//	buffer.commit(4096);
-
-	//	char a = '2';
-
-	//	EXPECT_TRUE(elastic::to_binary(a, buffer));
-
-	//	EXPECT_TRUE(buffer.max_size() == 4098);
-	//}
+	{
+		elastic::flex_buffer_t buffer{ 4096 };
+		buffer.ensure();
+		buffer.normalize();
+	}
 
 	{
 		elastic::flex_buffer_t buffer;
@@ -75,9 +63,11 @@ TEST(buffer, function)
 
 		buffer.commit(10);
 
-		buffer.pubseekoff(5, std::ios::beg, std::ios::in);
+		EXPECT_TRUE(buffer.pubseekoff(5, std::ios::beg, std::ios::in) == 5);
 
-		EXPECT_TRUE(buffer.size() == 5);
+		EXPECT_TRUE(buffer.pubseekoff(-1, std::ios::cur, std::ios::in) == 9);
+
+		EXPECT_TRUE(buffer.pubseekoff(1, 3, std::ios::in) == -1);
 
 		buffer.pubseekoff(3, std::ios::beg, std::ios::out);
 
@@ -89,8 +79,18 @@ TEST(buffer, function)
 	}
 
 	{
-		elastic::flex_buffer_t buffer{0};
+		elastic::flex_buffer_t buffer{3};
+
+		EXPECT_TRUE(buffer.pubseekpos(5, std::ios::in) == -1);
+
+		EXPECT_TRUE(buffer.pubseekpos(2, std::ios::in) = 2);
+	}
+
+	{
+		elastic::flex_buffer_t buffer{ 0 };
 		int a = 0;
+
+		EXPECT_FALSE(elastic::to_binary(1, buffer));
 
 		elastic::from_binary(a, buffer);
 
@@ -100,20 +100,34 @@ TEST(buffer, function)
 	{
 		elastic::flex_buffer_t buffer{};
 
-		elastic::to_binary(1, buffer);
+		uint8_t a = 12;
 
-		elastic::flex_buffer_t buf{};
+		buffer.sputn((uint8_t*)&a, 1);
 
-		elastic::to_binary(2, buf);
+		uint8_t b = 0;
 
-		buffer.append(std::move(buf));
+		buffer.sgetn((uint8_t*)&b, 1);
 
-		int a = 0;
-		int b = 0;
+		EXPECT_TRUE(b == a);
+	}
 
-		elastic::from_binary(a, buffer);
-		elastic::from_binary(b, buffer);
+	{
+		elastic::flex_buffer_t buffer{ 0 };
 
-		EXPECT_TRUE(a == 1 && b == 2);
+		uint8_t a{ 1 };
+
+		buffer.sgetn(&a, 1);
+
+		EXPECT_TRUE(a == 1);
+	}
+
+	{
+		elastic::flex_buffer_t buffer{};
+
+		auto gptr = buffer.wdata();
+
+		buffer.consume(-1);
+
+		EXPECT_TRUE(gptr == buffer.wdata());
 	}
 }

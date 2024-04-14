@@ -56,6 +56,11 @@ namespace elastic
 				streambuf_.close();
 			}
 
+			void failed()
+			{
+				streambuf_.failed();
+			}
+
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
 		};
@@ -87,7 +92,7 @@ namespace elastic
 
 				if (scount != s)
 				{
-					throw std::underflow_error("input stream error!");
+					throw std::underflow_error("output stream error!");
 				}
 			}
 		};
@@ -112,7 +117,10 @@ namespace elastic
 		public:
 			void save(std::span<value_type> value)
 			{
-				this->streambuf_.save(value.data(), value.size());
+				if (!this->streambuf_.save(value.data(), value.size()))
+				{
+					throw std::underflow_error("input stream error!");
+				}
 			}
 		};
 	} // namespace detail

@@ -25,7 +25,11 @@ namespace elastic
 				binary::deserialize(*this, std::forward<_Ty>(t));
 			}
 			catch (...)
-			{}
+			{
+				this->failed();
+
+				t = {};
+			}
 
 			return *this;
 		}
@@ -57,7 +61,10 @@ namespace elastic
 			{
 				binary::template serialize(*this, std::forward<_Ty>(t));
 			}
-			catch (...){}
+			catch (...)
+			{
+				this->failed();
+			}
 
 			return *this;
 		}
