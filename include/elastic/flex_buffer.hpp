@@ -81,6 +81,8 @@ namespace elastic
 		{
 			bytes = static_cast<int>((std::min<std::size_t>)(bytes, epptr_ - pptr_));
 			pptr_ += bytes;
+			pcount_ -= bytes;
+			gcount_ += bytes;
 		}
 
 		void consume(int bytes)
@@ -109,9 +111,14 @@ namespace elastic
 			if (pptr_ == pbase_)
 				return;
 
-			traits_type::copy(buffer_.data(), wdata(), active());
+			const auto sz = gptr_ - eback_;
+
+			traits_type::copy(buffer_.data(), wdata(), sz);
 
 			reset();
+
+			pcount_ += sz;
+			gcount_ -= sz;
 		}
 
 		void ensure()
@@ -124,6 +131,8 @@ namespace elastic
 			epptr_ = &buffer_[0] + buffer_.size();
 
 			capacity_ += capacity;
+			
+			pcount_ += capacity;
 		}
 
 		bool success() const
