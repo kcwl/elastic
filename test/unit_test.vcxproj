@@ -155,7 +155,6 @@
     <ClInclude Include="..\include\elastic\binary_archive.hpp" />
     <ClInclude Include="..\include\elastic\serialize.hpp" />
     <ClInclude Include="..\include\elastic\type_traits.hpp" />
-    <ClInclude Include="..\include\elastic\reflect.hpp" />
     <ClInclude Include="flex_buffer.h" />
     <ClInclude Include="type.h" />
     <ClInclude Include="inherit.h" />

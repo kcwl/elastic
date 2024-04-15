@@ -44,9 +44,6 @@
     <ClInclude Include="..\include\elastic\primitive.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\reflect.hpp">
-      <Filter>elastic\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\serialize.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
