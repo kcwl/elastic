@@ -3,7 +3,7 @@
 #include <ios>
 #include <iterator>
 #include <span>
-#include <streambuf>
+#include <utility>
 #include <vector>
 
 namespace elastic
@@ -19,12 +19,11 @@ namespace elastic
 
 		using this_type = flex_buffer<elem_type, traits_type, allocator_type>;
 
-		constexpr static std::size_t capacity = 4096;
+		constexpr static std::size_t capacity = 512;
 
 		constexpr static std::size_t water_line = 32;
 
 	public:
-		
 		using iterator = typename std::vector<elem_type, allocator_type>::iterator;
 		using const_iterator = typename std::vector<elem_type, allocator_type>::const_iterator;
 		using value_type = typename std::vector<elem_type, allocator_type>::value_type;
@@ -39,180 +38,62 @@ namespace elastic
 		using int_type = typename traits_type::int_type;
 
 	public:
-		flex_buffer()
-			: flex_buffer(capacity)
-		{}
-
-		flex_buffer(size_type number)
-			: buffer_(number)
-			, pptr_(0)
-			, gptr_(0)
-		{}
-
-		template <typename _Iter>
-		flex_buffer(_Iter begin, _Iter end)
-			: flex_buffer()
+		flex_buffer(const std::size_t capa = capacity, bool has_trans = false)
+			: buffer_(capa, 0)
+			, pbase_(nullptr)
+			, pptr_(nullptr)
+			, epptr_(nullptr)
+			, eback_(nullptr)
+			, gptr_(nullptr)
+			, pcount_(capa)
+			, gcount_(0)
+			, egptr_(pptr_)
+			, capacity_(capa)
+			, start_pos_(0)
+			, has_success_(true)
+			, has_trans_(has_trans)
 		{
-			buffer_.clear();
-
-			std::copy(begin, end, std::back_inserter(buffer_));
-
-			commit(static_cast<int>(buffer_.size()));
+			reset();
 		}
 
-		template <typename _Ty, std::size_t N, typename = std::is_convertible<_Ty, _Elem>>
-		flex_buffer(std::span<_Ty, N> data)
-			: flex_buffer(data.begin(), data.end())
-		{
-			static_assert(N <= capacity, "maybe input is too large!");
-		}
+		flex_buffer(const flex_buffer&) = default;
+		flex_buffer& operator=(const flex_buffer&) = default;
 
-		flex_buffer(flex_buffer&& other)
-			: buffer_(other.buffer_)
-			, pptr_(other.pptr_)
-			, gptr_(other.gptr_)
-		{
-			flex_buffer{}.swap(other);
-		}
-
-		flex_buffer(const void* buffer, size_type sz)
-			: flex_buffer()
-		{
-			auto active_sz = active();
-
-			sz > active_sz ? sz = active_sz : 0;
-
-			traits_type::copy(rdata(), (elem_type*)buffer, sz);
-
-			commit(static_cast<int>(sz));
-		}
-
-		flex_buffer(const flex_buffer&) = delete;
-		flex_buffer& operator=(const flex_buffer&) = delete;
-
-		flex_buffer& operator=(flex_buffer&& other)
-		{
-			flex_buffer{ std::move(other) }.swap(*this);
-
-			return *this;
-		}
-
-		bool operator==(const flex_buffer& other) const
-		{
-			return buffer_ == other.buffer_ && pptr_ == other.pptr_ && gptr_ == other.gptr_;
-		}
+		virtual ~flex_buffer() = default;
 
 	public:
-		size_type active() noexcept
+		const size_type active() const noexcept
 		{
-			return buffer_.size() - pptr_;
-		}
-
-		size_type active() const noexcept
-		{
-			return buffer_.size() - pptr_;
-		}
-
-		pointer data() noexcept
-		{
-			return buffer_.data();
-		}
-
-		const_pointer data() const noexcept
-		{
-			return buffer_.data();
-		}
-
-		pointer wdata() noexcept
-		{
-			return data() + gptr_;
+			return pcount_;
 		}
 
 		const_pointer wdata() const noexcept
 		{
-			return data() + gptr_;
-		}
-
-		pointer rdata() noexcept
-		{
-			return data() + pptr_;
+			return gptr_;
 		}
 
 		const_pointer rdata() const noexcept
 		{
-			return data() + pptr_;
+			return pptr_;
 		}
 
-		void commit(off_type bytes)
+		void commit(int bytes)
 		{
-			bytes = static_cast<off_type>(std::min<std::size_t>(bytes, buffer_.size() - pptr_));
-
+			bytes = static_cast<int>((std::min<std::size_t>)(bytes, epptr_ - pptr_));
 			pptr_ += bytes;
-
-			pptr_ < 0 ? pptr_ = 0 : 0;
+			pcount_ -= bytes;
+			gcount_ += bytes;
 		}
 
-		void consume(off_type bytes)
+		void consume(int bytes)
 		{
-			bytes = std::min<off_type>(bytes, pptr_ - gptr_);
+			if (gptr_ + bytes > pptr_)
+				bytes = static_cast<int>(pptr_ - gptr_);
+
+			if (gptr_ + bytes < eback_)
+				bytes = static_cast<int>(eback_ - gptr_);
 
 			gptr_ += bytes;
-
-			gptr_ < 0 ? gptr_ = 0 : 0;
-		}
-
-		constexpr iterator begin() noexcept
-		{
-			return buffer_.begin();
-		}
-
-		constexpr const_iterator begin() const noexcept
-		{
-			return buffer_.begin();
-		}
-
-		constexpr iterator end() noexcept
-		{
-			return begin() + size();
-		}
-
-		constexpr const_iterator end() const noexcept
-		{
-			return begin() + size();
-		}
-
-		void clear() noexcept
-		{
-			buffer_.clear();
-
-			pptr_ = 0;
-
-			gptr_ = 0;
-		}
-
-		void resize(size_type bytes)
-		{
-			off_type pos = static_cast<off_type>(bytes - 1);
-
-			pptr_ > pos ? pptr_ = pos : 0;
-
-			gptr_ > pos ? gptr_ = pos : 0;
-
-			buffer_.resize(bytes);
-		}
-
-		void swap(flex_buffer& other)
-		{
-			buffer_.swap(other.buffer_);
-
-			std::swap(pptr_, other.pptr_);
-
-			std::swap(gptr_ , other.gptr_);
-		}
-
-		size_type size() noexcept
-		{
-			return pptr_ - gptr_;
 		}
 
 		size_type size() const noexcept
@@ -220,18 +101,24 @@ namespace elastic
 			return pptr_ - gptr_;
 		}
 
+		size_type max_size() const
+		{
+			return capacity_;
+		}
+
 		void normalize()
 		{
-			if (pptr_ == 0)
+			if (pptr_ == pbase_)
 				return;
 
-			std::size_t seg = size();
+			const auto sz = gptr_ - eback_;
 
-			std::memmove(buffer_.data(), wdata(), seg);
+			traits_type::copy(buffer_.data(), wdata(), sz);
 
-			pptr_ = seg;
+			reset();
 
-			gptr_ = 0;
+			pcount_ += sz;
+			gcount_ -= sz;
 		}
 
 		void ensure()
@@ -240,158 +127,124 @@ namespace elastic
 				return;
 
 			buffer_.resize(max_size() + capacity);
+
+			epptr_ = &buffer_[0] + buffer_.size();
+
+			capacity_ += capacity;
+			
+			pcount_ += capacity;
 		}
 
-		size_type max_size()
+		bool success() const
 		{
-			return buffer_.size();
+			return has_success_;
 		}
 
-		size_type max_size() const
+		void failed()
 		{
-			return buffer_.size();
+			has_success_ = false;
 		}
 
-		pos_type pubseekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode mode)
+		bool start()
 		{
-			off_type new_off{};
+			if (!has_trans_)
+				return true;
 
-			switch (way)
+			if (start_pos_ != 0)
+				return false;
+
+			start_pos_ = gptr_ - eback_;
+
+			return true;
+		}
+
+		void close()
+		{
+			if (!has_trans_)
+				return;
+
+			if (has_success_)
 			{
-			case std::ios::beg:
-				{
-					new_off = 0;
-				}
-
-				break;
-			case std::ios::cur:
-				{
-					if (mode & std::ios::in)
-					{
-						new_off = pptr_;
-					}
-					else if (mode & std::ios::out)
-					{
-						new_off = gptr_;
-					}
-				}
-				break;
-			case std::ios::end:
-				{
-					new_off = buffer_.size();
-				}
-				break;
-			default:
-				break;
+				return;
 			}
 
-			off += new_off;
+			// this->pubseekpos(start_pos_, std::ios::out);
 
-			off < 0 ? off = 0 : 0;
-
-			if (mode & std::ios::in)
-			{
-				auto cur_pos = static_cast<off_type>(buffer_.size());
-
-				off > cur_pos ? off = cur_pos - 1 : 0;
-
-				pptr_ = off;
-			}
-			else if (mode & std::ios::out)
-			{
-				off > pptr_ ? gptr_ = pptr_ : gptr_ = off;
-			}
-
-			return static_cast<pos_type>(off);
+			start_pos_ = 0;
 		}
 
-		pos_type pubseekpos(pos_type pos, std::ios_base::openmode mode)
+		std::size_t save(const value_type* data, const std::size_t size)
 		{
-			if (mode & std::ios::in)
-			{
-				auto end_pos = static_cast<int>(buffer_.size());
+			auto sz = pcount_;
 
-				pos > end_pos ? pptr_ = end_pos : 0;
+			if (sz > size)
+				sz = size;
 
-				pos < 0 ? pos = 0 : (pos_type)0;
+			traits_type::copy(pptr_, data, sz);
 
-				pptr_ = static_cast<off_type>(pos);
-			}
+			pptr_ += sz;
+			pcount_ -= sz;
+			gcount_ += sz;
 
-			if (mode & std::ios::out)
-			{
-				pos > pptr_ ? gptr_ = pptr_ : 0;
-
-				pos < 0 ?  pos = 0 : (pos_type)0;
-
-				gptr_ = static_cast<off_type>(pos);
-			}
-
-			return static_cast<pos_type>(pos);
+			return sz;
 		}
 
-		size_type sputn(const value_type* begin, size_type size)
+		size_type load(value_type* data, const std::size_t size)
 		{
-			if (size > active())
-				return 0;
+			auto sz = gcount_;
 
-			for (size_type i = 0; i < size; ++i)
-			{
-				*rdata() = begin[i];
+			if (sz > size)
+				sz = size;
 
-				commit(1);
-			}
+			traits_type::copy(data, gptr_, sz);
 
-			return size;
+			gptr_ += sz;
+			gcount_ -= sz;
+
+			return sz;
 		}
 
-		size_type sputc(const value_type& c)
+	private:
+		void reset()
 		{
-			return sputn(&c, 1);
-		}
+			if (buffer_.empty())
+				return;
 
-		size_type sgetn(value_type* begin, size_type size)
-		{
-			if (size > this->size())
-				return 0;
+			pbase_ = &buffer_[0];
+			pptr_ = &buffer_[0];
+			epptr_ = &buffer_[0] + buffer_.size();
 
-			for (size_type i = 0; i < size; ++i)
-			{
-				begin[i] = *wdata();
-
-				consume(1);
-			}
-
-			return size;
-		}
-
-		size_type sgetc(value_type* c)
-		{
-			return sgetn(c, 1);
-		}
-
-		void append(this_type&& buffer)
-		{
-			auto size = buffer.size();
-
-			auto act = active();
-
-			if (size > act)
-				resize(max_size() + (size - act));
-
-			std::memcpy(rdata(), buffer.wdata(), size);
-
-			commit(size);
-
-			this_type{ 0 }.swap(buffer);
+			eback_ = &buffer_[0];
+			gptr_ = &buffer_[0];
+			egptr_ = &buffer_[0];
 		}
 
 	private:
 		std::vector<value_type, allocator_type> buffer_;
 
-		off_type pptr_;
+		value_type* pbase_;
 
-		off_type gptr_;
+		value_type* pptr_;
+
+		value_type* epptr_;
+
+		value_type* eback_;
+
+		value_type* gptr_;
+
+		value_type* egptr_;
+
+		std::size_t pcount_;
+
+		std::size_t gcount_;
+
+		std::size_t capacity_;
+
+		off_type start_pos_;
+
+		bool has_success_;
+
+		bool has_trans_;
 	};
 
 	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;

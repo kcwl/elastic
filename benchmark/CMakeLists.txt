@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.2)
+
 project(benchmark)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -13,13 +15,16 @@ message("elastic include: ${ELASTIC_INCLUDE}")
 
 include_directories(${ELASTIC_INCLUDE})
 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/yalantinglibs/include")
+
 set(SRC_LIST 
 benchmark.cpp
-data.pb.cc
+#data.pb.cc
 )
-
 
 add_executable(benchmark ${SRC_LIST})
 
-target_link_libraries(benchmark libprotobuf)
+target_link_libraries(benchmark PUBLIC "libbenchmark.a")
+
+target_link_directories(benchmark PUBLIC "/usr/local/lib64")
 

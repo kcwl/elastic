@@ -1,165 +1,231 @@
 #pragma once
 #include "access.hpp"
-#include "reflect.hpp"
+#include "power.hpp"
 #include "type_traits.hpp"
-#include "zig_zag.hpp"
 #include <vector>
 
 namespace elastic
 {
+	namespace binary
+	{
+		template <typename _Archive, typename _Ty>
+		bool serialize(_Archive& ar, _Ty&& t);
+
+		template <typename _Archive, typename _Ty>
+		bool deserialize(_Archive& ar, _Ty& t);
+	} // namespace binary
+
 	namespace detail
 	{
-		template <integer_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		template <integer_t _Ty>
+		constexpr uint8_t get_symbol(const _Ty t)
 		{
-			using zig_t = zig_zag_t<_Ty>;
-			zig_t t{};
+			constexpr auto bit = sizeof(_Ty) * 8 - 1;
 
-			using value_type = typename _Archive::value_type;
+			constexpr auto pow = power<2, bit>::value;
 
-			value_type c{};
-
-			ar.load(c);
-
-			t = c;
-
-			if (t >= 0x80)
-			{
-				t -= 0x80;
-
-				int32_t temp_bit = zig_zag_bit;
-
-				while (ar.load(c), (c & 0x80) != 0)
-				{
-					t += static_cast<zig_t>(c) << temp_bit;
-					t -= static_cast<zig_t>(0x80u) << temp_bit;
-
-					temp_bit += zig_zag_bit;
-				}
-
-				t += static_cast<zig_t>(c) << temp_bit;
-			}
-
-			return zigzag_decode<_Ty>(t);
+			return static_cast<uint8_t>((t & pow) >> bit);
 		}
 
-		template <float_point_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		template <integer_t _Ty>
+		constexpr auto get_data(const _Ty t)
 		{
-			_Ty t{};
+			constexpr auto pow = power<2, sizeof(_Ty) * 8 - 1>::value - 1;
 
-			ar.load(t);
-
-			return t;
+			return static_cast<_Ty>(t & pow);
 		}
 
-		template <pod_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		inline uint8_t filter_symbol(const uint8_t value)
 		{
-			constexpr auto N = reflect::tuple_size_v<_Ty>;
+			constexpr auto bit = sizeof(uint8_t) * 8 - 1;
 
-			using Indices = std::make_index_sequence<N>;
+			constexpr auto pow = power<2, bit>::value;
 
-			auto func = []<std::size_t... I>(_Archive& ar, std::index_sequence<I...>) mutable
-			{ return _Ty{ deserialize<reflect::elemet_t<_Ty, I>>(ar)... }; };
-
-			return std::move(func(ar, Indices{}));
+			return static_cast<uint8_t>((value & pow) >> bit);
 		}
 
-		template <sequence_t _Ty, typename _Archive>
-		_Ty deserialize(_Archive& ar)
+		inline uint8_t filter_length(const uint8_t value)
 		{
-			_Ty t{};
+			constexpr auto pow = power<2, 0>::value + power<2, 1>::value + power<2, 2>::value + power<2, 3>::value;
 
-			using value_type = typename _Archive::value_type;
-
-			std::size_t bytes = deserialize<std::size_t>(ar);
-
-			std::size_t count = bytes;
-
-			while (count--)
-			{
-				using type = typename _Ty::value_type;
-
-				if constexpr (!class_t<type>)
-				{
-					t.resize(bytes);
-
-					ar.load((value_type*)(t.data() + bytes - count - 1), sizeof(type));
-				}
-				else
-				{
-					type value{};
-					ar >> value;
-
-					t.push_back(value);
-				}
-			}
-
-			return t;
+			return value & pow;
 		}
 
-		template <integer_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
-		{
-			using type = typename _Archive::value_type;
-
-			auto result = zigzag_encode<_Ty>(std::forward<_Ty>(value));
-
-			while (result >= 0x80)
-			{
-				ar.save(static_cast<type>(result | 0x80));
-				result >>= zig_zag_bit;
-			}
-
-			ar.save(static_cast<type>(result));
-		}
-
-		template <float_point_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
-		{
-			ar.save(value);
-		}
-
-		template <pod_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
-		{
-			reflect::for_each(std::forward<_Ty>(value), [&](auto&& v) { serialize(ar, v); });
-		}
-
-		template <sequence_t _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		template <typename _Ty, typename _Archive>
+		inline bool serialize(_Archive& ar, _Ty&& value)
 		{
 			using type = std::remove_cvref_t<_Ty>;
 
-			using value_type = typename type::value_type;
+			using value_type = typename _Archive::value_type;
 
-			auto bytes = value.size();
-
-			serialize(ar, bytes);
-
-			for (auto& mem : value)
+			if constexpr (integer_t<type>)
 			{
-				if constexpr (!class_t<value_type>)
+				uint8_t symbol = 0;
+
+				type result = value;
+
+				type temp = value;
+
+				if constexpr (!std::is_unsigned_v<_Ty>)
 				{
-					ar.save(mem);
+					symbol = get_symbol(value);
+
+					if (symbol & 1)
+					{
+						result = ~result + 1;
+
+						temp = result;
+					}
 				}
-				else
+
+				std::size_t byte{};
+
+				while (temp > 0)
 				{
-					ar << mem;
+					temp >>= 8;
+
+					byte++;
+				}
+
+				symbol = symbol << 7 | static_cast<uint8_t>(byte);
+
+				if (!ar.save(&symbol, 1))
+					return false;
+
+				if (!ar.save((value_type*)&result, byte))
+					return false;
+			}
+			else if constexpr (boolean_t<type>)
+			{
+				char result = static_cast<char>(std::forward<_Ty>(value));
+
+				if (!ar.save((value_type*)&result, 1))
+					return false;
+			}
+			else if constexpr (enum_t<type>)
+			{
+				uint64_t result = static_cast<uint64_t>(std::forward<_Ty>(value));
+
+				serialize(ar, result);
+			}
+			else if constexpr (float_point_t<type>)
+			{
+				constexpr auto size = sizeof(_Ty);
+
+				using value_type = typename _Archive::value_type;
+
+				if (!ar.save((value_type*)&value, size))
+					return false;
+			}
+			else if constexpr (string_t<type>)
+			{
+				using value_type = typename _Archive::value_type;
+
+				auto bytes = value.size();
+
+				serialize(ar, bytes);
+
+				if (!ar.save((value_type*)value.data(), bytes))
+					return false;
+			}
+			else if constexpr (sequence_t<type>)
+			{
+				const auto bytes = value.size();
+
+				serialize(ar, bytes);
+
+				for (auto& mem : value)
+				{
+					binary::serialize(ar, mem);
 				}
 			}
+
+			return true;
+		}
+
+		template <typename _Ty, typename _Archive>
+		inline bool deserialize(_Archive& ar, _Ty& t)
+		{
+			using value_type = typename _Archive::value_type;
+
+			if constexpr (integer_t<_Ty>)
+			{
+				value_type c{};
+				if (!ar.load((value_type*)&c, 1))
+					return false;
+
+				uint8_t symbol = filter_symbol(c);
+
+				auto length = filter_length(c);
+
+				if (!ar.load((value_type*)&t, length))
+					return false;
+
+				symbol == 0 ? t : t = ~t + 1;
+			}
+			else if constexpr (boolean_t<_Ty>)
+			{
+				char temp{};
+
+				if (!ar.load((value_type*)&temp, 1))
+					return false;
+
+				t = static_cast<bool>(temp);
+			}
+			else if constexpr (enum_t<_Ty>)
+			{
+				uint64_t temp{};
+
+				deserialize(ar, temp);
+
+				t = static_cast<_Ty>(temp);
+			}
+			else if constexpr (float_point_t<_Ty>)
+			{
+				constexpr auto size = sizeof(_Ty);
+
+				if (!ar.load((value_type*)&t, size))
+					return false;
+			}
+			else if constexpr (string_t<_Ty>)
+			{
+				std::size_t bytes{};
+
+				deserialize(ar, bytes);
+
+				t.resize(bytes);
+
+				if (!ar.load((value_type*)t.data(), bytes))
+					return false;
+			}
+			else if constexpr (sequence_t<_Ty>)
+			{
+				int bytes{};
+
+				deserialize(ar, bytes);
+
+				while (bytes--)
+				{
+					t.push_back({});
+
+					auto& back = t.back();
+
+					binary::deserialize(ar, back);
+				}
+			}
+
+			return true;
 		}
 	} // namespace detail
 
 	namespace binary
 	{
 		template <typename _Archive, typename _Ty>
-		inline void deserialize(_Archive& ar, _Ty& t)
+		inline bool deserialize(_Archive& ar, _Ty& t)
 		{
 			if constexpr (non_inherit_t<_Ty>)
 			{
-				t = detail::template deserialize<_Ty>(ar);
+				return detail::template deserialize<_Ty>(ar, t);
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{
@@ -167,17 +233,17 @@ namespace elastic
 			else
 			{
 				access::template serialize(ar, t);
+
+				return true;
 			}
 		}
 
 		template <typename _Archive, typename _Ty>
-		inline void serialize(_Archive& ar, _Ty&& t)
+		inline bool serialize(_Archive& ar, _Ty&& t)
 		{
-			using type = std::remove_reference_t<_Ty>;
-
-			if constexpr (non_inherit_t<type>)
+			if constexpr (non_inherit_t<_Ty>)
 			{
-				detail::template serialize(ar, std::forward<_Ty>(t));
+				return detail::template serialize(ar, std::forward<_Ty>(t));
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{
@@ -185,6 +251,8 @@ namespace elastic
 			else
 			{
 				access::template serialize(ar, std::forward<_Ty>(t));
+
+				return true;
 			}
 		}
 	} // namespace binary

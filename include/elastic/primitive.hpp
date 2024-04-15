@@ -17,23 +17,23 @@ namespace elastic
 
 			using traits_t = _Traits;
 
-		private:
+		protected:
 			class primitive_guard
 			{
 			public:
-				primitive_guard(basic_primitive<value_type, traits_t>& primitive)
+				primitive_guard(basic_primitive<value_type, traits_t>* primitive)
 					: primitive_(primitive)
 				{
-					primitive_.start();
+					primitive_->start();
 				}
 
 				~primitive_guard()
 				{
-					primitive_.close();
+					primitive_->close();
 				}
 
 			private:
-				basic_primitive<value_type, traits_t>& primitive_;
+				basic_primitive<value_type, traits_t>* primitive_;
 			};
 
 			friend class primitive_guard;
@@ -41,87 +41,28 @@ namespace elastic
 		public:
 			explicit basic_primitive(flex_buffer<value_type, traits_t>& bs)
 				: streambuf_(bs)
-				, start_pos_(0)
-				, my_state_()
-				, need_rollback_(false)
 			{}
 
+			virtual ~basic_primitive() = default;
+
 		public:
-			template <typename _Func, typename... _Args>
-			bool transcation(_Func&& f, _Args&&... Args)
+			void start()
 			{
-				primitive_guard lk(*this);
-
-				try
-				{
-					std::forward<_Func>(f)(std::forward<_Args>(Args)...);
-				}
-				catch (...)
-				{
-					need_rollback_ = true;
-				}
-
-				return !need_rollback_;
-			}
-
-			bool good()
-			{
-				return my_state_ & std::ios::goodbit;
-			}
-
-			bool fail()
-			{
-				return my_state_ & std::ios::failbit;
-			}
-
-		private:
-			void complete()
-			{
-				my_state_ |= std::ios::goodbit;
-			}
-
-			void failed()
-			{
-				my_state_ &= ~std::ios::goodbit;
-
-				my_state_ |= std::ios::failbit;
-			}
-
-			bool start()
-			{
-				if (start_pos_ != 0)
-					return false;
-
-				start_pos_ = static_cast<int32_t>(this->streambuf_.pubseekoff(0, std::ios::cur, std::ios::in));
-
-				return true;
+				streambuf_.start();
 			}
 
 			void close()
 			{
-				if (!need_rollback_)
-				{
-					this->complete();
+				streambuf_.close();
+			}
 
-					return;
-				}
-
-				this->streambuf_.pubseekpos(start_pos_, std::ios::in);
-
-				start_pos_ = 0;
-
-				this->failed();
+			void failed()
+			{
+				streambuf_.failed();
 			}
 
 		protected:
 			flex_buffer<_Elem, _Traits>& streambuf_;
-
-		private:
-			int32_t start_pos_;
-
-			std::ios::iostate my_state_;
-
-			bool need_rollback_;
 		};
 
 		template <typename _Archive, typename _Elem, typename _Traits = std::char_traits<_Elem>>
@@ -139,32 +80,17 @@ namespace elastic
 				: detail::basic_primitive<value_type, traits_t>(bs)
 			{}
 
-			~binary_iprimitive()
+			virtual ~binary_iprimitive()
 			{}
 
 		public:
-			template <pod_and_integer_t _Ty>
-			void load(_Ty& t)
+			bool load(value_type* data, const std::size_t size)
 			{
-				constexpr auto array_size = sizeof(_Ty);
+				std::streamsize s = static_cast<std::streamsize>(size / sizeof(value_type));
 
-				value_type buffer[array_size] = { 0 };
+				std::streamsize scount = this->streambuf_.load(data, size);
 
-				this->load(&buffer[0], array_size);
-
-				t = *reinterpret_cast<_Ty*>(buffer);
-			}
-
-			void load(value_type* address, std::size_t size)
-			{
-				std::streamsize s = static_cast<std::streamsize>(size / sizeof(_Elem));
-
-				std::streamsize scount = this->streambuf_.sgetn(static_cast<_Elem*>(address), s);
-
-				if (scount != s)
-				{
-					throw std::underflow_error("input stream error!");
-				}
+				return scount == s;
 			}
 		};
 
@@ -183,27 +109,14 @@ namespace elastic
 				: detail::basic_primitive<value_type, traits_t>(bs)
 			{}
 
-			~binary_oprimitive() = default;
+			virtual ~binary_oprimitive() = default;
 
 		public:
-			template <pod_and_integer_t _Ty>
-			void save(_Ty&& t)
+			bool save(const value_type* data, const std::size_t size)
 			{
-				constexpr auto array_size = sizeof(_Ty);
+				const auto result = this->streambuf_.save(data, size);
 
-				auto* elastic_fixed_ptr = reinterpret_cast<value_type*>(&t);
-
-				this->save(elastic_fixed_ptr, array_size);
-			}
-
-			void save(value_type* begin, std::size_t size)
-			{
-				auto res = this->streambuf_.sputn(begin, size);
-
-				if (res == 0)
-				{
-					throw std::overflow_error("output stream error!");
-				}
+				return result == size;
 			}
 		};
 	} // namespace detail

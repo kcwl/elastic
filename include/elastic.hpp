@@ -2,7 +2,6 @@
 #include "elastic/access.hpp"
 #include "elastic/binary_archive.hpp"
 #include "elastic/macro_expand.hpp"
-#include "elastic/size.hpp"
 
 namespace elastic
 {
@@ -13,7 +12,7 @@ namespace elastic
 
 		oa << std::forward<_Ty>(t);
 
-		return !oa.fail();
+		return buffer.success();
 	}
 
 	template <typename _Ty, typename _Elem, typename _Traits = std::char_traits<_Elem>>
@@ -23,13 +22,7 @@ namespace elastic
 
 		ia >> t;
 
-		return !ia.fail();
-	}
-
-	template<typename _Ty>
-	std::size_t size(const _Ty& t)
-	{
-		return element_size(t);
+		return buffer.success();
 	}
 } // namespace elastic
 

@@ -41,13 +41,7 @@
     <ClInclude Include="..\include\elastic\flex_buffer.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\interface.hpp">
-      <Filter>elastic\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\primitive.hpp">
-      <Filter>elastic\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\elastic\reflect.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\elastic\serialize.hpp">
@@ -65,13 +59,10 @@
     <ClInclude Include="flex_buffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\size.hpp">
-      <Filter>elastic\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\elastic\macro_expand.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\elastic\zig_zag.hpp">
+    <ClInclude Include="..\include\elastic\power.hpp">
       <Filter>elastic\include</Filter>
     </ClInclude>
   </ItemGroup>

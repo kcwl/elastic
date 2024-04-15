@@ -1,52 +1,68 @@
 #pragma once
-#include "interface.hpp"
 #include "primitive.hpp"
 #include "serialize.hpp"
 
 namespace elastic
 {
-	class binary_iarchive : public detail::binary_iprimitive<binary_iarchive, uint8_t>,
-							public detail::interface_iarchive<binary_iarchive>
+	class binary_iarchive : public detail::binary_iprimitive<binary_iarchive, uint8_t>
 	{
-		friend class interface_iarchive<binary_iarchive>;
-
 	public:
 		template <typename _StreamBuffer>
 		explicit binary_iarchive(_StreamBuffer& bs)
 			: binary_iprimitive<binary_iarchive, uint8_t, std::char_traits<uint8_t>>(bs)
 		{}
 
-	private:
-		template <typename _Ty>
-		bool load_override(_Ty& t)
-		{
-			bool result = this->transcation([&] { binary::template deserialize(*this, t); });
+		virtual ~binary_iarchive() = default;
 
-			if (!result)
+	public:
+		template <typename _Ty>
+		binary_iarchive& operator>>(_Ty&& t)
+		{
+			primitive_guard lk(this);
+
+			if (!binary::deserialize(*this, std::forward<_Ty>(t)))
 			{
-				t = _Ty{};
+				this->failed();
 			}
 
-			return result;
+			return *this;
+		}
+
+		template <typename _Ty>
+		binary_iarchive& operator&(_Ty&& t)
+		{
+			return operator>>(std::forward<_Ty>(t));
 		}
 	};
 
-	class binary_oarchive : public detail::binary_oprimitive<binary_oarchive, uint8_t>,
-							public detail::interface_oarchive<binary_oarchive>
+	class binary_oarchive : public detail::binary_oprimitive<binary_oarchive, uint8_t>
 	{
-		friend class interface_oarchive<binary_oarchive>;
-
 	public:
 		template <typename _StreamBuffer>
 		explicit binary_oarchive(_StreamBuffer& bsb)
 			: binary_oprimitive<binary_oarchive, uint8_t, std::char_traits<uint8_t>>(bsb)
 		{}
 
-	private:
+		virtual ~binary_oarchive() = default;
+
+	public:
 		template <typename _Ty>
-		void save_override(_Ty&& t)
+		binary_oarchive& operator<<(_Ty&& t)
 		{
-			this->transcation([&] { binary::template serialize(*this, t); });
+			primitive_guard lk(this);
+
+			if (!binary::template serialize(*this, std::forward<_Ty>(t)))
+			{
+				this->failed();
+			}
+				
+			return *this;
+		}
+
+		template <typename _Ty>
+		binary_oarchive& operator&(_Ty&& t)
+		{
+			return operator<<(std::forward<_Ty>(t));
 		}
 	};
 } // namespace elastic

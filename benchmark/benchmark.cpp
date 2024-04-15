@@ -1,79 +1,104 @@
 ﻿// benchmark.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
-#include "elastic_parse.hpp"
-#include "proto_data_base.hpp"
-
+#include "benchmark/benchmark.h"
+#include "elastic.hpp"
+#include <chrono>
 #include <iostream>
 
-//template <parse_type Value>
-//void serialize(elc& e, protobuf& p)
-//{
-//	std::cout << "=====================================================\n";
-//
-//	e.serialize<Value>();
-//	p.seriliaze<Value>();
-//
-//	std::cout << "=====================================================\n\n";
-//}
-//
-//template <parse_type Value>
-//void deserialize(elc& e, protobuf& p)
-//{
-//	std::cout << "=====================================================\n";
-//
-//	e.deserialize<Value>();
-//	p.deseriliaze<Value>();
-//
-//	std::cout << "=====================================================\n\n";
-//}
+using namespace std::chrono_literals;
 
-int main()
+struct person_body_request
 {
-	std::cout << "benchmark : elastic and protobuf\n\n\n";
+	bool sex;
+	std::vector<uint8_t> role_data;
+	double mana;
+	float hp;
+	int32_t age;
+	int64_t money;
+	std::string name;
+	uint32_t back_money;
+	uint64_t crc;
 
-	proto_base protobuf{};
+	void swap(person_body_request& other)
+	{
+		std::swap(sex, other.sex);
+		std::swap(role_data, other.role_data);
+		std::swap(mana, other.mana);
+		std::swap(hp, other.hp);
+		std::swap(age, other.age);
+		std::swap(money, other.money);
+		std::swap(name, other.name);
+		std::swap(back_money, other.back_money);
+		std::swap(crc, other.crc);
+	}
 
-	elastic_base elas{};
+private:
+	friend class elastic::access;
 
+	template <typename _Archive>
+	void serialize(_Archive& ar)
+	{
+		ar & sex;
+		ar & role_data;
+		ar & mana;
+		ar & hp;
+		ar & age;
+		ar & money;
+		ar & name;
+		ar & back_money;
+		ar & crc;
+	}
+};
 
-	std::cout << "=====================================================\n";
-	protobuf.serialize();
-	elas.serialize();
-	std::cout << "=====================================================\n\n";
+static void elastic_serialize(benchmark::State& state)
+{
+	person_body_request req{};
+	req.sex = true;
+	req.role_data.push_back('a');
+	req.mana = 12.2;
+	req.hp = 100.1f;
+	req.age = 1;
+	req.money = -2;
+	req.name = "hello";
+	req.back_money = 10000000;
+	req.crc = 2;
+	// int req = -15;
 
-	std::cout << "=====================================================\n";
-	protobuf.deserialize();
-	elas.deserialize();
-	std::cout << "=====================================================\n\n";
+	elastic::flex_buffer_t buffer{};
 
-	//elc els{};
-
-	//protobuf proto{};
-
-	//serialize<parse_type::vec3>(els, proto);
-	//serialize<parse_type::weapon>(els, proto);
-	//serialize<parse_type::monster>(els, proto);
-	//serialize<parse_type::monsters>(els, proto);
-	//serialize<parse_type::rect32>(els, proto);
-	//serialize<parse_type::rect32s>(els, proto);
-	//serialize<parse_type::person>(els, proto);
-	//serialize<parse_type::persons>(els, proto);
-
-	//// std::cout << "\n\n\n\n";
-
-	//deserialize<parse_type::vec3>(els, proto);
-	//deserialize<parse_type::weapon>(els, proto);
-	//deserialize<parse_type::monster>(els, proto);
-	//deserialize<parse_type::monsters>(els, proto);
-	//deserialize<parse_type::rect32>(els, proto);
-	//deserialize<parse_type::rect32s>(els, proto);
-	//deserialize<parse_type::person>(els, proto);
-	//deserialize<parse_type::persons>(els, proto);
-
-	std::cout << "those are the benchmark results\n";
-
-	std::cin.get();
+	for (auto _ : state)
+	{
+		elastic::to_binary(req, buffer);
+	}
 }
+
+BENCHMARK(elastic_serialize);
+
+static void elastic_deserialize(benchmark::State& state)
+{
+	person_body_request req{};
+	req.sex = false;
+	req.role_data.push_back('a');
+	req.mana = 12.2;
+	req.hp = 100.1f;
+	req.age = 1;
+	req.money = -2;
+	req.name = "hello";
+	req.back_money = 10000000;
+	req.crc = 2;
+
+	elastic::flex_buffer_t buffer{};
+	elastic::to_binary(req, buffer);
+
+	person_body_request req1{};
+
+	for (auto _ : state)
+		elastic::from_binary(req1, buffer);
+}
+
+BENCHMARK(elastic_deserialize);
+
+BENCHMARK_MAIN();
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
