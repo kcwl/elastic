@@ -84,16 +84,13 @@ namespace elastic
 			{}
 
 		public:
-			void load(value_type* data, const std::size_t size)
+			bool load(value_type* data, const std::size_t size)
 			{
 				std::streamsize s = static_cast<std::streamsize>(size / sizeof(value_type));
 
 				std::streamsize scount = this->streambuf_.load(data, size);
 
-				if (scount != s)
-				{
-					throw std::underflow_error("output stream error!");
-				}
+				return scount == s;
 			}
 		};
 
@@ -115,14 +112,11 @@ namespace elastic
 			virtual ~binary_oprimitive() = default;
 
 		public:
-			void save(const value_type* data, const std::size_t size)
+			bool save(const value_type* data, const std::size_t size)
 			{
 				const auto result = this->streambuf_.save(data, size);
 
-				if (result != size)
-				{
-					throw std::overflow_error("input stream error!");
-				}
+				return result == size;
 			}
 		};
 	} // namespace detail

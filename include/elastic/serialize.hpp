@@ -11,10 +11,10 @@ namespace elastic
 	namespace binary
 	{
 		template <typename _Archive, typename _Ty>
-		void serialize(_Archive& ar, _Ty&& t);
+		bool serialize(_Archive& ar, _Ty&& t);
 
 		template <typename _Archive, typename _Ty>
-		void deserialize(_Archive& ar, _Ty& t);
+		bool deserialize(_Archive& ar, _Ty& t);
 	} // namespace binary
 
 	namespace detail
@@ -54,7 +54,7 @@ namespace elastic
 		}
 
 		template <typename _Ty, typename _Archive>
-		void serialize(_Archive& ar, _Ty&& value)
+		inline bool serialize(_Archive& ar, _Ty&& value)
 		{
 			using type = std::remove_cvref_t<_Ty>;
 
@@ -91,14 +91,18 @@ namespace elastic
 
 				symbol = symbol << 7 | static_cast<uint8_t>(byte);
 
-				ar.save(&symbol, 1);
-				ar.save((value_type*)&result, byte);
+				if (!ar.save(&symbol, 1))
+					return false;
+
+				if (!ar.save((value_type*)&result, byte))
+					return false;
 			}
 			else if constexpr (boolean_t<type>)
 			{
 				char result = static_cast<char>(std::forward<_Ty>(value));
 
-				ar.save((value_type*)&result, 1);
+				if (!ar.save((value_type*)&result, 1))
+					return false;
 			}
 			else if constexpr (enum_t<type>)
 			{
@@ -112,7 +116,8 @@ namespace elastic
 
 				using value_type = typename _Archive::value_type;
 
-				ar.save((value_type*)&value, size);
+				if (!ar.save((value_type*)&value, size))
+					return false;
 			}
 			else if constexpr (string_t<type>)
 			{
@@ -122,7 +127,8 @@ namespace elastic
 
 				serialize(ar, bytes);
 
-				ar.save((value_type*)value.data(), bytes);
+				if (!ar.save((value_type*)value.data(), bytes))
+					return false;
 			}
 			else if constexpr (sequence_t<type>)
 			{
@@ -135,23 +141,27 @@ namespace elastic
 					binary::serialize(ar, mem);
 				}
 			}
+
+			return true;
 		}
 
 		template <typename _Ty, typename _Archive>
-		void deserialize(_Archive& ar, _Ty& t)
+		inline bool deserialize(_Archive& ar, _Ty& t)
 		{
 			using value_type = typename _Archive::value_type;
 
 			if constexpr (integer_t<_Ty>)
 			{
 				value_type c{};
-				ar.load((value_type*)&c, 1);
+				if (!ar.load((value_type*)&c, 1))
+					return false;
 
 				uint8_t symbol = filter_symbol(c);
 
 				auto length = filter_length(c);
 
-				ar.load((value_type*)&t, length);
+				if (!ar.load((value_type*)&t, length))
+					return false;
 
 				symbol == 0 ? t : t = ~t + 1;
 			}
@@ -159,7 +169,8 @@ namespace elastic
 			{
 				char temp{};
 
-				ar.load((value_type*)&temp, 1);
+				if (!ar.load((value_type*)&temp, 1))
+					return false;
 
 				t = static_cast<bool>(temp);
 			}
@@ -175,7 +186,8 @@ namespace elastic
 			{
 				constexpr auto size = sizeof(_Ty);
 
-				ar.load((value_type*)&t, size);
+				if (!ar.load((value_type*)&t, size))
+					return false;
 			}
 			else if constexpr (string_t<_Ty>)
 			{
@@ -185,7 +197,8 @@ namespace elastic
 
 				t.resize(bytes);
 
-				ar.load((value_type*)t.data(), bytes);
+				if (!ar.load((value_type*)t.data(), bytes))
+					return false;
 			}
 			else if constexpr (sequence_t<_Ty>)
 			{
@@ -202,17 +215,19 @@ namespace elastic
 					binary::deserialize(ar, back);
 				}
 			}
+
+			return true;
 		}
 	} // namespace detail
 
 	namespace binary
 	{
 		template <typename _Archive, typename _Ty>
-		inline void deserialize(_Archive& ar, _Ty& t)
+		inline bool deserialize(_Archive& ar, _Ty& t)
 		{
 			if constexpr (non_inherit_t<_Ty>)
 			{
-				detail::template deserialize<_Ty>(ar, t);
+				return detail::template deserialize<_Ty>(ar, t);
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{
@@ -220,15 +235,17 @@ namespace elastic
 			else
 			{
 				access::template serialize(ar, t);
+
+				return true;
 			}
 		}
 
 		template <typename _Archive, typename _Ty>
-		inline void serialize(_Archive& ar, _Ty&& t)
+		inline bool serialize(_Archive& ar, _Ty&& t)
 		{
 			if constexpr (non_inherit_t<_Ty>)
 			{
-				detail::template serialize(ar, std::forward<_Ty>(t));
+				return detail::template serialize(ar, std::forward<_Ty>(t));
 			}
 			else if constexpr (std::is_pointer_v<_Ty>)
 			{
@@ -236,6 +253,8 @@ namespace elastic
 			else
 			{
 				access::template serialize(ar, std::forward<_Ty>(t));
+
+				return true;
 			}
 		}
 	} // namespace binary

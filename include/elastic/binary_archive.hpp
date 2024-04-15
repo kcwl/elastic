@@ -20,15 +20,9 @@ namespace elastic
 		{
 			primitive_guard lk(this);
 
-			try
-			{
-				binary::deserialize(*this, std::forward<_Ty>(t));
-			}
-			catch (...)
+			if (!binary::deserialize(*this, std::forward<_Ty>(t)))
 			{
 				this->failed();
-
-				t = {};
 			}
 
 			return *this;
@@ -57,15 +51,11 @@ namespace elastic
 		{
 			primitive_guard lk(this);
 
-			try
-			{
-				binary::template serialize(*this, std::forward<_Ty>(t));
-			}
-			catch (...)
+			if (!binary::template serialize(*this, std::forward<_Ty>(t)))
 			{
 				this->failed();
 			}
-
+				
 			return *this;
 		}
 
