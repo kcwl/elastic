@@ -49,22 +49,7 @@ namespace elastic
 		template <typename _Key, typename _Value>
 		struct map_like<std::map<_Key, _Value>> : std::true_type
 		{};
-
-		template<typename _Ty>
-		struct to_integer
-		{
-			using type = _Ty;
-		};
-
-		template<enum_t _Ty>
-		struct to_integer<_Ty>
-		{
-			using type = int64_t;
-		};
 	} // namespace detail
-
-	template<typename _Ty>
-	using to_integer_t = detail::to_integer<_Ty>::type;
 
 	template<typename _Ty>
 	concept boolean_t = std::is_same_v<_Ty, bool>;
