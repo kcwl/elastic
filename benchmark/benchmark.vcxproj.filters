@@ -18,34 +18,5 @@
     <ClCompile Include="benchmark.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="data.pb.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\test_proto.els.cpp">
-      <Filter>头文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="data.pb.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="data.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="scope_timer.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="config.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="proto_data_base.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\test_proto.els.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="elastic_parse.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

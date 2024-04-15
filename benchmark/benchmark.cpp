@@ -1,9 +1,11 @@
 ﻿// benchmark.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 #include "benchmark/benchmark.h"
-#include <iostream>
 #include "elastic.hpp"
-#include "ylt/struct_pack.hpp"
+#include <chrono>
+#include <iostream>
+
+using namespace std::chrono_literals;
 
 struct person_body_request
 {
@@ -36,15 +38,15 @@ private:
 	template <typename _Archive>
 	void serialize(_Archive& ar)
 	{
-		ar& sex;
-		ar& role_data;
-		ar& mana;
-		ar& hp;
-		ar& age;
-		ar& money;
-		ar& name;
-		ar& back_money;
-		ar& crc;
+		ar & sex;
+		ar & role_data;
+		ar & mana;
+		ar & hp;
+		ar & age;
+		ar & money;
+		ar & name;
+		ar & back_money;
+		ar & crc;
 	}
 };
 
@@ -60,11 +62,14 @@ static void elastic_serialize(benchmark::State& state)
 	req.name = "hello";
 	req.back_money = 10000000;
 	req.crc = 2;
+	// int req = -15;
 
 	elastic::flex_buffer_t buffer{};
 
 	for (auto _ : state)
+	{
 		elastic::to_binary(req, buffer);
+	}
 }
 
 BENCHMARK(elastic_serialize);
@@ -72,7 +77,7 @@ BENCHMARK(elastic_serialize);
 static void elastic_deserialize(benchmark::State& state)
 {
 	person_body_request req{};
-	req.sex = true;
+	req.sex = false;
 	req.role_data.push_back('a');
 	req.mana = 12.2;
 	req.hp = 100.1f;
@@ -92,48 +97,6 @@ static void elastic_deserialize(benchmark::State& state)
 }
 
 BENCHMARK(elastic_deserialize);
-
-static void ylt_serialize(benchmark::State& state)
-{
-	person_body_request req{};
-	req.sex = true;
-	req.role_data.push_back('a');
-	req.mana = 12.2;
-	req.hp = 100.1f;
-	req.age = 1;
-	req.money = -2;
-	req.name = "hello";
-	req.back_money = 10000000;
-	req.crc = 2;
-
-	std::vector<char> buffer{};
-
-	for (auto _ : state)
-		buffer = struct_pack::serialize(req);
-}
-
-BENCHMARK(ylt_serialize);
-
-static void ylt_deserialize(benchmark::State& state)
-{
-	person_body_request req{};
-	req.sex = true;
-	req.role_data.push_back('a');
-	req.mana = 12.2;
-	req.hp = 100.1f;
-	req.age = 1;
-	req.money = -2;
-	req.name = "hello";
-	req.back_money = 10000000;
-	req.crc = 2;
-
-	auto buffer = struct_pack::serialize(req);
-
-	for (auto _ : state)
-		auto v = struct_pack::deserialize<person_body_request>(buffer);
-}
-
-BENCHMARK(ylt_deserialize);
 
 BENCHMARK_MAIN();
 
