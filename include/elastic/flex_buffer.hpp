@@ -67,9 +67,19 @@ namespace elastic
 			return pcount_;
 		}
 
-		pointer wdata() const noexcept
+		const_pointer wdata() const noexcept
 		{
 			return gptr_;
+		}
+
+		pointer wdata() noexcept
+		{
+			return gptr_;
+		}
+
+		const_pointer rdata() const noexcept
+		{
+			return pptr_;
 		}
 
 		pointer rdata() noexcept
