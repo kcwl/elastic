@@ -67,7 +67,7 @@ namespace elastic
 			return pcount_;
 		}
 
-		pointer wdata() noexcept
+		pointer wdata() const noexcept
 		{
 			return gptr_;
 		}
