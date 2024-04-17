@@ -131,7 +131,7 @@ namespace elastic
 			epptr_ = &buffer_[0] + buffer_.size();
 
 			capacity_ += capacity;
-			
+
 			pcount_ += capacity;
 		}
 
@@ -202,6 +202,49 @@ namespace elastic
 			gcount_ -= sz;
 
 			return sz;
+		}
+
+		void swap(this_type& other)
+		{
+			buffer_.swap(other.buffer_);
+			std::swap(pbase_, other.pbase_);
+			std::swap(pptr_, other.pptr_);
+			std::swap(epptr_, other.epptr_);
+			std::swap(eback_, other.eback_);
+			std::swap(gptr_, other.gptr_);
+			std::swap(egptr_, other.egptr_);
+			std::swap(pcount_, other.pcount_);
+			std::swap(gcount_, other.gcount_);
+			std::swap(capacity_, other.capacity_);
+			std::swap(start_pos_, other.start_pos_);
+			std::swap(has_success_, other.has_success_);
+			std::swap(has_trans_, other.has_trans_);
+		}
+
+		void append(const this_type& stream)
+		{
+			auto sz = stream.size();
+
+			const auto act = active();
+
+			if (sz > act)
+			{
+				sz -= act;
+				buffer_.resize(capacity_ += sz);
+
+				pcount_ = 0;
+				gcount_ = capacity_;
+
+			}
+			else
+			{
+				pcount_ -= sz;
+				gcount_ += sz;
+			}
+
+			std::memcpy(pptr_, stream.wdata(), stream.size());
+
+			pptr_ += sz;
 		}
 
 	private:
