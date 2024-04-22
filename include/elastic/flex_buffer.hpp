@@ -62,7 +62,7 @@ namespace elastic
 		flex_buffer(const flex_buffer&) = default;
 		flex_buffer& operator=(const flex_buffer&) = default;
 
-		flex_buffer(flex_buffer&&) = default;
+		flex_buffer& operator=(flex_buffer&&) = default;
 
 		virtual ~flex_buffer() = default;
 
