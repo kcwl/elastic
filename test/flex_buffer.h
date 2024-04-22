@@ -152,4 +152,31 @@ TEST(buffer, function)
 
 		EXPECT_FALSE(elastic::from_binary(d, buffer));
 	}
+
+	{
+		elastic::flex_buffer_t buffer{};
+		int a = 2;
+
+		elastic::to_binary(a, buffer);
+
+		elastic::flex_buffer_t buf{};
+		buf.swap(buffer);
+
+		int b = 3;
+		elastic::to_binary(b, buffer);
+
+		buf.append(buffer);
+
+		EXPECT_TRUE(buf.active() == 512 - 4);
+		EXPECT_TRUE(buf.size() == 4);
+		
+		int c{};
+		int d{};
+
+		elastic::from_binary(c, buf);
+		elastic::from_binary(d, buf);
+
+		EXPECT_TRUE(c == a);
+		EXPECT_TRUE(d == b);
+	}
 }
