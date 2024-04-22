@@ -86,11 +86,7 @@ namespace elastic
 		public:
 			bool load(value_type* data, const std::size_t size)
 			{
-				std::streamsize s = static_cast<std::streamsize>(size / sizeof(value_type));
-
-				std::streamsize scount = this->streambuf_.load(data, size);
-
-				return scount == s;
+				return this->streambuf_.load(data, size);
 			}
 		};
 
@@ -114,9 +110,7 @@ namespace elastic
 		public:
 			bool save(const value_type* data, const std::size_t size)
 			{
-				const auto result = this->streambuf_.save(data, size);
-
-				return result == size;
+				return this->streambuf_.save(data, size);
 			}
 		};
 	} // namespace detail

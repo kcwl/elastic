@@ -19,9 +19,10 @@ namespace elastic
 
 		using this_type = flex_buffer<elem_type, traits_type, allocator_type>;
 
-		constexpr static std::size_t capacity = 512;
-
 		constexpr static std::size_t water_line = 32;
+
+	public:
+		constexpr static std::size_t capacity = 512;
 
 	public:
 		using iterator = typename std::vector<elem_type, allocator_type>::iterator;
@@ -33,31 +34,35 @@ namespace elastic
 		using pointer = typename std::vector<elem_type, allocator_type>::pointer;
 		using const_pointer = typename std::vector<elem_type, allocator_type>::const_pointer;
 
-		using off_type = typename traits_type::off_type;
+		using seekdir = std::ios::seekdir;
+		using openmode = std::ios::openmode;
+
 		using pos_type = typename traits_type::pos_type;
-		using int_type = typename traits_type::int_type;
+		using off_type = typename traits_type::off_type;
 
 	public:
-		flex_buffer(const std::size_t capa = capacity, bool has_trans = false)
+		flex_buffer(const std::size_t capa = capacity)
 			: buffer_(capa, 0)
-			, pbase_(nullptr)
-			, pptr_(nullptr)
-			, epptr_(nullptr)
-			, eback_(nullptr)
-			, gptr_(nullptr)
+			, pptr_(0)
+			, gptr_(0)
 			, pcount_(capa)
-			, gcount_(0)
-			, egptr_(pptr_)
-			, capacity_(capa)
-			, start_pos_(0)
+			, start_(0)
 			, has_success_(true)
-			, has_trans_(has_trans)
-		{
-			reset();
-		}
+		{}
+
+		flex_buffer(flex_buffer&& other)
+			: buffer_(std::move(other.buffer_))
+			, pptr_(std::exchange(other.pptr_, 0))
+			, gptr_(std::exchange(other.gptr_, 0))
+			, pcount_(std::exchange(other.pcount_, 0))
+			, start_(std::exchange(other.start_, 0))
+			, has_success_(std::exchange(other.has_success_, true))
+		{}
 
 		flex_buffer(const flex_buffer&) = default;
 		flex_buffer& operator=(const flex_buffer&) = default;
+
+		flex_buffer& operator=(flex_buffer&&) = default;
 
 		virtual ~flex_buffer() = default;
 
@@ -67,42 +72,34 @@ namespace elastic
 			return pcount_;
 		}
 
-		const_pointer wdata() const noexcept
+		pointer wdata()
 		{
-			return gptr_;
+			return buffer_.data() + gptr_;
 		}
 
-		pointer wdata() noexcept
+		const_pointer wdata() const noexcept
 		{
-			return gptr_;
+			return buffer_.data() + gptr_;
+		}
+
+		pointer rdata()
+		{
+			return buffer_.data() + pptr_;
 		}
 
 		const_pointer rdata() const noexcept
 		{
-			return pptr_;
+			return buffer_.data() + pptr_;
 		}
 
-		pointer rdata() noexcept
+		void commit(off_type bytes)
 		{
-			return pptr_;
-		}
-
-		void commit(int bytes)
-		{
-			bytes = static_cast<int>((std::min<std::size_t>)(bytes, epptr_ - pptr_));
 			pptr_ += bytes;
 			pcount_ -= bytes;
-			gcount_ += bytes;
 		}
 
-		void consume(int bytes)
+		void consume(off_type bytes)
 		{
-			if (gptr_ + bytes > pptr_)
-				bytes = static_cast<int>(pptr_ - gptr_);
-
-			if (gptr_ + bytes < eback_)
-				bytes = static_cast<int>(eback_ - gptr_);
-
 			gptr_ += bytes;
 		}
 
@@ -111,24 +108,16 @@ namespace elastic
 			return pptr_ - gptr_;
 		}
 
-		size_type max_size() const
-		{
-			return capacity_;
-		}
-
 		void normalize()
 		{
-			if (pptr_ == pbase_)
+			if (pptr_ == 0)
 				return;
 
-			const auto sz = gptr_ - eback_;
+			traits_type::copy(buffer_.data(), wdata(), size());
 
-			traits_type::copy(buffer_.data(), wdata(), sz);
-
-			reset();
-
-			pcount_ += sz;
-			gcount_ -= sz;
+			pptr_ -= gptr_;
+			pcount_ += gptr_;
+			gptr_ = 0;
 		}
 
 		void ensure()
@@ -136,18 +125,142 @@ namespace elastic
 			if (active() > water_line)
 				return;
 
-			buffer_.resize(max_size() + capacity);
-
-			epptr_ = &buffer_[0] + buffer_.size();
-
-			capacity_ += capacity;
+			buffer_.resize(buffer_.size() + capacity);
 
 			pcount_ += capacity;
 		}
 
-		bool success() const
+		bool save(const value_type* data, const size_type size)
 		{
-			return has_success_;
+			if (pcount_ < static_cast<off_type>(size))
+			{
+				size_type new_capacity = capacity;
+
+				new_capacity < size ? new_capacity = size : 0;
+
+				buffer_.resize(new_capacity + buffer_.size());
+
+				pcount_ += new_capacity;
+			}
+
+			traits_type::copy(rdata(), data, size);
+
+			commit(size);
+
+			return true;
+		}
+
+		bool load(value_type* data, const size_type new_size)
+		{
+			if (size() < new_size)
+				return false;
+
+			traits_type::copy(data, wdata(), new_size);
+
+			consume(new_size);
+
+			return true;
+		}
+
+		pos_type pubseekoff(off_type off, seekdir dir, openmode mode)
+		{
+			pos_type new_off{};
+
+			switch (dir)
+			{
+			case std::ios::beg:
+				{
+					new_off = 0;
+				}
+				break;
+			case std::ios::cur:
+				{
+					if (mode == std::ios::in)
+					{
+						new_off = pptr_;
+					}
+					else if (mode == std::ios::out)
+					{
+						new_off = gptr_;
+					}
+				}
+				break;
+			case std::ios::end:
+				{
+					new_off = static_cast<pos_type>(buffer_.size());
+				}
+				break;
+			default:
+				return -1;
+			}
+
+			off += static_cast<off_type>(new_off);
+
+			if (off > static_cast<off_type>(buffer_.size()) && mode == std::ios::in)
+				return -1;
+
+			if (off > pptr_ && mode == std::ios::out)
+				return -1;
+
+			if (mode == std::ios::in)
+			{
+				pptr_ = off;
+			}
+
+			if (mode == std::ios::out)
+			{
+				gptr_ = static_cast<pos_type>(off);
+			}
+
+			return off;
+		}
+
+		pos_type pubseekpos(pos_type pos, openmode mode)
+		{
+			switch (mode)
+			{
+			case std::ios::in:
+				{
+					if (pos > static_cast<pos_type>(buffer_.size()))
+						pos = static_cast<pos_type>(buffer_.size() - 1);
+
+					pptr_ = pos;
+				}
+				break;
+			case std::ios::out:
+				{
+					if (pos > pptr_)
+						return -1;
+
+					gptr_ = pos;
+				}
+				break;
+			default:
+				pos = -1;
+				break;
+			}
+
+			return pos;
+		}
+
+		bool start()
+		{
+			if (start_ != 0)
+				return false;
+
+			start_ = pubseekoff(0, std::ios::cur, std::ios::out);
+
+			return true;
+		}
+
+		void close()
+		{
+			if (has_success_)
+				return;
+
+			pubseekpos(start_, std::ios::out);
+
+			start_ = 0;
 		}
 
 		void failed()
@@ -155,149 +268,23 @@ namespace elastic
 			has_success_ = false;
 		}
 
-		bool start()
+		bool success() const
 		{
-			if (!has_trans_)
-				return true;
-
-			if (start_pos_ != 0)
-				return false;
-
-			start_pos_ = gptr_ - eback_;
-
-			return true;
-		}
-
-		void close()
-		{
-			if (!has_trans_)
-				return;
-
-			if (has_success_)
-			{
-				return;
-			}
-
-			// this->pubseekpos(start_pos_, std::ios::out);
-
-			start_pos_ = 0;
-		}
-
-		std::size_t save(const value_type* data, const std::size_t size)
-		{
-			auto sz = pcount_;
-
-			if (sz > size)
-				sz = size;
-
-			traits_type::copy(pptr_, data, sz);
-
-			pptr_ += sz;
-			pcount_ -= sz;
-			gcount_ += sz;
-
-			return sz;
-		}
-
-		size_type load(value_type* data, const std::size_t size)
-		{
-			auto sz = gcount_;
-
-			if (sz > size)
-				sz = size;
-
-			traits_type::copy(data, gptr_, sz);
-
-			gptr_ += sz;
-			gcount_ -= sz;
-
-			return sz;
-		}
-
-		void swap(this_type& other)
-		{
-			buffer_.swap(other.buffer_);
-			std::swap(pbase_, other.pbase_);
-			std::swap(pptr_, other.pptr_);
-			std::swap(epptr_, other.epptr_);
-			std::swap(eback_, other.eback_);
-			std::swap(gptr_, other.gptr_);
-			std::swap(egptr_, other.egptr_);
-			std::swap(pcount_, other.pcount_);
-			std::swap(gcount_, other.gcount_);
-			std::swap(capacity_, other.capacity_);
-			std::swap(start_pos_, other.start_pos_);
-			std::swap(has_success_, other.has_success_);
-			std::swap(has_trans_, other.has_trans_);
-		}
-
-		void append(const this_type& stream)
-		{
-			auto sz = stream.size();
-
-			const auto act = active();
-
-			if (sz > act)
-			{
-				sz -= act;
-				buffer_.resize(capacity_ += sz);
-
-				pcount_ = 0;
-				gcount_ = capacity_;
-
-			}
-			else
-			{
-				pcount_ -= sz;
-				gcount_ += sz;
-			}
-
-			std::memcpy(pptr_, stream.wdata(), stream.size());
-
-			pptr_ += sz;
-		}
-
-	private:
-		void reset()
-		{
-			if (buffer_.empty())
-				return;
-
-			pbase_ = &buffer_[0];
-			pptr_ = &buffer_[0];
-			epptr_ = &buffer_[0] + buffer_.size();
-
-			eback_ = &buffer_[0];
-			gptr_ = &buffer_[0];
-			egptr_ = &buffer_[0];
+			return has_success_;
 		}
 
 	private:
 		std::vector<value_type, allocator_type> buffer_;
 
-		value_type* pbase_;
+		pos_type pptr_;
 
-		value_type* pptr_;
+		pos_type gptr_;
 
-		value_type* epptr_;
+		off_type pcount_;
 
-		value_type* eback_;
-
-		value_type* gptr_;
-
-		value_type* egptr_;
-
-		std::size_t pcount_;
-
-		std::size_t gcount_;
-
-		std::size_t capacity_;
-
-		off_type start_pos_;
+		pos_type start_;
 
 		bool has_success_;
-
-		bool has_trans_;
 	};
 
 	using flex_buffer_t = flex_buffer<uint8_t, std::char_traits<uint8_t>>;
