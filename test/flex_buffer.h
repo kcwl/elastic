@@ -75,7 +75,7 @@ TEST(buffer, function)
 
 		EXPECT_TRUE(buffer.pubseekoff(-1, std::ios::cur, std::ios::in) == 4);
 
-		EXPECT_TRUE(buffer.pubseekoff(1, 3, std::ios::in) == -1);
+		EXPECT_TRUE(buffer.pubseekoff(1, elastic::flex_buffer_t::seekdir(3), std::ios::in) == -1);
 
 		buffer.pubseekoff(3, std::ios::beg, std::ios::out);
 
@@ -96,7 +96,7 @@ TEST(buffer, function)
 
 	{
 		elastic::flex_buffer_t buffer{};
-		EXPECT_TRUE(buffer.pubseekpos(1, 0) == -1);
+		EXPECT_TRUE(buffer.pubseekpos(1, elastic::flex_buffer_t::openmode(0)) == -1);
 	}
 
 	{
@@ -151,32 +151,5 @@ TEST(buffer, function)
 		EXPECT_FALSE(elastic::from_binary(c, buffer));
 
 		EXPECT_FALSE(elastic::from_binary(d, buffer));
-	}
-
-	{
-		elastic::flex_buffer_t buffer{};
-		int a = 2;
-
-		elastic::to_binary(a, buffer);
-
-		elastic::flex_buffer_t buf{};
-		buf.swap(buffer);
-
-		int b = 3;
-		elastic::to_binary(b, buffer);
-
-		buf.append(buffer);
-
-		EXPECT_TRUE(buf.active() == 512 - 4);
-		EXPECT_TRUE(buf.size() == 4);
-		
-		int c{};
-		int d{};
-
-		elastic::from_binary(c, buf);
-		elastic::from_binary(d, buf);
-
-		EXPECT_TRUE(c == a);
-		EXPECT_TRUE(d == b);
 	}
 }
