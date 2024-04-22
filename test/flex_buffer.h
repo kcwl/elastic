@@ -2,6 +2,12 @@
 #include <elastic.hpp>
 #include <fstream>
 
+enum class color
+{
+	red,
+	yellow
+};
+
 TEST(buffer, function)
 {
 	{
@@ -35,17 +41,15 @@ TEST(buffer, function)
 
 	{
 		elastic::flex_buffer_t buffer{ 4096 };
-		buffer.commit(4090);
-
 		buffer.ensure();
-
-		EXPECT_TRUE(buffer.max_size() == 4096 + 512);
+		buffer.normalize();
 	}
 
 	{
-		elastic::flex_buffer_t buffer{ 4096 };
+		elastic::flex_buffer_t buffer{ 10 };
 		buffer.ensure();
-		buffer.normalize();
+
+		EXPECT_TRUE(buffer.active() == 10 + elastic::flex_buffer_t::capacity);
 	}
 
 	{
@@ -58,76 +62,94 @@ TEST(buffer, function)
 		EXPECT_TRUE(buffer.size() == 2);
 	}
 
-	//{
-	//	elastic::flex_buffer_t buffer;
+	{
+		elastic::flex_buffer_t buffer{ 0 };
 
-	//	buffer.commit(10);
+		EXPECT_TRUE(elastic::to_binary(2, buffer));
+	}
 
-	//	EXPECT_TRUE(buffer.pubseekoff(5, std::ios::beg, std::ios::in) == 5);
+	{
+		elastic::flex_buffer_t buffer;
 
-	//	EXPECT_TRUE(buffer.pubseekoff(-1, std::ios::cur, std::ios::in) == 9);
+		EXPECT_TRUE(buffer.pubseekoff(5, std::ios::beg, std::ios::in) == 5);
 
-	//	EXPECT_TRUE(buffer.pubseekoff(1, 3, std::ios::in) == -1);
+		EXPECT_TRUE(buffer.pubseekoff(-1, std::ios::cur, std::ios::in) == 4);
 
-	//	buffer.pubseekoff(3, std::ios::beg, std::ios::out);
+		EXPECT_TRUE(buffer.pubseekoff(1, 3, std::ios::in) == -1);
 
-	//	buffer.pubseekoff(1, std::ios::cur, std::ios::out);
+		buffer.pubseekoff(3, std::ios::beg, std::ios::out);
 
-	//	EXPECT_TRUE(buffer.size() == 6);
+		buffer.pubseekoff(1, std::ios::cur, std::ios::out);
 
-	//	EXPECT_TRUE(buffer.pubseekoff(1, std::ios::end, std::ios::in) == -1);
-	//}
+		EXPECT_TRUE(buffer.size() == 0);
 
-	//{
-	//	elastic::flex_buffer_t buffer{3};
+		EXPECT_TRUE(buffer.pubseekoff(1, std::ios::end, std::ios::in) == -1);
+	}
 
-	//	EXPECT_TRUE(buffer.pubseekpos(5, std::ios::in) == -1);
+	{
+		elastic::flex_buffer_t buffer{ 3 };
 
-	//	EXPECT_TRUE(buffer.pubseekpos(2, std::ios::in) = 2);
-	//}
+		EXPECT_TRUE(buffer.pubseekpos(5, std::ios::in) == 2);
+
+		EXPECT_TRUE(buffer.pubseekpos(2, std::ios::in) = 2);
+	}
+
+	{
+		elastic::flex_buffer_t buffer{};
+		EXPECT_TRUE(buffer.pubseekpos(1, 0) == -1);
+	}
 
 	{
 		elastic::flex_buffer_t buffer{ 0 };
-		int a = 0;
 
-		EXPECT_FALSE(elastic::to_binary(1, buffer));
-
-		elastic::from_binary(a, buffer);
-
-		EXPECT_TRUE(!buffer.success());
+		EXPECT_TRUE(buffer.pubseekoff(1, std::ios::cur, std::ios::out) == -1);
 	}
-
-	//{
-	//	elastic::flex_buffer_t buffer{};
-
-	//	uint8_t a = 12;
-
-	//	buffer.sputn((uint8_t*)&a, 1);
-
-	//	uint8_t b = 0;
-
-	//	buffer.sgetn((uint8_t*)&b, 1);
-
-	//	EXPECT_TRUE(b == a);
-	//}
-
-	//{
-	//	elastic::flex_buffer_t buffer{ 0 };
-
-	//	uint8_t a{ 1 };
-
-	//	buffer.sgetn(&a, 1);
-
-	//	EXPECT_TRUE(a == 1);
-	//}
 
 	{
 		elastic::flex_buffer_t buffer{};
 
-		auto gptr = buffer.wdata();
+		buffer.commit(5);
 
-		buffer.consume(-1);
+		EXPECT_TRUE(buffer.pubseekpos(10, std::ios::out) == -1);
+	}
 
-		EXPECT_TRUE(gptr == buffer.wdata());
+	{
+		elastic::flex_buffer_t buffer{ 0 };
+
+		bool a{};
+
+		EXPECT_FALSE(elastic::from_binary(a, buffer));
+
+		int b{};
+
+		EXPECT_FALSE(elastic::from_binary(b, buffer));
+
+		std::string c{};
+
+		EXPECT_FALSE(elastic::from_binary(c, buffer));
+
+		std::vector<char> d{};
+
+		EXPECT_FALSE(elastic::from_binary(d, buffer));
+
+		color e{};
+
+		EXPECT_FALSE(elastic::from_binary(e, buffer));
+
+		float f{};
+
+		EXPECT_FALSE(elastic::from_binary(f, buffer));
+
+		int temp = 1;
+
+		buffer.save((uint8_t*)&temp, 1);
+
+		EXPECT_FALSE(elastic::from_binary(c, buffer));
+
+		buffer.save((uint8_t*)&temp, 1);
+
+		EXPECT_FALSE(elastic::from_binary(c, buffer));
+
+		EXPECT_FALSE(elastic::from_binary(d, buffer));
 	}
 }

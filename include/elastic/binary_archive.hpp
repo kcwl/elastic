@@ -49,12 +49,7 @@ namespace elastic
 		template <typename _Ty>
 		binary_oarchive& operator<<(_Ty&& t)
 		{
-			primitive_guard lk(this);
-
-			if (!binary::template serialize(*this, std::forward<_Ty>(t)))
-			{
-				this->failed();
-			}
+			binary::template serialize(*this, std::forward<_Ty>(t));
 				
 			return *this;
 		}

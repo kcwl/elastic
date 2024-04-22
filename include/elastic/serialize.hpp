@@ -89,18 +89,15 @@ namespace elastic
 
 				symbol = symbol << 7 | static_cast<uint8_t>(byte);
 
-				if (!ar.save(&symbol, 1))
-					return false;
+				ar.save(&symbol, 1);
 
-				if (!ar.save((value_type*)&result, byte))
-					return false;
+				ar.save((value_type*)&result, byte);
 			}
 			else if constexpr (boolean_t<type>)
 			{
 				char result = static_cast<char>(std::forward<_Ty>(value));
 
-				if (!ar.save((value_type*)&result, 1))
-					return false;
+				ar.save((value_type*)&result, 1);
 			}
 			else if constexpr (enum_t<type>)
 			{
@@ -114,8 +111,7 @@ namespace elastic
 
 				using value_type = typename _Archive::value_type;
 
-				if (!ar.save((value_type*)&value, size))
-					return false;
+				ar.save((value_type*)&value, size);
 			}
 			else if constexpr (string_t<type>)
 			{
@@ -125,8 +121,7 @@ namespace elastic
 
 				serialize(ar, bytes);
 
-				if (!ar.save((value_type*)value.data(), bytes))
-					return false;
+				ar.save((value_type*)value.data(), bytes);
 			}
 			else if constexpr (sequence_t<type>)
 			{
@@ -176,7 +171,8 @@ namespace elastic
 			{
 				uint64_t temp{};
 
-				deserialize(ar, temp);
+				if (!deserialize(ar, temp))
+					return false;
 
 				t = static_cast<_Ty>(temp);
 			}
@@ -191,7 +187,8 @@ namespace elastic
 			{
 				std::size_t bytes{};
 
-				deserialize(ar, bytes);
+				if (!deserialize(ar, bytes))
+					return false;
 
 				t.resize(bytes);
 
@@ -202,7 +199,8 @@ namespace elastic
 			{
 				int bytes{};
 
-				deserialize(ar, bytes);
+				if (!deserialize(ar, bytes))
+					return false;
 
 				while (bytes--)
 				{
@@ -210,7 +208,8 @@ namespace elastic
 
 					auto& back = t.back();
 
-					binary::deserialize(ar, back);
+					if (!binary::deserialize(ar, back))
+						return false;
 				}
 			}
 
